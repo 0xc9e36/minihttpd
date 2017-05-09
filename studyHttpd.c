@@ -1,3 +1,4 @@
+#include "fastcgi.h"
 #include<stdio.h>
 #include<string.h>
 #include<dirent.h>
@@ -14,10 +15,10 @@
 #include<netinet/in.h>
 
 #define		PORT	8899
-#define		MAX_QUE_CONN_NM	5
-#define		MAX_BUF_SIZE	8192
+#define		MAX_QUE_CONN_NM	20
+#define		MAX_BUF_SIZE	8096
 
-/* http请求信息结构体, 只存储几个关键信息, 其他忽略 */
+/* http请求信息结构体, 这里只记录几个关键信息, 其他忽略 */
 typedef struct http_head{
 	char method[10];		//请求方式
 	char path[256];			//文件路径
@@ -30,15 +31,16 @@ typedef struct http_head{
 	char ext[10];			//文件后缀
 }http_header;
 
-void err_exit(const char *);
-void err_msg(const char *);
 void parse_request(const int, char *, http_header *);
 int get_line(const int, char *, int);
-void *handle(void *);
-void http_error(int, const int, const char *, const http_header *);
-char *get_mime(char *, char *);
-void execStatic(int, http_header *, int);
-void execDir(int, char *, http_header *);
+void *handle_request(void *);
+void send_http_responce(int, const int, const char *, const http_header *);
+void get_http_mime(char *, char *);
+void exec_static(int, http_header *, int);
+void exec_php(int, http_header *);
+void exec_dir(int, char *, http_header *);
+void err_exit(const char *);
+void err_msg(const char *);
 
 int main(int argc, char *argv[]){
 	
@@ -59,8 +61,8 @@ int main(int argc, char *argv[]){
 	server_sock.sin_addr.s_addr = INADDR_ANY;
 	bzero(&(server_sock.sin_zero), 8);
 
-//	int i = 1;
-//	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+	int i = 1;
+	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 	
 	if(-1 == bind(sockfd, (struct sockaddr *)&server_sock, sizeof(struct sockaddr))) err_exit("bind");
 	printf("Bind success\n");
@@ -70,14 +72,16 @@ int main(int argc, char *argv[]){
 
 	sin_size = sizeof(client_sock);
 	while(1){
+	
 		if(-1 == (client_fd = accept(sockfd, (struct sockaddr *) &client_sock, &sin_size))) err_exit("accept");
-		if(pthread_create(&ntid, NULL, (void *)handle, &client_fd) != 0) err_exit("pthread_create");
+		
+		if(pthread_create(&ntid, NULL, (void *)handle_request, &client_fd) != 0) err_exit("pthread_create");
 	}
 	close(sockfd);
     return 0;
 }
 
-void *handle(void *arg){
+void *handle_request(void *arg){
 	struct stat st;
 	int client_fd;
 	int recvbytes;
@@ -87,20 +91,21 @@ void *handle(void *arg){
 	client_fd = *(int *)arg;
 	memset(&hr, 0, sizeof(hr));
 	memset(&buf, 0, sizeof(buf));
-	
+
+
 	parse_request(client_fd, buf, &hr);
 	
 	/* 只支持 GET 和 POST请求 */
 	if(strcasecmp(hr.method, "GET") && strcasecmp(hr.method, "POST")){
 		//501未实现
-		http_error(client_fd, 501, "Not Implemented", &hr);
+		send_http_responce(client_fd, 501, "Not Implemented", &hr);
 		close(client_fd);
 		return NULL;
 	}
 	/* 简单判断HTTP协议 */
 	if(NULL == strstr(hr.version, "HTTP/")){
 		// 505协议版本不支持
-		http_error(client_fd, 505, "HTTP Version Not Supported", &hr);
+		send_http_responce(client_fd, 505, "HTTP Version Not Supported", &hr);
 		close(client_fd);
 		return NULL;
 	}
@@ -109,10 +114,10 @@ void *handle(void *arg){
 	if(-1 == stat(hr.path, &st)){
 		/* 文件未找到 */
 		while((recvbytes > 0) && strcmp("\n", buf)) recvbytes = get_line(client_fd, buf, MAX_BUF_SIZE);
-		http_error(client_fd, 404, "Not Found", &hr);
+		send_http_responce(client_fd, 404, "Not Found", &hr);
 	}else{
 		if((st.st_mode & S_IFMT) == S_IFDIR){
-			execDir(client_fd, hr.path, &hr);
+			exec_dir(client_fd, hr.path, &hr);
 		}else{
 		
 			/* 提取文件类型 */
@@ -120,21 +125,26 @@ void *handle(void *arg){
 			strcpy(path, hr.path);
 			strtok(path, ".");
 			strcpy(hr.ext, strtok(NULL, "."));
-	
 			if(0 == strcmp(hr.ext, "php")){	//php 文件
-				printf("php文件\n");
-			}else{	//静态文件	
-				if(!S_ISREG(st.st_mode) || !(S_IRUSR & st.st_mode)) {
-					http_error(client_fd, 403, "Forbidden", &hr);
+				if(0 != access(hr.path, X_OK)) {
+					send_http_responce(client_fd, 403, "Forbidden", &hr);
+					close(client_fd);
 					return ;
 				}
-				execStatic(client_fd, &hr, st.st_size);
-				//http_error(client_fd, 415, "Unsupported Media Type", &hr);
+				exec_php(client_fd, &hr);
+			}else{	//静态文件	
+				if(!S_ISREG(st.st_mode) && !(S_IRUSR & st.st_mode)) {
+					send_http_responce(client_fd, 403, "Forbidden", &hr);
+					close(client_fd);
+					return ;
+				}
+				exec_static(client_fd, &hr, st.st_size);
 			}
 		}
 	}
 
-	close(client_fd);	
+	//shutdown(client_fd, SHUT_RD);
+	//close(client_fd);	
 }
 
 
@@ -200,13 +210,9 @@ int get_line(const int client_fd, char *buf, int size){
 	return i;
 }
 
-void http_error(int client_fd, const int http_code, const char *msg, const http_header * hr){
+void send_http_responce(int client_fd, const int http_code, const char *msg, const http_header * hr){
 	char header[MAX_BUF_SIZE], body[MAX_BUF_SIZE];
-	sprintf(body, "<html><title>Server Error</title>");
-	sprintf(body, "%s<body>\r\n", body);
-	sprintf(body, "%s%d: %s\r\n", body, http_code, msg);
-	sprintf(body, "%s<hr/><em>studyHttpd Web Service</em>\r\n</body></html>", body);
-
+	sprintf(body, "<html><body>%d:%s<hr /><em>studyHttpd Web Service</em></body></html>", http_code, msg);
 	sprintf(header, "%s %d %s\r\n",hr->version, http_code, msg);
 	send(client_fd, header, strlen(header), 0);
 	sprintf(header, "Content-Type: text/html\r\n");
@@ -228,7 +234,7 @@ void err_msg(const char *msg){
 }
 
 /* 处理静态文件 */
-void execStatic(int client_fd, http_header *hr, int size){
+void exec_static(int client_fd, http_header *hr, int size){
 	FILE *fp;
 	int sendbytes;
 	char header[MAX_BUF_SIZE];
@@ -238,11 +244,11 @@ void execStatic(int client_fd, http_header *hr, int size){
 	fp = fopen(hr->path, "rb");
 	
 	if(NULL == fp){
-		http_error(client_fd, 404, "Not Found", hr);
+		send_http_responce(client_fd, 404, "Not Found", hr);
 		return ;
 	}
 	/* 获取文件MIME类型 text/html image/png ... */
-	get_mime(hr->ext, mime);
+	get_http_mime(hr->ext, mime);
 
 	sprintf(header, "%s 200 OK\r\n",hr->version);
 	send(client_fd, header, strlen(header), 0);
@@ -258,7 +264,7 @@ void execStatic(int client_fd, http_header *hr, int size){
 }
 
 /* 列举目录 */
-void execDir(int client_fd, char *dirname, http_header *hr){
+void exec_dir(int client_fd, char *dirname, http_header *hr){
 
 	char buf[MAX_BUF_SIZE], header[MAX_BUF_SIZE],img[MAX_BUF_SIZE], filename[MAX_BUF_SIZE];
 	DIR *dp;
@@ -271,9 +277,10 @@ void execDir(int client_fd, char *dirname, http_header *hr){
 
 
 	sprintf(buf, "<html><head><meta charset=""utf-8""><title>DIR List</title>");
-	sprintf(buf, "%s<style type=""text/css"">a:link{text-decoration:none}</style></head>", buf);
+	sprintf(buf, "%s<style type=""text/css"">img{ width:24px; height:24px;}</style></head>", buf);
 	sprintf(buf, "%s<body bgcolor=""ffffff"" font-family=""Arial"" color=""#fff"" font-size=""14px"" >", buf);	
 	sprintf(buf, "%s<h1>Index of /%s</h1>", buf, dirname);
+	sprintf(buf, "%s<table cellpadding=\"0\" cellspacing=\"0\">", buf);
 	if(hr->filename[strlen(hr->filename) - 1] != '/') strcat(hr->filename, "/");
 
 	while(NULL != (dirp = readdir(dp))){
@@ -281,20 +288,21 @@ void execDir(int client_fd, char *dirname, http_header *hr){
 		sprintf(filename, "%s/%s", dirname, dirp->d_name);
 		stat(filename, &st);
 		passwd = getpwuid(st.st_uid);
-		
-		if(S_ISDIR(st.st_mode)) sprintf(img, "<img src=\"img/dir.png\" width=\"24px\" height=\"24px\" />");
-		else if(S_ISFIFO(st.st_mode)) sprintf(img, "<img src =\"img/fifo.png\" width=\"24px\" height=\"24px\" />");
-		else if(S_ISLNK(st.st_mode)) sprintf(img, "<img src =\"img/link.png\" width=\"24px\" height=\"24px\" />");
-		else if(S_ISSOCK(st.st_mode)) sprintf(img, "<img src = \"img/socket.png\" width=\"24px\" height=\"24px\" />");
-		else  sprintf(img, "<img src = \"img/file.png\" width=\"24px\" height=\"24px\" />");
 	
-		sprintf(buf,"%s<p><pre>%d %s""<a href=%s%s"">%s</a> \t\t %s \t\t %d \t\t%s</pre></p>",buf,num++,img,hr->filename,dirp->d_name,dirp->d_name, passwd->pw_name,(int)st.st_size,ctime(&st.st_atime));
-	}
+		/* 这里img　变量有点问题.   它会的当前路径是http请求的路径, 而不是服务器的路径 */
+		if(S_ISDIR(st.st_mode)) sprintf(img, "<img src='./img/dir.png\'  />");
+		else if(S_ISFIFO(st.st_mode)) sprintf(img, "<img src ='./img/fifo.png'  />");
+		else if(S_ISLNK(st.st_mode)) sprintf(img, "<img src ='./img/link.png' />");
+		else if(S_ISSOCK(st.st_mode)) sprintf(img, "<img src = './img/socket.png' />");
+		else  sprintf(img, "<img src = './img/file.png'  />");
+
+		sprintf(buf, "%s<tr  valign='middle'><td width='10'>%d</td><td width='30'>%s</td><td width='150'><a href='%s%s'>%s</a></td><td width='80'>%s</td><td width='100'>%d</td><td width='200'>%s</td></tr>", buf, num++, img, hr->filename, dirp->d_name, dirp->d_name, passwd->pw_name, (int)st.st_size, ctime(&st.st_atime));
+		}
 	
 	closedir(dp);
-	sprintf(buf, "%s</body></html>", buf);
+	sprintf(buf, "%s</table></body></html>", buf);
 
-	/* 发送 */
+	/* 发送响应 */
     sprintf(header, "%s 200 OK\r\n", hr->version);  
 	sprintf(header, "%sContent-length: %d\r\n", header, (int)strlen(buf));  
 	sprintf(header, "%sContent-type: %s\r\n\r\n", header, "text/html"); 
@@ -303,7 +311,7 @@ void execDir(int client_fd, char *dirname, http_header *hr){
 
 }	
 
-char *get_mime(char *ext, char *mime){
+void get_http_mime(char *ext, char *mime){
 	
 	if(0 == strcmp(ext, "html")){
 		strcpy(mime, "text/html");
@@ -318,3 +326,89 @@ char *get_mime(char *ext, char *mime){
 	}
 
 }
+
+void exec_php(int client_fd, http_header *hr){
+	
+	int sendbytes, recvbytes;
+	int fcgi_fd;
+	int requestId;
+	struct sockaddr_in fcgi_sock;
+	char filename[50];
+	char header[MAX_BUF_SIZE];
+
+	memset(&fcgi_sock, 0, sizeof(fcgi_sock));
+	fcgi_sock.sin_family = AF_INET;
+	fcgi_sock.sin_addr.s_addr = inet_addr(FCGI_HOST);
+	fcgi_sock.sin_port = htons(FCGI_PORT);
+	
+	if(-1 == (fcgi_fd = socket(PF_INET, SOCK_STREAM, 0)))  err_exit("fcgi socket");
+
+	requestId = fcgi_fd;
+
+	if(-1 == connect(fcgi_fd, (struct sockaddr *)&fcgi_sock, sizeof(fcgi_sock))) err_exit("fcgi connect");
+
+	FCGI_BeginRequestRecord beginRecord;
+	beginRecord.body = makeBeginRequestBody(FCGI_RESPONDER);
+	beginRecord.header =  makeHeader(FCGI_BEGIN_REQUEST, requestId, sizeof(beginRecord.body), 0);
+	
+	if(-1 == (sendbytes = send(fcgi_fd, &beginRecord, sizeof(beginRecord), 0))) err_exit("fcgi send beginRecord");
+	
+
+	getcwd(filename, sizeof(filename));
+	strcat(filename, "/");
+	strcat(filename, hr->path);
+	  
+	char *params[][2] = {
+		{"SCRIPT_FILENAME", filename}, 
+		{"REQUEST_METHOD", hr->method}, 
+		{"QUERY_STRING", hr->param}, 
+		{"", ""}
+	};
+
+	
+	int i, conLength, paddingLength;
+	FCGI_ParamsRecord *paramsRecord;
+	for(i = 0; params[i][0] != ""; i++){
+		conLength = strlen(params[i][0]) + strlen(params[i][1]) + 2;
+		paddingLength = (conLength % 8) == 0 ? 0 : 8 - (conLength % 8);
+		paramsRecord = (FCGI_ParamsRecord *)malloc(sizeof(FCGI_ParamsRecord) + conLength + paddingLength);
+		paramsRecord->nameLength = (unsigned char)strlen(params[i][0]);    // 填充参数值
+		paramsRecord->valueLength = (unsigned char)strlen(params[i][1]);   // 填充参数名
+		paramsRecord->header = makeHeader(FCGI_PARAMS, requestId, conLength, paddingLength);
+		memset(paramsRecord->data, 0, conLength + paddingLength);
+		memcpy(paramsRecord->data, params[i][0], strlen(params[i][0]));
+		memcpy(paramsRecord->data + strlen(params[i][0]), params[i][1], strlen(params[i][1]));
+		if(-1 == (sendbytes = send(fcgi_fd, paramsRecord, 8 + conLength + paddingLength, 0))) err_exit("fcgi send paramsRecord");
+	}
+
+
+	FCGI_Header stdinHeader;
+	stdinHeader = makeHeader(FCGI_STDIN, requestId, 0, 0);
+	if(-1 == (sendbytes = send(fcgi_fd, &stdinHeader, sizeof(stdinHeader), 0))) err_exit("fcgi send stdinHeader");
+	
+
+	FCGI_Header responseHeader;
+	int contentLength;
+	char *msg;
+	if(-1 == recv(fcgi_fd, &responseHeader, sizeof(responseHeader), 0)) err_exit("fcgi recv");
+	if(FCGI_STDOUT == responseHeader.type){
+		contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
+		msg = (char *)malloc(contentLength);
+		recv(fcgi_fd, msg, contentLength, 0);
+	}
+
+
+	/* 发送响应 */
+    sprintf(header, "%s 200 OK\r\n", hr->version);  	
+	sprintf(header, "%sContent-Length: %d\r\n", header, contentLength);
+	send(client_fd, header, strlen(header), 0);
+	send(client_fd, msg, contentLength, 0);
+
+	printf("%s%s\n", header, msg);
+	free(msg);
+	close(fcgi_fd);
+}
+
+
+
+

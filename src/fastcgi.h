@@ -62,13 +62,20 @@ typedef struct{
 	unsigned char data[0];
 }FCGI_ParamsRecord;
 
+typedef struct {
+	unsigned char appStatusB3;
+	unsigned char appStatusB2;
+	unsigned char appStatusB1;
+	unsigned char appStatusB0;
+	unsigned char protocolStatus;   // 协议级别的状态码
+	unsigned char reserved[3];
+} FCGI_EndRequestBody;
 /* 结束请求报文结构 */
-/*
 typedef struct {
 	FCGI_Header header;
 	FCGI_EndRequestBody body;
 } FCGI_EndRequestRecord;
-*/
+
 
 FCGI_Header makeHeader(int type, int requestId, int contentLenth, int paddingLength);
 FCGI_BeginRequestBody makeBeginRequestBody(int role);

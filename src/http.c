@@ -86,7 +86,6 @@ void *handle_request(void *arg){
 		}
 	}
 
-	//shutdown(client_fd, SHUT_RD);
 	close(client_fd);	
 }
 
@@ -229,12 +228,11 @@ void exec_dir(int client_fd, char *dirname, http_header *hr){
 		stat(filename, &st);
 		passwd = getpwuid(st.st_uid);
 	
-		/* 这里img　变量有点问题.   它是当前路径是http请求的路径, 而不是服务器的路径 */
-		if(S_ISDIR(st.st_mode)) sprintf(img, "<img src='icons/dir.png\'  />");
-		else if(S_ISFIFO(st.st_mode)) sprintf(img, "<img src ='icons/fifo.png'  />");
-		else if(S_ISLNK(st.st_mode)) sprintf(img, "<img src ='icons/link.png' />");
-		else if(S_ISSOCK(st.st_mode)) sprintf(img, "<img src = 'icons/socket.png' />");
-		else  sprintf(img, "<img src = 'icons/file.png'  />");
+		if(S_ISDIR(st.st_mode)) sprintf(img, "<img src='/icons/dir.png\'  />");
+		else if(S_ISFIFO(st.st_mode)) sprintf(img, "<img src ='/icons/fifo.png'  />");
+		else if(S_ISLNK(st.st_mode)) sprintf(img, "<img src ='/icons/link.png' />");
+		else if(S_ISSOCK(st.st_mode)) sprintf(img, "<img src = '/icons/socket.png' />");
+		else  sprintf(img, "<img src = '/icons/file.png'  />");
 
 		sprintf(buf, "%s<tr  valign='middle'><td width='10'>%d</td><td width='30'>%s</td><td width='150'><a href='%s%s'>%s</a></td><td width='80'>%s</td><td width='100'>%d</td><td width='200'>%s</td></tr>", buf, num++, img, hr->filename, dirp->d_name, dirp->d_name, passwd->pw_name, (int)st.st_size, ctime(&st.st_atime));
 		}
@@ -259,11 +257,32 @@ void get_http_mime(char *ext, char *mime){
 		strcpy(mime, "image/jpeg");
 	}else if(0 == strcmp(ext, "png")){
 		strcpy(mime, "image/png");
+	}else if(0 == strcmp(ext, "pdf")){
+		strcpy(mime, "application/pdf"); 
 	}else{
 		strcpy(mime, "text/plain");
 	}
 
 }
+
+
+/* 与 php-fpm 通信 */
+void exec_php(int client_fd, http_header *hr){
+	
+	int fcgi_fd;
+	
+	/* 连接fastcgi服务器 */
+	fcgi_fd = conn_fastcgi();
+	
+	/* 发送数据 */
+	send_fastcgi(fcgi_fd, client_fd, hr);
+
+	/* 接收数据 */
+	recv_fastcgi(fcgi_fd, client_fd, hr);
+	close(fcgi_fd);
+}
+
+
 
 int conn_fastcgi(){	
 	int fcgi_fd;
@@ -279,22 +298,18 @@ int conn_fastcgi(){
 	return fcgi_fd;
 }
 
-/* 与 php-fpm 通信 */
-void exec_php(int client_fd, http_header *hr){
+void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 	
-	int sendbytes, recvbytes;
-	int fcgi_fd;
 	int requestId;
+	int recvbytes, sendbytes;
 	char filename[50];
-	char header[MAX_BUF_SIZE];
-	
-	fcgi_fd = conn_fastcgi();
-	requestId = fcgi_fd;
+
+	requestId = client_fd;
 
 	FCGI_BeginRequestRecord beginRecord;
 	beginRecord.body = makeBeginRequestBody(FCGI_RESPONDER);
 	beginRecord.header =  makeHeader(FCGI_BEGIN_REQUEST, requestId, sizeof(beginRecord.body), 0);
-	
+	/* 发送FCGI_BEGIN_REQUEST */	
 	if(-1 == (sendbytes = send(fcgi_fd, &beginRecord, sizeof(beginRecord), 0))) err_sys("fcgi send beginRecord");
 	
 
@@ -311,6 +326,7 @@ void exec_php(int client_fd, http_header *hr){
 		{"", ""}
 	};
 
+	/* 发送 FCGI_PARAMS */
 	int i, conLength, paddingLength;
 	FCGI_ParamsRecord *paramsRecord;
 	for(i = 0; params[i][0] != ""; i++){
@@ -326,25 +342,32 @@ void exec_php(int client_fd, http_header *hr){
 		if(-1 == (sendbytes = send(fcgi_fd, paramsRecord, 8 + conLength + paddingLength, 0))) err_sys("fcgi send paramsRecord");
 	}
 
-
+	/* 发送FCGI_STDIN数据 */
 	FCGI_Header stdinHeader;
 	stdinHeader = makeHeader(FCGI_STDIN, requestId, 0, 0);
 	if(-1 == (sendbytes = send(fcgi_fd, &stdinHeader, sizeof(stdinHeader), 0))) err_sys("fcgi send stdinHeader");
 	
+}
 
+void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
+
+	int recvbytes;
+	char buf[8];
+	char header[MAX_BUF_SIZE];
+	
+	/* 接收数据 */
 	FCGI_Header responseHeader;
 	int contentLength;
 	char *msg;
 
 	if(-1 == recv(fcgi_fd, &responseHeader, sizeof(responseHeader), 0)) err_sys("fcgi recv");
+	
 	if(FCGI_STDOUT == responseHeader.type){
 		contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
 		msg = (char *)malloc(contentLength);
-		/* 这里读取有问题, 不能保证一次全部读取完 */
 		recv(fcgi_fd, msg, contentLength, 0);
 	}
-	
-
+	//printf("%s\n", msg);
 	char *tmp = strstr(msg, "\r\n\r\n");		//只获取响应主体的长度;
 
 	/* 发送响应 */
@@ -355,9 +378,4 @@ void exec_php(int client_fd, http_header *hr){
 	send(client_fd, msg, (int)strlen(msg), 0);
 
 	free(msg);
-	close(fcgi_fd);
 }
-
-
-
-

@@ -44,6 +44,7 @@ void get_http_mime(char *, char *);
 void exec_static(int, http_header *, int);
 void exec_php(int, http_header *);
 void exec_dir(int, char *, http_header *);
-int conn_fasrcgi();
-
+int conn_fastcgi();
+void send_fastcgi(int ,int, http_header *);
+void recv_fastcgi(int ,int, http_header *);
 #endif

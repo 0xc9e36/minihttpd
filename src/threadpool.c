@@ -2,24 +2,24 @@
 
 void *pthread_routine(void *arg){
 
-	printf("starting pthread 0x%x\n", (unsigned int)pthread_self());
+	// debug printf("starting pthread 0x%x\n", (unsigned int)pthread_self());
 
 	pool->pool_size++;
 	while(1){
 		pthread_mutex_lock(&(pool->queue_lock));
 	
 		while(0 == pool->wait_num && ! pool->is_destroy){
-			printf("thread 0x%x waiting\n", (unsigned int)pthread_self());
+			// debug printf("thread 0x%x waiting\n", (unsigned int)pthread_self());
 			pthread_cond_wait(&(pool->queue_cond), &(pool->queue_lock));
 		}
 
 		if(pool->is_destroy){
 			pthread_mutex_unlock(&(pool->queue_lock));
-			printf("thread 0x%x will exit\n", (unsigned int)pthread_self());
+			// debug printf("thread 0x%x will exit\n", (unsigned int)pthread_self());
 			pthread_exit(NULL);
 		}
 
-		printf("pthread 0x%x is starting to work\n", (unsigned int)pthread_self());
+		// debug printf("pthread 0x%x is starting to work\n", (unsigned int)pthread_self());
 		
 		pool->wait_num--;
 		thread_job *job = pool->queue_head;
@@ -68,7 +68,9 @@ void pool_init(int pool_size){
 			err_sys("pthread_create");
 		}
 	}
+	
 	while(pool_size != pool->pool_size){}
+
 }
 
 /*
@@ -79,8 +81,11 @@ void pool_init(int pool_size){
 int pool_destroy(){
 	if(pool->is_destroy) return -1;
 	pool->is_destroy = 1;
-	
+
+	pthread_mutex_lock(&(pool->queue_lock));
 	pthread_cond_broadcast(&(pool->queue_cond));
+	pthread_mutex_unlock(&(pool->queue_lock));
+
 	int i = 0;
 	for(;  i < pool->pool_size; i++){
 		pthread_join(pool->tid[i], NULL);
@@ -136,23 +141,3 @@ void *test(void *arg){
 	printf("tid is 0x%x, working on job %d\n", (unsigned int)pthread_self(), *(int *)arg);
 }
 
-/*
-int main(void){
-
-	
-	pool_init(MAX_POOL_SIZE);
-
-	int *jobs = (int *)malloc(200 * sizeof(int));
-	int i = 0;
-	for(; i < 200; i++){
-		jobs[i] = i;
-		add_job(test, &jobs[i]);
-	}
-	sleep(5);
-
-	pool_destroy();
-	free(jobs);
-
-	return 0;	
-}
-*/

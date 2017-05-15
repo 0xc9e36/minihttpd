@@ -22,10 +22,10 @@ FCGI_STDERR	src/fastcgi.h	33;"	d
 FCGI_STDIN	src/fastcgi.h	31;"	d
 FCGI_STDOUT	src/fastcgi.h	32;"	d
 FCGI_VERSION_1	src/fastcgi.h	10;"	d
-MAX_BUF_SIZE	src/http.h	22;"	d
+MAX_BUF_SIZE	src/http.h	23;"	d
 MAX_POOL_SIZE	src/threadpool.h	11;"	d
-MAX_QUE_CONN_NM	src/http.h	21;"	d
-PORT	src/http.h	20;"	d
+MAX_QUE_CONN_NM	src/http.h	22;"	d
+PORT	src/http.h	21;"	d
 ROOT	src/common.h	7;"	d
 WEB	src/common.h	8;"	d
 _COMMON_H_	src/common.h	2;"	d
@@ -33,15 +33,27 @@ _FASTCGI_H_	src/fastcgi.h	5;"	d
 _HTTP_H_	src/http.h	2;"	d
 _THREADPOOL_H	src/threadpool.h	2;"	d
 add_job	src/threadpool.c	/^int add_job(void *(*process)(void *arg), void *arg){$/;"	f
+animate	htdocs/tab.html	/^    function animate() {$/;"	f
 arg	src/threadpool.h	/^	void *arg;			$/;"	m	struct:job
 body	src/fastcgi.h	/^	FCGI_BeginRequestBody body;$/;"	m	struct:__anon3
 buffer_path_simplify	src/common.c	/^int buffer_path_simplify(char *dest, char *src){  $/;"	f
+compileShader	htdocs/tab.html	/^    function compileShader(shtype, shsrc) {$/;"	f
 conlength	src/http.h	/^	char conlength[16];		\/\/消息长度$/;"	m	struct:http_head
 conn_fastcgi	src/http.c	/^int conn_fastcgi(){	$/;"	f
 contentLengthB0	src/fastcgi.h	/^	unsigned char contentLengthB0;$/;"	m	struct:__anon1
 contentLengthB1	src/fastcgi.h	/^	unsigned char contentLengthB1;$/;"	m	struct:__anon1
 contype	src/http.h	/^	char contype[256];		\/\/消息类型$/;"	m	struct:http_head
+createBackground	htdocs/tab.html	/^    function createBackground() {$/;"	f
+createEffectLib	htdocs/tab.html	/^    function createEffectLib() {$/;"	f
+createEffectProgram	htdocs/tab.html	/^    function createEffectProgram(vtxsrc, frgsrc, exunifs, exattrs) {$/;"	f
+createPointFlowers	htdocs/tab.html	/^    function createPointFlowers() {$/;"	f
+createPostProcess	htdocs/tab.html	/^    function createPostProcess() {$/;"	f
+createRenderTarget	htdocs/tab.html	/^    function createRenderTarget(w, h) {$/;"	f
+createScene	htdocs/tab.html	/^    function createScene() {$/;"	f
+createShader	htdocs/tab.html	/^    function createShader(vtxsrc, frgsrc, uniformlist, attrlist) {$/;"	f
 data	src/fastcgi.h	/^	unsigned char data[0];$/;"	m	struct:__anon4
+deleteRenderTarget	htdocs/tab.html	/^    function deleteRenderTarget(rt) {$/;"	f
+drawEffect	htdocs/tab.html	/^    function drawEffect(fxobj) {$/;"	f
 err_msg	src/common.c	/^void err_msg(const char *msg){$/;"	f
 err_sys	src/common.c	/^void err_sys(const char *msg){$/;"	f
 err_user	src/common.c	/^void err_user(const char *msg){$/;"	f
@@ -58,42 +70,62 @@ header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon3
 header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon4
 http_head	src/http.h	/^typedef struct http_head{$/;"	s
 http_header	src/http.h	/^}http_header;$/;"	t	typeref:struct:http_head
+initBackground	htdocs/tab.html	/^    function initBackground() {$/;"	f
+initPointFlowers	htdocs/tab.html	/^    function initPointFlowers() {$/;"	f
+initPostProcess	htdocs/tab.html	/^    function initPostProcess() {$/;"	f
+initScene	htdocs/tab.html	/^    function initScene() {$/;"	f
 init_server	src/http.c	/^int init_server(){$/;"	f
 is_destroy	src/threadpool.h	/^	int is_destroy;$/;"	m	struct:__anon5
 job	src/threadpool.h	/^typedef struct job{$/;"	s
-job_queue	src/threadpool.h	/^}job_queue;$/;"	t	typeref:struct:job
 m	htdocs/index.php	/^		$m = $i + $j;$/;"	v
 main	src/studyHttpd.c	/^int main(int argc, char *argv[]){$/;"	f
-main	src/threadpool.c	/^int main(void){$/;"	f
+main	tests/thread_pool_test.c	/^int main(void){$/;"	f
 makeBeginRequestBody	src/fastcgi.c	/^FCGI_BeginRequestBody makeBeginRequestBody( int role){$/;"	f
+makeCanvasFullScreen	htdocs/tab.html	/^    function makeCanvasFullScreen(canvas) {$/;"	f
 makeHeader	src/fastcgi.c	/^FCGI_Header makeHeader(int type, int requestId, int contentLength, int paddingLength){$/;"	f
 method	src/http.h	/^	char method[10];		\/\/请求方式$/;"	m	struct:http_head
 nameLength	src/fastcgi.h	/^	unsigned char nameLength;$/;"	m	struct:__anon4
 next	src/threadpool.h	/^	struct job *next;$/;"	m	struct:job	typeref:struct:job::job
+onResize	htdocs/tab.html	/^    function onResize(e) {$/;"	f
 paddingLength	src/fastcgi.h	/^	unsigned char paddingLength;$/;"	m	struct:__anon1
 param	src/http.h	/^	char param[256];		\/\/请求参数$/;"	m	struct:http_head
 parse_request	src/http.c	/^void parse_request(const int client_fd, char *buf, http_header *hr){$/;"	f
 path	src/http.h	/^	char path[256];			\/\/文件路径$/;"	m	struct:http_head
+pool	src/threadpool.h	/^static thread_pool *pool = NULL;$/;"	v
 pool_destroy	src/threadpool.c	/^int pool_destroy(){$/;"	f
-pool_init	src/threadpool.c	/^thread_pool *pool_init(int pool_size){$/;"	f
+pool_init	src/threadpool.c	/^void pool_init(int pool_size){$/;"	f
 pool_size	src/threadpool.h	/^	int pool_size;$/;"	m	struct:__anon5
 process	src/threadpool.h	/^	void *(*process)(void *arg);$/;"	m	struct:job
 pthread_routine	src/threadpool.c	/^void *pthread_routine(void *arg){$/;"	f
 queue_cond	src/threadpool.h	/^	pthread_cond_t  queue_cond;$/;"	m	struct:__anon5
 queue_head	src/threadpool.h	/^	thread_job *queue_head;$/;"	m	struct:__anon5
 queue_lock	src/threadpool.h	/^	pthread_mutex_t queue_lock;$/;"	m	struct:__anon5
+render	htdocs/tab.html	/^    function render() {$/;"	f
+renderBackground	htdocs/tab.html	/^    function renderBackground() {$/;"	f
+renderPointFlowers	htdocs/tab.html	/^    function renderPointFlowers() {$/;"	f
+renderPostProcess	htdocs/tab.html	/^    function renderPostProcess() {$/;"	f
+renderScene	htdocs/tab.html	/^    function renderScene() {$/;"	f
 requestIdB0	src/fastcgi.h	/^	unsigned char requestIdB0;$/;"	m	struct:__anon1
 requestIdB1	src/fastcgi.h	/^	unsigned char requestIdB1;$/;"	m	struct:__anon1
 reserved	src/fastcgi.h	/^	unsigned char reserved;$/;"	m	struct:__anon1
 reserved	src/fastcgi.h	/^	unsigned char reserved[5];$/;"	m	struct:__anon2
 roleB0	src/fastcgi.h	/^	unsigned char roleB0;$/;"	m	struct:__anon2
 roleB1	src/fastcgi.h	/^	unsigned char roleB1;$/;"	m	struct:__anon2
+send_fastcgi	src/http.c	/^void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){$/;"	f
 send_http_responce	src/http.c	/^void send_http_responce(int client_fd, const int http_code, const char *msg, const http_header * hr){$/;"	f
+setViewports	htdocs/tab.html	/^    function setViewports() {$/;"	f
+stepAnimation	htdocs/tab.html	/^    function stepAnimation() {$/;"	f
 test	src/threadpool.c	/^void *test(void *arg){$/;"	f
+thread_job	src/threadpool.h	/^}thread_job;$/;"	t	typeref:struct:job
 thread_pool	src/threadpool.h	/^}thread_pool;$/;"	t	typeref:struct:__anon5
-tid	src/threadpool.h	/^	thread_t *tid;$/;"	m	struct:__anon5
+tid	src/threadpool.h	/^	pthread_t *tid;$/;"	m	struct:__anon5
+toggleAnimation	htdocs/tab.html	/^    function toggleAnimation(elm) {$/;"	f
 type	src/fastcgi.h	/^	unsigned char type;$/;"	m	struct:__anon1
+unuseEffect	htdocs/tab.html	/^    function unuseEffect(fxobj) {$/;"	f
+unuseShader	htdocs/tab.html	/^    function unuseShader(prog) {$/;"	f
 url	src/http.h	/^	char url[256];			\/\/请求url$/;"	m	struct:http_head
+useEffect	htdocs/tab.html	/^    function useEffect(fxobj, srctex) {$/;"	f
+useShader	htdocs/tab.html	/^    function useShader(prog) {$/;"	f
 valueLength	src/fastcgi.h	/^	unsigned char valueLength;$/;"	m	struct:__anon4
 version	src/fastcgi.h	/^	unsigned char version;$/;"	m	struct:__anon1
 version	src/http.h	/^	char version[10];		\/\/HTTP协议版本$/;"	m	struct:http_head

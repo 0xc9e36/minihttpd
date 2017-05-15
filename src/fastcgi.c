@@ -22,4 +22,3 @@ FCGI_BeginRequestBody makeBeginRequestBody( int role){
 	return fastcgi_body;
 }
 
-

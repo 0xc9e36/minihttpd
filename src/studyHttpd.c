@@ -6,7 +6,6 @@ int main(int argc, char *argv[]){
 		err_user("Usage: ./studyHttpd <ip address>\n");
 	}
 
-	pthread_t ntid;
 	int sin_size;
 	int sockfd, client_fd;
 	struct sockaddr_in server_sock, client_sock;

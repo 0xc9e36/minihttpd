@@ -11,6 +11,9 @@ int main(int argc, char *argv[]){
 	int sockfd, client_fd;
 	struct sockaddr_in server_sock, client_sock;
 
+	/* 线程池初始化 */
+	pool_init(MAX_POOL_SIZE);
+
 	sockfd = init_server();
 
 	sin_size = sizeof(client_sock);
@@ -18,7 +21,7 @@ int main(int argc, char *argv[]){
 	
 		if(-1 == (client_fd = accept(sockfd, (struct sockaddr *) &client_sock, &sin_size))) err_sys("accept");
 		
-		if(pthread_create(&ntid, NULL, (void *)handle_request, &client_fd) != 0) err_sys("pthread_create");
+		add_job(handle_request, &client_fd);
 	}
 	close(sockfd);
     return 0;

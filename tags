@@ -4,95 +4,97 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-FCGI_ABORT_REQUEST	fastcgi.h	28;"	d
-FCGI_AUTHORIZER	fastcgi.h	47;"	d
-FCGI_BEGIN_REQUEST	fastcgi.h	27;"	d
-FCGI_BeginRequestBody	fastcgi.h	/^}FCGI_BeginRequestBody;$/;"	t	typeref:struct:__anon2
-FCGI_BeginRequestRecord	fastcgi.h	/^}FCGI_BeginRequestRecord;$/;"	t	typeref:struct:__anon3
-FCGI_DATA	fastcgi.h	34;"	d
-FCGI_END_REQUEST	fastcgi.h	29;"	d
-FCGI_FILTER	fastcgi.h	48;"	d
-FCGI_HOST	fastcgi.h	12;"	d
-FCGI_Header	fastcgi.h	/^}FCGI_Header;$/;"	t	typeref:struct:__anon1
-FCGI_PARAMS	fastcgi.h	30;"	d
-FCGI_PORT	fastcgi.h	11;"	d
-FCGI_ParamsRecord	fastcgi.h	/^}FCGI_ParamsRecord;$/;"	t	typeref:struct:__anon4
-FCGI_RESPONDER	fastcgi.h	46;"	d
-FCGI_STDERR	fastcgi.h	33;"	d
-FCGI_STDIN	fastcgi.h	31;"	d
-FCGI_STDOUT	fastcgi.h	32;"	d
-FCGI_VERSION_1	fastcgi.h	10;"	d
-MAX_BUF_SIZE	http.h	22;"	d
-MAX_POOL_SIZE	pthreadpool.h	11;"	d
-MAX_QUE_CONN_NM	http.h	21;"	d
-PORT	http.h	20;"	d
-_COMMON_H_	common.h	2;"	d
-_FASTCGI_H_	fastcgi.h	5;"	d
-_HTTP_H_	http.h	2;"	d
-_THREADPOOL_H	pthreadpool.h	2;"	d
-add_job	pthreadpool.c	/^int add_job(void *(*process)(void *), void *arg){$/;"	f
-arg	pthreadpool.h	/^	void *arg;			$/;"	m	struct:job
-body	fastcgi.h	/^	FCGI_BeginRequestBody body;$/;"	m	struct:__anon3
-conlength	http.h	/^	char conlength[16];		\/\/消息长度$/;"	m	struct:http_head
-conn_fastcgi	http.c	/^int conn_fastcgi(){	$/;"	f
-contentLengthB0	fastcgi.h	/^	unsigned char contentLengthB0;$/;"	m	struct:__anon1
-contentLengthB1	fastcgi.h	/^	unsigned char contentLengthB1;$/;"	m	struct:__anon1
-contype	http.h	/^	char contype[256];		\/\/消息类型$/;"	m	struct:http_head
-data	fastcgi.h	/^	unsigned char data[0];$/;"	m	struct:__anon4
-err_sys	common.c	/^void err_sys(const char *msg){$/;"	f
-err_user	common.c	/^void err_user(const char *msg){$/;"	f
-exec_dir	http.c	/^void exec_dir(int client_fd, char *dirname, http_header *hr){$/;"	f
-exec_php	http.c	/^void exec_php(int client_fd, http_header *hr){$/;"	f
-exec_static	http.c	/^void exec_static(int client_fd, http_header *hr, int size){$/;"	f
-ext	http.h	/^	char ext[10];			\/\/文件后缀$/;"	m	struct:http_head
-filename	http.h	/^	char filename[256];		\/\/请求文件名$/;"	m	struct:http_head
-flags	fastcgi.h	/^	unsigned char flags;$/;"	m	struct:__anon2
-get_http_mime	http.c	/^void get_http_mime(char *ext, char *mime){$/;"	f
-get_line	http.c	/^int get_line(const int client_fd, char *buf, int size){$/;"	f
-handle_request	http.c	/^void *handle_request(void *arg){$/;"	f
-header	fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon3
-header	fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon4
-http_head	http.h	/^typedef struct http_head{$/;"	s
-http_header	http.h	/^}http_header;$/;"	t	typeref:struct:http_head
-init_pool	pthreadpool.c	/^void init_pool(int pool_size){$/;"	f
-init_server	http.c	/^int init_server(){$/;"	f
-is_destroy	pthreadpool.h	/^	int is_destroy;$/;"	m	struct:pool
-job	pthreadpool.h	/^typedef struct job{$/;"	s
+FCGI_ABORT_REQUEST	src/fastcgi.h	28;"	d
+FCGI_AUTHORIZER	src/fastcgi.h	47;"	d
+FCGI_BEGIN_REQUEST	src/fastcgi.h	27;"	d
+FCGI_BeginRequestBody	src/fastcgi.h	/^}FCGI_BeginRequestBody;$/;"	t	typeref:struct:__anon2
+FCGI_BeginRequestRecord	src/fastcgi.h	/^}FCGI_BeginRequestRecord;$/;"	t	typeref:struct:__anon3
+FCGI_DATA	src/fastcgi.h	34;"	d
+FCGI_END_REQUEST	src/fastcgi.h	29;"	d
+FCGI_FILTER	src/fastcgi.h	48;"	d
+FCGI_HOST	src/fastcgi.h	12;"	d
+FCGI_Header	src/fastcgi.h	/^}FCGI_Header;$/;"	t	typeref:struct:__anon1
+FCGI_PARAMS	src/fastcgi.h	30;"	d
+FCGI_PORT	src/fastcgi.h	11;"	d
+FCGI_ParamsRecord	src/fastcgi.h	/^}FCGI_ParamsRecord;$/;"	t	typeref:struct:__anon4
+FCGI_RESPONDER	src/fastcgi.h	46;"	d
+FCGI_STDERR	src/fastcgi.h	33;"	d
+FCGI_STDIN	src/fastcgi.h	31;"	d
+FCGI_STDOUT	src/fastcgi.h	32;"	d
+FCGI_VERSION_1	src/fastcgi.h	10;"	d
+MAX_BUF_SIZE	src/http.h	22;"	d
+MAX_POOL_SIZE	src/threadpool.h	11;"	d
+MAX_QUE_CONN_NM	src/http.h	21;"	d
+PORT	src/http.h	20;"	d
+ROOT	src/common.h	7;"	d
+WEB	src/common.h	8;"	d
+_COMMON_H_	src/common.h	2;"	d
+_FASTCGI_H_	src/fastcgi.h	5;"	d
+_HTTP_H_	src/http.h	2;"	d
+_THREADPOOL_H	src/threadpool.h	2;"	d
+add_job	src/threadpool.c	/^int add_job(void *(*process)(void *arg), void *arg){$/;"	f
+arg	src/threadpool.h	/^	void *arg;			$/;"	m	struct:job
+body	src/fastcgi.h	/^	FCGI_BeginRequestBody body;$/;"	m	struct:__anon3
+buffer_path_simplify	src/common.c	/^int buffer_path_simplify(char *dest, char *src){  $/;"	f
+conlength	src/http.h	/^	char conlength[16];		\/\/消息长度$/;"	m	struct:http_head
+conn_fastcgi	src/http.c	/^int conn_fastcgi(){	$/;"	f
+contentLengthB0	src/fastcgi.h	/^	unsigned char contentLengthB0;$/;"	m	struct:__anon1
+contentLengthB1	src/fastcgi.h	/^	unsigned char contentLengthB1;$/;"	m	struct:__anon1
+contype	src/http.h	/^	char contype[256];		\/\/消息类型$/;"	m	struct:http_head
+data	src/fastcgi.h	/^	unsigned char data[0];$/;"	m	struct:__anon4
+err_msg	src/common.c	/^void err_msg(const char *msg){$/;"	f
+err_sys	src/common.c	/^void err_sys(const char *msg){$/;"	f
+err_user	src/common.c	/^void err_user(const char *msg){$/;"	f
+exec_dir	src/http.c	/^void exec_dir(int client_fd, char *dirname, http_header *hr){$/;"	f
+exec_php	src/http.c	/^void exec_php(int client_fd, http_header *hr){$/;"	f
+exec_static	src/http.c	/^void exec_static(int client_fd, http_header *hr, int size){$/;"	f
+ext	src/http.h	/^	char ext[10];			\/\/文件后缀$/;"	m	struct:http_head
+filename	src/http.h	/^	char filename[256];		\/\/请求文件名$/;"	m	struct:http_head
+flags	src/fastcgi.h	/^	unsigned char flags;$/;"	m	struct:__anon2
+get_http_mime	src/http.c	/^void get_http_mime(char *ext, char *mime){$/;"	f
+get_line	src/http.c	/^int get_line(const int client_fd, char *buf, int size){$/;"	f
+handle_request	src/http.c	/^void *handle_request(void *arg){$/;"	f
+header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon3
+header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon4
+http_head	src/http.h	/^typedef struct http_head{$/;"	s
+http_header	src/http.h	/^}http_header;$/;"	t	typeref:struct:http_head
+init_server	src/http.c	/^int init_server(){$/;"	f
+is_destroy	src/threadpool.h	/^	int is_destroy;$/;"	m	struct:__anon5
+job	src/threadpool.h	/^typedef struct job{$/;"	s
+job_queue	src/threadpool.h	/^}job_queue;$/;"	t	typeref:struct:job
 m	htdocs/index.php	/^		$m = $i + $j;$/;"	v
-main	pthreadpool.c	/^int main(void){$/;"	f
-main	studyHttpd.c	/^int main(int argc, char *argv[]){$/;"	f
-makeBeginRequestBody	fastcgi.c	/^FCGI_BeginRequestBody makeBeginRequestBody( int role){$/;"	f
-makeHeader	fastcgi.c	/^FCGI_Header makeHeader(int type, int requestId, int contentLength, int paddingLength){$/;"	f
-method	http.h	/^	char method[10];		\/\/请求方式$/;"	m	struct:http_head
-nameLength	fastcgi.h	/^	unsigned char nameLength;$/;"	m	struct:__anon4
-next	pthreadpool.h	/^	struct job *next;$/;"	m	struct:job	typeref:struct:job::job
-paddingLength	fastcgi.h	/^	unsigned char paddingLength;$/;"	m	struct:__anon1
-param	http.h	/^	char param[256];		\/\/请求参数$/;"	m	struct:http_head
-parse_request	http.c	/^void parse_request(const int client_fd, char *buf, http_header *hr){$/;"	f
-path	http.h	/^	char path[256];			\/\/文件路径$/;"	m	struct:http_head
-pool	pthreadpool.h	/^static pthread_pool *pool = NULL;$/;"	v
-pool	pthreadpool.h	/^typedef struct pool{$/;"	s
-pool_destroy	pthreadpool.c	/^int pool_destroy(){$/;"	f
-pool_size	pthreadpool.h	/^	int pool_size;$/;"	m	struct:pool
-process	pthreadpool.h	/^	void *(*process)(void *);$/;"	m	struct:job
-pthread_job	pthreadpool.h	/^}pthread_job;$/;"	t	typeref:struct:job
-pthread_pool	pthreadpool.h	/^}pthread_pool;$/;"	t	typeref:struct:pool
-pthread_routine	pthreadpool.c	/^void *pthread_routine(void *arg){$/;"	f
-queue_cond	pthreadpool.h	/^	pthread_cond_t  queue_cond;$/;"	m	struct:pool
-queue_head	pthreadpool.h	/^	pthread_job *queue_head;$/;"	m	struct:pool
-queue_lock	pthreadpool.h	/^	pthread_mutex_t queue_lock;$/;"	m	struct:pool
-requestIdB0	fastcgi.h	/^	unsigned char requestIdB0;$/;"	m	struct:__anon1
-requestIdB1	fastcgi.h	/^	unsigned char requestIdB1;$/;"	m	struct:__anon1
-reserved	fastcgi.h	/^	unsigned char reserved;$/;"	m	struct:__anon1
-reserved	fastcgi.h	/^	unsigned char reserved[5];$/;"	m	struct:__anon2
-roleB0	fastcgi.h	/^	unsigned char roleB0;$/;"	m	struct:__anon2
-roleB1	fastcgi.h	/^	unsigned char roleB1;$/;"	m	struct:__anon2
-send_http_responce	http.c	/^void send_http_responce(int client_fd, const int http_code, const char *msg, const http_header * hr){$/;"	f
-test	pthreadpool.c	/^void *test(void *arg){$/;"	f
-tid	pthreadpool.h	/^	pthread_t *tid;$/;"	m	struct:pool
-type	fastcgi.h	/^	unsigned char type;$/;"	m	struct:__anon1
-url	http.h	/^	char url[256];			\/\/请求url$/;"	m	struct:http_head
-valueLength	fastcgi.h	/^	unsigned char valueLength;$/;"	m	struct:__anon4
-version	fastcgi.h	/^	unsigned char version;$/;"	m	struct:__anon1
-version	http.h	/^	char version[10];		\/\/HTTP协议版本$/;"	m	struct:http_head
-wait_num	pthreadpool.h	/^	int wait_num;$/;"	m	struct:pool
+main	src/studyHttpd.c	/^int main(int argc, char *argv[]){$/;"	f
+main	src/threadpool.c	/^int main(void){$/;"	f
+makeBeginRequestBody	src/fastcgi.c	/^FCGI_BeginRequestBody makeBeginRequestBody( int role){$/;"	f
+makeHeader	src/fastcgi.c	/^FCGI_Header makeHeader(int type, int requestId, int contentLength, int paddingLength){$/;"	f
+method	src/http.h	/^	char method[10];		\/\/请求方式$/;"	m	struct:http_head
+nameLength	src/fastcgi.h	/^	unsigned char nameLength;$/;"	m	struct:__anon4
+next	src/threadpool.h	/^	struct job *next;$/;"	m	struct:job	typeref:struct:job::job
+paddingLength	src/fastcgi.h	/^	unsigned char paddingLength;$/;"	m	struct:__anon1
+param	src/http.h	/^	char param[256];		\/\/请求参数$/;"	m	struct:http_head
+parse_request	src/http.c	/^void parse_request(const int client_fd, char *buf, http_header *hr){$/;"	f
+path	src/http.h	/^	char path[256];			\/\/文件路径$/;"	m	struct:http_head
+pool_destroy	src/threadpool.c	/^int pool_destroy(){$/;"	f
+pool_init	src/threadpool.c	/^thread_pool *pool_init(int pool_size){$/;"	f
+pool_size	src/threadpool.h	/^	int pool_size;$/;"	m	struct:__anon5
+process	src/threadpool.h	/^	void *(*process)(void *arg);$/;"	m	struct:job
+pthread_routine	src/threadpool.c	/^void *pthread_routine(void *arg){$/;"	f
+queue_cond	src/threadpool.h	/^	pthread_cond_t  queue_cond;$/;"	m	struct:__anon5
+queue_head	src/threadpool.h	/^	thread_job *queue_head;$/;"	m	struct:__anon5
+queue_lock	src/threadpool.h	/^	pthread_mutex_t queue_lock;$/;"	m	struct:__anon5
+requestIdB0	src/fastcgi.h	/^	unsigned char requestIdB0;$/;"	m	struct:__anon1
+requestIdB1	src/fastcgi.h	/^	unsigned char requestIdB1;$/;"	m	struct:__anon1
+reserved	src/fastcgi.h	/^	unsigned char reserved;$/;"	m	struct:__anon1
+reserved	src/fastcgi.h	/^	unsigned char reserved[5];$/;"	m	struct:__anon2
+roleB0	src/fastcgi.h	/^	unsigned char roleB0;$/;"	m	struct:__anon2
+roleB1	src/fastcgi.h	/^	unsigned char roleB1;$/;"	m	struct:__anon2
+send_http_responce	src/http.c	/^void send_http_responce(int client_fd, const int http_code, const char *msg, const http_header * hr){$/;"	f
+test	src/threadpool.c	/^void *test(void *arg){$/;"	f
+thread_pool	src/threadpool.h	/^}thread_pool;$/;"	t	typeref:struct:__anon5
+tid	src/threadpool.h	/^	thread_t *tid;$/;"	m	struct:__anon5
+type	src/fastcgi.h	/^	unsigned char type;$/;"	m	struct:__anon1
+url	src/http.h	/^	char url[256];			\/\/请求url$/;"	m	struct:http_head
+valueLength	src/fastcgi.h	/^	unsigned char valueLength;$/;"	m	struct:__anon4
+version	src/fastcgi.h	/^	unsigned char version;$/;"	m	struct:__anon1
+version	src/http.h	/^	char version[10];		\/\/HTTP协议版本$/;"	m	struct:http_head
+wait_num	src/threadpool.h	/^	int wait_num;$/;"	m	struct:__anon5

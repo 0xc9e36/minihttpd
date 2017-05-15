@@ -15,7 +15,7 @@ typedef struct job{
 	void *(*process)(void *arg);
 	void *arg;			
 	struct job *next;
-}pthread_job;
+}thread_job;
 
 
 /* 线程池 */
@@ -25,14 +25,14 @@ typedef struct{
 	pthread_cond_t  queue_cond;
 	int wait_num;
 	int pool_size;
-	pthread_job *queue_head;
+	thread_job *queue_head;
 	pthread_t *tid;
-}pthread_pool;
+}thread_pool;
 
-static pthread_pool *pool = NULL;
+static thread_pool *pool = NULL;
 
 void pool_init(int pool_size);
-void *pthread_routine(void *arg);
+void *thread_routine(void *arg);
 int pool_destroy();
 int add_job(void *(*process)(void *arg), void *arg);
 void *test(void *arg);

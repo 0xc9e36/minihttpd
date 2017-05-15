@@ -53,7 +53,7 @@ void *handle_request(void *arg){
 		close(client_fd);
 		return NULL;
 	}
-	
+
 	/* 访问文件 */
 	if(-1 == stat(hr.path, &st)){
 		/* 文件未找到 */
@@ -66,10 +66,10 @@ void *handle_request(void *arg){
 		}else{
 		
 			/* 提取文件类型 */
-			char path[256];
-			strcpy(path, hr.path);
-			strtok(path, ".");
-			strcpy(hr.ext, strtok(NULL, "."));
+			char *path;
+			path = strrchr(hr.path, '.');
+			strcpy(hr.ext, (path + 1));
+
 			if(0 == strcmp(hr.ext, "php")){	//php 文件
 				if(!S_ISREG(st.st_mode) || !(S_IXUSR & st.st_mode)) {
 					send_http_responce(client_fd, 403, "Forbidden", &hr);
@@ -93,8 +93,13 @@ void *handle_request(void *arg){
 
 /* 解析HTTP请求信息 */
 void parse_request(const int client_fd, char *buf, http_header *hr){
+
+	char web[50];
 	int recvbytes;
 	int i = 0, j = 0;
+
+	sprintf(web, "%s%s", ROOT, WEB);
+
 	recvbytes = get_line(client_fd, buf, MAX_BUF_SIZE);
 	/* 请求方法 */
 	while((i < recvbytes) && !isspace(buf[i])){
@@ -126,7 +131,7 @@ void parse_request(const int client_fd, char *buf, http_header *hr){
 		strcpy(hr->param, "");
 	}
 	/* 文件路径 */
-	sprintf(hr->path, "htdocs%s", hr->filename);
+	sprintf(hr->path, "%s%s", web, hr->filename);
 }
 
 /* 获取http请求一行数据 */
@@ -200,19 +205,21 @@ void exec_static(int client_fd, http_header *hr, int size){
 void exec_dir(int client_fd, char *dirname, http_header *hr){
 
 	char buf[MAX_BUF_SIZE], header[MAX_BUF_SIZE],img[MAX_BUF_SIZE], filename[MAX_BUF_SIZE];
+	char web[50];
 	DIR *dp;
 	int num = 1;
 	struct dirent *dirp;
 	struct stat st;
 	struct passwd *passwd;
-	
+
+
 	if(NULL == (dp = opendir(dirname))) err_sys("open dir");
 
 
 	sprintf(buf, "<html><head><meta charset=""utf-8""><title>DIR List</title>");
 	sprintf(buf, "%s<style type=""text/css"">img{ width:24px; height:24px;}</style></head>", buf);
 	sprintf(buf, "%s<body bgcolor=""ffffff"" font-family=""Arial"" color=""#fff"" font-size=""14px"" >", buf);	
-	sprintf(buf, "%s<h1>Index of /%s</h1>", buf, dirname);
+	sprintf(buf, "%s<h1>Index of %s</h1>", buf, dirname + 4);
 	sprintf(buf, "%s<table cellpadding=\"0\" cellspacing=\"0\">", buf);
 	if(hr->filename[strlen(hr->filename) - 1] != '/') strcat(hr->filename, "/");
 
@@ -222,12 +229,12 @@ void exec_dir(int client_fd, char *dirname, http_header *hr){
 		stat(filename, &st);
 		passwd = getpwuid(st.st_uid);
 	
-		/* 这里img　变量有点问题.   它会的当前路径是http请求的路径, 而不是服务器的路径 */
-		if(S_ISDIR(st.st_mode)) sprintf(img, "<img src='./img/dir.png\'  />");
-		else if(S_ISFIFO(st.st_mode)) sprintf(img, "<img src ='./img/fifo.png'  />");
-		else if(S_ISLNK(st.st_mode)) sprintf(img, "<img src ='./img/link.png' />");
-		else if(S_ISSOCK(st.st_mode)) sprintf(img, "<img src = './img/socket.png' />");
-		else  sprintf(img, "<img src = './img/file.png'  />");
+		/* 这里img　变量有点问题.   它是当前路径是http请求的路径, 而不是服务器的路径 */
+		if(S_ISDIR(st.st_mode)) sprintf(img, "<img src='icons/dir.png\'  />");
+		else if(S_ISFIFO(st.st_mode)) sprintf(img, "<img src ='icons/fifo.png'  />");
+		else if(S_ISLNK(st.st_mode)) sprintf(img, "<img src ='icons/link.png' />");
+		else if(S_ISSOCK(st.st_mode)) sprintf(img, "<img src = 'icons/socket.png' />");
+		else  sprintf(img, "<img src = 'icons/file.png'  />");
 
 		sprintf(buf, "%s<tr  valign='middle'><td width='10'>%d</td><td width='30'>%s</td><td width='150'><a href='%s%s'>%s</a></td><td width='80'>%s</td><td width='100'>%d</td><td width='200'>%s</td></tr>", buf, num++, img, hr->filename, dirp->d_name, dirp->d_name, passwd->pw_name, (int)st.st_size, ctime(&st.st_atime));
 		}
@@ -294,7 +301,9 @@ void exec_php(int client_fd, http_header *hr){
 	getcwd(filename, sizeof(filename));
 	strcat(filename, "/");
 	strcat(filename, hr->path);
-	  
+
+	buffer_path_simplify(filename, filename);
+
 	char *params[][2] = {
 		{"SCRIPT_FILENAME", filename}, 
 		{"REQUEST_METHOD", hr->method}, 
@@ -302,7 +311,6 @@ void exec_php(int client_fd, http_header *hr){
 		{"", ""}
 	};
 
-	
 	int i, conLength, paddingLength;
 	FCGI_ParamsRecord *paramsRecord;
 	for(i = 0; params[i][0] != ""; i++){
@@ -341,9 +349,10 @@ void exec_php(int client_fd, http_header *hr){
 
 	/* 发送响应 */
     sprintf(header, "%s 200 OK\r\n", hr->version);  	
+	//sprintf(header, "%sTransfer-Encoding: chunked\r\n", header);
 	sprintf(header, "%sContent-Length: %d\r\n", header, (int)strlen(tmp) - 4);
 	send(client_fd, header, strlen(header), 0);
-	send(client_fd, msg, contentLength, 0);
+	send(client_fd, msg, (int)strlen(msg), 0);
 
 	free(msg);
 	close(fcgi_fd);

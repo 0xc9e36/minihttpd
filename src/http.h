@@ -2,6 +2,7 @@
 #define _HTTP_H_
 #include "fastcgi.h"
 #include "common.h"
+#include "threadpool.h"
 #include<stdio.h>
 #include<string.h>
 #include<dirent.h>

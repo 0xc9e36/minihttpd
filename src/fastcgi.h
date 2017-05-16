@@ -23,6 +23,8 @@ typedef struct{
 	unsigned char reserved;
 }FCGI_Header;
 
+#define	FCGI_HEADER_LEN	 8
+
 /* 可用于type字段的值 */
 #define FCGI_BEGIN_REQUEST  1
 #define FCGI_ABORT_REQUEST  2

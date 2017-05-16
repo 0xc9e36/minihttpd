@@ -4,23 +4,26 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-FCGI_ABORT_REQUEST	src/fastcgi.h	28;"	d
-FCGI_AUTHORIZER	src/fastcgi.h	47;"	d
-FCGI_BEGIN_REQUEST	src/fastcgi.h	27;"	d
+FCGI_ABORT_REQUEST	src/fastcgi.h	30;"	d
+FCGI_AUTHORIZER	src/fastcgi.h	49;"	d
+FCGI_BEGIN_REQUEST	src/fastcgi.h	29;"	d
 FCGI_BeginRequestBody	src/fastcgi.h	/^}FCGI_BeginRequestBody;$/;"	t	typeref:struct:__anon2
 FCGI_BeginRequestRecord	src/fastcgi.h	/^}FCGI_BeginRequestRecord;$/;"	t	typeref:struct:__anon3
-FCGI_DATA	src/fastcgi.h	34;"	d
-FCGI_END_REQUEST	src/fastcgi.h	29;"	d
-FCGI_FILTER	src/fastcgi.h	48;"	d
+FCGI_DATA	src/fastcgi.h	36;"	d
+FCGI_END_REQUEST	src/fastcgi.h	31;"	d
+FCGI_EndRequestBody	src/fastcgi.h	/^} FCGI_EndRequestBody;$/;"	t	typeref:struct:__anon5
+FCGI_EndRequestRecord	src/fastcgi.h	/^} FCGI_EndRequestRecord;$/;"	t	typeref:struct:__anon6
+FCGI_FILTER	src/fastcgi.h	50;"	d
+FCGI_HEADER_LEN	src/fastcgi.h	26;"	d
 FCGI_HOST	src/fastcgi.h	12;"	d
 FCGI_Header	src/fastcgi.h	/^}FCGI_Header;$/;"	t	typeref:struct:__anon1
-FCGI_PARAMS	src/fastcgi.h	30;"	d
+FCGI_PARAMS	src/fastcgi.h	32;"	d
 FCGI_PORT	src/fastcgi.h	11;"	d
 FCGI_ParamsRecord	src/fastcgi.h	/^}FCGI_ParamsRecord;$/;"	t	typeref:struct:__anon4
-FCGI_RESPONDER	src/fastcgi.h	46;"	d
-FCGI_STDERR	src/fastcgi.h	33;"	d
-FCGI_STDIN	src/fastcgi.h	31;"	d
-FCGI_STDOUT	src/fastcgi.h	32;"	d
+FCGI_RESPONDER	src/fastcgi.h	48;"	d
+FCGI_STDERR	src/fastcgi.h	35;"	d
+FCGI_STDIN	src/fastcgi.h	33;"	d
+FCGI_STDOUT	src/fastcgi.h	34;"	d
 FCGI_VERSION_1	src/fastcgi.h	10;"	d
 MAX_BUF_SIZE	src/http.h	23;"	d
 MAX_POOL_SIZE	src/threadpool.h	11;"	d
@@ -34,8 +37,13 @@ _HTTP_H_	src/http.h	2;"	d
 _THREADPOOL_H	src/threadpool.h	2;"	d
 add_job	src/threadpool.c	/^int add_job(void *(*process)(void *arg), void *arg){$/;"	f
 animate	htdocs/tab.html	/^    function animate() {$/;"	f
+appStatusB0	src/fastcgi.h	/^	unsigned char appStatusB0;$/;"	m	struct:__anon5
+appStatusB1	src/fastcgi.h	/^	unsigned char appStatusB1;$/;"	m	struct:__anon5
+appStatusB2	src/fastcgi.h	/^	unsigned char appStatusB2;$/;"	m	struct:__anon5
+appStatusB3	src/fastcgi.h	/^	unsigned char appStatusB3;$/;"	m	struct:__anon5
 arg	src/threadpool.h	/^	void *arg;			$/;"	m	struct:job
 body	src/fastcgi.h	/^	FCGI_BeginRequestBody body;$/;"	m	struct:__anon3
+body	src/fastcgi.h	/^	FCGI_EndRequestBody body;$/;"	m	struct:__anon6
 buffer_path_simplify	src/common.c	/^int buffer_path_simplify(char *dest, char *src){  $/;"	f
 compileShader	htdocs/tab.html	/^    function compileShader(shtype, shsrc) {$/;"	f
 conlength	src/http.h	/^	char conlength[16];		\/\/消息长度$/;"	m	struct:http_head
@@ -68,6 +76,7 @@ get_line	src/http.c	/^int get_line(const int client_fd, char *buf, int size){$/;
 handle_request	src/http.c	/^void *handle_request(void *arg){$/;"	f
 header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon3
 header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon4
+header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon6
 http_head	src/http.h	/^typedef struct http_head{$/;"	s
 http_header	src/http.h	/^}http_header;$/;"	t	typeref:struct:http_head
 initBackground	htdocs/tab.html	/^    function initBackground() {$/;"	f
@@ -75,9 +84,8 @@ initPointFlowers	htdocs/tab.html	/^    function initPointFlowers() {$/;"	f
 initPostProcess	htdocs/tab.html	/^    function initPostProcess() {$/;"	f
 initScene	htdocs/tab.html	/^    function initScene() {$/;"	f
 init_server	src/http.c	/^int init_server(){$/;"	f
-is_destroy	src/threadpool.h	/^	int is_destroy;$/;"	m	struct:__anon5
+is_destroy	src/threadpool.h	/^	int is_destroy;$/;"	m	struct:__anon7
 job	src/threadpool.h	/^typedef struct job{$/;"	s
-m	htdocs/index.php	/^		$m = $i + $j;$/;"	v
 main	src/studyHttpd.c	/^int main(int argc, char *argv[]){$/;"	f
 main	tests/thread_pool_test.c	/^int main(void){$/;"	f
 makeBeginRequestBody	src/fastcgi.c	/^FCGI_BeginRequestBody makeBeginRequestBody( int role){$/;"	f
@@ -94,12 +102,14 @@ path	src/http.h	/^	char path[256];			\/\/文件路径$/;"	m	struct:http_head
 pool	src/threadpool.h	/^static thread_pool *pool = NULL;$/;"	v
 pool_destroy	src/threadpool.c	/^int pool_destroy(){$/;"	f
 pool_init	src/threadpool.c	/^void pool_init(int pool_size){$/;"	f
-pool_size	src/threadpool.h	/^	int pool_size;$/;"	m	struct:__anon5
+pool_size	src/threadpool.h	/^	int pool_size;$/;"	m	struct:__anon7
 process	src/threadpool.h	/^	void *(*process)(void *arg);$/;"	m	struct:job
+protocolStatus	src/fastcgi.h	/^	unsigned char protocolStatus;   \/\/ 协议级别的状态码$/;"	m	struct:__anon5
 pthread_routine	src/threadpool.c	/^void *pthread_routine(void *arg){$/;"	f
-queue_cond	src/threadpool.h	/^	pthread_cond_t  queue_cond;$/;"	m	struct:__anon5
-queue_head	src/threadpool.h	/^	thread_job *queue_head;$/;"	m	struct:__anon5
-queue_lock	src/threadpool.h	/^	pthread_mutex_t queue_lock;$/;"	m	struct:__anon5
+queue_cond	src/threadpool.h	/^	pthread_cond_t  queue_cond;$/;"	m	struct:__anon7
+queue_head	src/threadpool.h	/^	thread_job *queue_head;$/;"	m	struct:__anon7
+queue_lock	src/threadpool.h	/^	pthread_mutex_t queue_lock;$/;"	m	struct:__anon7
+recv_fastcgi	src/http.c	/^void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){$/;"	f
 render	htdocs/tab.html	/^    function render() {$/;"	f
 renderBackground	htdocs/tab.html	/^    function renderBackground() {$/;"	f
 renderPointFlowers	htdocs/tab.html	/^    function renderPointFlowers() {$/;"	f
@@ -108,6 +118,7 @@ renderScene	htdocs/tab.html	/^    function renderScene() {$/;"	f
 requestIdB0	src/fastcgi.h	/^	unsigned char requestIdB0;$/;"	m	struct:__anon1
 requestIdB1	src/fastcgi.h	/^	unsigned char requestIdB1;$/;"	m	struct:__anon1
 reserved	src/fastcgi.h	/^	unsigned char reserved;$/;"	m	struct:__anon1
+reserved	src/fastcgi.h	/^	unsigned char reserved[3];$/;"	m	struct:__anon5
 reserved	src/fastcgi.h	/^	unsigned char reserved[5];$/;"	m	struct:__anon2
 roleB0	src/fastcgi.h	/^	unsigned char roleB0;$/;"	m	struct:__anon2
 roleB1	src/fastcgi.h	/^	unsigned char roleB1;$/;"	m	struct:__anon2
@@ -117,8 +128,8 @@ setViewports	htdocs/tab.html	/^    function setViewports() {$/;"	f
 stepAnimation	htdocs/tab.html	/^    function stepAnimation() {$/;"	f
 test	src/threadpool.c	/^void *test(void *arg){$/;"	f
 thread_job	src/threadpool.h	/^}thread_job;$/;"	t	typeref:struct:job
-thread_pool	src/threadpool.h	/^}thread_pool;$/;"	t	typeref:struct:__anon5
-tid	src/threadpool.h	/^	pthread_t *tid;$/;"	m	struct:__anon5
+thread_pool	src/threadpool.h	/^}thread_pool;$/;"	t	typeref:struct:__anon7
+tid	src/threadpool.h	/^	pthread_t *tid;$/;"	m	struct:__anon7
 toggleAnimation	htdocs/tab.html	/^    function toggleAnimation(elm) {$/;"	f
 type	src/fastcgi.h	/^	unsigned char type;$/;"	m	struct:__anon1
 unuseEffect	htdocs/tab.html	/^    function unuseEffect(fxobj) {$/;"	f
@@ -129,4 +140,4 @@ useShader	htdocs/tab.html	/^    function useShader(prog) {$/;"	f
 valueLength	src/fastcgi.h	/^	unsigned char valueLength;$/;"	m	struct:__anon4
 version	src/fastcgi.h	/^	unsigned char version;$/;"	m	struct:__anon1
 version	src/http.h	/^	char version[10];		\/\/HTTP协议版本$/;"	m	struct:http_head
-wait_num	src/threadpool.h	/^	int wait_num;$/;"	m	struct:__anon5
+wait_num	src/threadpool.h	/^	int wait_num;$/;"	m	struct:__anon7

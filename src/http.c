@@ -357,25 +357,82 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 	
 	/* 接收数据 */
 	FCGI_Header responseHeader;
+	FCGI_EndRequestBody responseEnder;
 	int contentLength;
-	char *msg;
+	int errlen = 0, outlen = 0;
+	char *ok = NULL , *err = NULL;
 
-	if(-1 == recv(fcgi_fd, &responseHeader, sizeof(responseHeader), 0)) err_sys("fcgi recv");
+
+
+	while(recv(fcgi_fd, &responseHeader, FCGI_HEADER_LEN, 0) > 0){
+
+		if(FCGI_STDOUT == responseHeader.type){
+			
+			contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
+			
+			outlen += contentLength;
+
+			if(ok != NULL){
+				ok = realloc(ok, outlen);
+			}else{
+				ok = (char *)malloc(contentLength);
+			}
+
+			recvbytes = recv(fcgi_fd, ok, contentLength, 0);
+
+			if(-1 == recvbytes || contentLength != recvbytes) err_sys("recv fcgi_stdout");
+
+			if(responseHeader.paddingLength > 0){
+				recvbytes = recv(fcgi_fd, buf, responseHeader.paddingLength, 0);
+				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength)	err_sys("fcgi_stdout padding");
+			}
+		}else if(FCGI_STDERR == responseHeader.type){
+			contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
+			
+			errlen += contentLength;
+
+			if(err != NULL){
+				err = realloc(err, errlen);
+			}else{
+				err = (char *)malloc(contentLength);
+			}
+
+			recvbytes = recv(fcgi_fd, err, contentLength, 0);
 	
-	if(FCGI_STDOUT == responseHeader.type){
-		contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
-		msg = (char *)malloc(contentLength);
-		recv(fcgi_fd, msg, contentLength, 0);
+			if(-1 == recvbytes || contentLength != recvbytes) err_sys("recv fcgi_stderr");
+
+			if(responseHeader.paddingLength > 0){
+				recvbytes = recv(fcgi_fd, buf, responseHeader.paddingLength, 0);
+				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength) err_sys("fcgi_stdout padding");
+			}
+		}else if(FCGI_END_REQUEST == responseHeader.type){
+		
+			recvbytes = recv(fcgi_fd, &responseEnder, sizeof(responseEnder), 0);
+			if(-1 == recvbytes || sizeof(responseEnder) != recvbytes){
+				free(err);
+				free(ok);
+				err_sys("fcgi_end");
+			}
+		}
 	}
-	//printf("%s\n", msg);
-	char *tmp = strstr(msg, "\r\n\r\n");		//只获取响应主体的长度;
 
-	/* 发送响应 */
-    sprintf(header, "%s 200 OK\r\n", hr->version);  	
-	//sprintf(header, "%sTransfer-Encoding: chunked\r\n", header);
-	sprintf(header, "%sContent-Length: %d\r\n", header, (int)strlen(tmp) - 4);
-	send(client_fd, header, strlen(header), 0);
-	send(client_fd, msg, (int)strlen(msg), 0);
-
-	free(msg);
+	/* 服务器错误 */
+	if(err){	
+		sprintf(header, "%s 500 Internal Server Error\r\n", hr->version);  	
+		sprintf(header, "%sContent-Length: %d\r\n", header, errlen);
+		sprintf(header, "%s%s", header, ok);
+		send(client_fd, header, strlen(header), 0);
+		send(client_fd, err, errlen, 0);	
+		free(err);
+	}else{
+		printf("%s\n", ok);
+		char *tmp = strstr(ok, "\r\n\r\n");		//只获取响应主体的长度;
+		/* 发送响应 */
+		sprintf(header, "%s 200 OK\r\n", hr->version);  	
+		//sprintf(header, "%sTransfer-Encoding: chunked\r\n", header);
+		sprintf(header, "%sContent-Length: %d\r\n", header, (int)strlen(tmp) - 4);
+		send(client_fd, header, strlen(header), 0);
+		send(client_fd, ok, outlen, 0);
+	}
+	free(ok);
 }

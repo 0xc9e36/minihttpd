@@ -10,6 +10,7 @@
 #define FCGI_VERSION_1           1
 #define	FCGI_PORT				 9000
 #define	FCGI_HOST				 "127.0.0.1"
+#define FCGI_MAX_LEN		     65536
 
 /*fastcgi报文协议头 */
 typedef struct{

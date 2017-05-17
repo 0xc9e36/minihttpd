@@ -33,6 +33,7 @@ typedef struct http_head{
 	char contype[256];		//消息类型
 	char conlength[16];		//消息长度
 	char ext[10];			//文件后缀
+	char *content;			//body
 }http_header;
 
 int init_server();
@@ -47,4 +48,5 @@ void exec_dir(int, char *, http_header *);
 int conn_fastcgi();
 void send_fastcgi(int ,int, http_header *);
 void recv_fastcgi(int ,int, http_header *);
+char *get_http_Val(const char* str, const char *substr);
 #endif

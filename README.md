@@ -11,6 +11,9 @@ GET/POST请求
 安装 php-fpm  :  sudo apt-get install php5-fpm   
 设置监听端口   :   listen =127.0.0.1:9000   
 
+运行    
+ ![image](https://github.com/tw1996/studyHttpd/blob/master/readme-img/start.png)  
+
 目录显示效果 :  
  ![image](https://github.com/tw1996/studyHttpd/blob/master/readme-img/dir.png)    
  

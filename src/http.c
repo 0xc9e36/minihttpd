@@ -371,8 +371,8 @@ void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 	int len = atoi(hr->conlength);
 	int send_len;
 	if(!strcmp("POST", hr->method)){
-		//printf("总长度 : len : %d strlen %ld\n", len, sizeof(hr->content));
-		printf("%s\n", hr->content);
+		//printf("总长度 : len : %d strlen %d\n", len, (int)strlen(hr->content));
+		//printf("%s\n", hr->content);
 		while(len > 0){
 			send_len = len > FCGI_MAX_LEN  ? FCGI_MAX_LEN : len;
 			len -= send_len;

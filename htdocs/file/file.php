@@ -9,4 +9,3 @@ if ($_FILES["file"]["error"] > 0) {
 	echo "Size: " . ($_FILES["file"]["size"] / 1024) . " Kb<br />";
 	echo "Stored in: " . $_FILES["file"]["tmp_name"];
 }
-

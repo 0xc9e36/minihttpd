@@ -1,5 +1,5 @@
 <?php
 
-echo "你好";
+echo "hello s";
 
-5455445
+语法错误

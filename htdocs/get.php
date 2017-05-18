@@ -1,7 +1,7 @@
 <?php
 
 echo "hello";
-//var_dump($_GET['name']);
+var_dump($_GET['id']);
 
 /*
 echo "hello studyHttpd";

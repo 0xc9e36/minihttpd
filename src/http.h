@@ -49,4 +49,5 @@ int conn_fastcgi();
 void send_fastcgi(int ,int, http_header *);
 void recv_fastcgi(int ,int, http_header *);
 char *get_http_Val(const char* str, const char *substr);
+void send_client(char *, int, char *, int, int, http_header *);
 #endif

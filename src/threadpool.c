@@ -2,24 +2,24 @@
 
 void *pthread_routine(void *arg){
 
-	// debug printf("starting pthread 0x%x\n", (unsigned int)pthread_self());
+	// printf("starting pthread 0x%x\n", (unsigned int)pthread_self());
 
 	pool->pool_size++;
 	while(1){
 		pthread_mutex_lock(&(pool->queue_lock));
 	
 		while(0 == pool->wait_num && ! pool->is_destroy){
-			// debug printf("thread 0x%x waiting\n", (unsigned int)pthread_self());
+	//		printf("thread 0x%x waiting\n", (unsigned int)pthread_self());
 			pthread_cond_wait(&(pool->queue_cond), &(pool->queue_lock));
 		}
 
 		if(pool->is_destroy){
 			pthread_mutex_unlock(&(pool->queue_lock));
-			// debug printf("thread 0x%x will exit\n", (unsigned int)pthread_self());
+	//		printf("thread 0x%x will exit\n", (unsigned int)pthread_self());
 			pthread_exit(NULL);
 		}
 
-		// debug printf("pthread 0x%x is starting to work\n", (unsigned int)pthread_self());
+	//	printf("pthread 0x%x is starting to work\n", (unsigned int)pthread_self());
 		
 		pool->wait_num--;
 		thread_job *job = pool->queue_head;
@@ -139,5 +139,6 @@ int add_job(void *(*process)(void *arg), void *arg){
 
 void *test(void *arg){
 	printf("tid is 0x%x, working on job %d\n", (unsigned int)pthread_self(), *(int *)arg);
+	return ;
 }
 

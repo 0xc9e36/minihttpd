@@ -21,6 +21,7 @@
 #define		PORT	8899
 #define		MAX_QUE_CONN_NM	20
 #define		MAX_BUF_SIZE	8096
+#define		MAX_RECV_SIZE	4000
 
 /* http请求信息结构体, 这里只记录几个关键信息, 其他忽略 */
 typedef struct http_head{

@@ -139,16 +139,18 @@ void parse_request(const int client_fd, char *buf, http_header *hr){
 		}
 	}
 
-	/* body内容 */
+	/* body内容  recv不能一次性接受很大值...  或者setsockopt 增大接受缓冲区*/
 	int len = atoi(hr->conlength);
 	if(len > 0 && strcmp("POST", hr->method) == 0){	
-		if((hr->content = (char *)malloc(len + 1)) == NULL) err_sys("http_content malloc");
-		memset(hr->content, '\0', 1);
-		recvbytes = recv(client_fd, hr->content, len, 0);
-		if(-1 == recvbytes){
-			err_sys("http_recv");
-			free(hr->content);
+		if((hr->content = (char *)malloc(len)) == NULL) err_sys("http_content malloc");
+		char *cur_recv = hr->content;
+		while(len > 0){
+			recvbytes =  recv(client_fd, cur_recv, MAX_RECV_SIZE, 0);
+			if(-1 == recvbytes) err_sys("http_recvbody");
+			cur_recv += recvbytes;
+			len -= recvbytes;
 		}
+		// debug printf("recv body中的内容是%d\n");
 	}
 }
 
@@ -371,8 +373,8 @@ void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 	int len = atoi(hr->conlength);
 	int send_len;
 	if(!strcmp("POST", hr->method)){
-		//printf("总长度 : len : %d strlen %d\n", len, (int)strlen(hr->content));
-		//printf("%s\n", hr->content);
+		//printf("post数据总长度:%d\n", len);
+		// debug printf("%s\n", hr->content);
 		while(len > 0){
 			send_len = len > FCGI_MAX_LEN  ? FCGI_MAX_LEN : len;
 			len -= send_len;
@@ -381,12 +383,12 @@ void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 			stdinHeader = makeHeader(FCGI_STDIN, requestId, send_len, paddingLength);
 			if(-1 == (sendbytes = send(fcgi_fd, &stdinHeader,FCGI_HEADER_LEN, 0))) err_sys("fcgi send stdinHeader");
 			if(-1 == (sendbytes = send(fcgi_fd, hr->content, send_len, 0))) err_sys("fcgi send stdin data");
-			//printf("传输大小:%d | 发送数据:%s\\n", sendbytes, hr->content);
+			//printf("单次发送大小:%d\n发送内容:\n%s\n", sendbytes, hr->content);
 			if(paddingLength > 0){	//发送填充数据
 				if(-1 == (sendbytes = send(fcgi_fd, buf, paddingLength, 0))) err_sys("fcgi send padding");
 			}
 			hr->content += send_len;
-			//printf("长度%d\n", (int)strlen(hr->content));
+			// debug printf("长度%d\n", (int)strlen(hr->content));
 		}
 	}
 	//debug  printf("%d\n", sendbytes);
@@ -485,7 +487,7 @@ void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, htt
 	sprintf(header, "%sContent-Type: %s\r\n\r\n", header,mime);
 	send(client_fd, header, strlen(header), 0);
 	send(client_fd, body, outlen - header_len, 0);
-
+	//printf("收到的stdin:\n%s\n收到的stderr:\n%s\n", ok, err);
 	if(errlen > 0){
 		send(client_fd, err, errlen, 0);
 	}

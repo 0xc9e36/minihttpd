@@ -24,6 +24,7 @@ int main(int argc, char *argv[]){
 		add_job(handle_request, &client_fd);
 	}
 	close(sockfd);
+	pool_destroy();
     return 0;
 }
 

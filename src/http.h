@@ -38,7 +38,7 @@ typedef struct http_head{
 }http_header;
 
 int init_server();
-void parse_request(const int, char *, http_header *);
+int parse_request(const int, char *, http_header *);
 int get_line(const int, char *, int);
 void *handle_request(void *);
 void send_http_responce(int, const int, const char *, const http_header *);
@@ -47,7 +47,7 @@ void exec_static(int, http_header *, int);
 void exec_php(int, http_header *);
 void exec_dir(int, char *, http_header *);
 int conn_fastcgi();
-void send_fastcgi(int ,int, http_header *);
+int send_fastcgi(int ,int, http_header *);
 void recv_fastcgi(int ,int, http_header *);
 char *get_http_Val(const char* str, const char *substr);
 void send_client(char *, int, char *, int, int, http_header *);

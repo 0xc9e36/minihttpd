@@ -2,10 +2,17 @@
 #include "http.h"
 #include "fastcgi.h"
 
+/*
+ * 初始化socket
+ * 成功返回socket描述符, 失败返回-1
+ */
 int init_server(){
 	int sockfd;
 	struct sockaddr_in server_sock;
-	if(-1 == (sockfd = socket(AF_INET, SOCK_STREAM, 0))) err_sys("socket");
+	if(-1 == (sockfd = socket(AF_INET, SOCK_STREAM, 0))){
+		err_sys("socket() fail", DEBUG);
+		return -1;
+	}
 	printf("Socket id = %d\n", sockfd);
 
 	server_sock.sin_family = AF_INET;
@@ -16,10 +23,16 @@ int init_server(){
 	int reuse = 1;
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 	
-	if(-1 == bind(sockfd, (struct sockaddr *)&server_sock, sizeof(struct sockaddr))) err_sys("bind");
+	if(-1 == bind(sockfd, (struct sockaddr *)&server_sock, sizeof(struct sockaddr))){
+		err_sys("bind() fail", DEBUG);
+		return -1;
+	}
 	printf("Bind success\n");
 
-	if(-1 == listen(sockfd, MAX_QUE_CONN_NM)) err_sys("listen");
+	if(-1 == listen(sockfd, MAX_QUE_CONN_NM)){
+		err_sys("listen() fail", DEBUG);
+		return -1;
+	}
 	printf("Listening port = %d\n", PORT);
 	
 	return sockfd;
@@ -36,33 +49,33 @@ void *handle_request(void *arg){
 	memset(&hr, 0, sizeof(hr));
 	memset(&buf, 0, sizeof(buf));
 
-	parse_request(client_fd, buf, &hr);
+	/* 解析url, 提取关键请求信息 */
+	if(-1 == parse_request(client_fd, buf, &hr)) return ;
 	
 	/* 只支持 GET 和 POST请求 */
 	if(strcasecmp(hr.method, "GET") && strcasecmp(hr.method, "POST")){
 		//501未实现
 		send_http_responce(client_fd, 501, "Not Implemented", &hr);
 		close(client_fd);
-		return NULL;
+		return ;
 	}
 	/* 简单判断HTTP协议 */
 	if(NULL == strstr(hr.version, "HTTP/")){
 		// 505协议版本不支持
 		send_http_responce(client_fd, 505, "HTTP Version Not Supported", &hr);
 		close(client_fd);
-		return NULL;
+		return;
 	}
 	
 	/* 访问文件 */
 	if(-1 == stat(hr.path, &st)){
-		/* 文件未找到 */
+		/* 404文件未找到 */
 		send_http_responce(client_fd, 404, "Not Found", &hr);
 	}else{
 		//目录浏览
 		if((st.st_mode & S_IFMT) == S_IFDIR){
 			exec_dir(client_fd, hr.path, &hr);
-		}else{
-		
+		}else{	
 			/* 提取文件类型 */
 			char *path;
 			path = strrchr(hr.path, '.');
@@ -70,14 +83,18 @@ void *handle_request(void *arg){
 
 			if(0 == strcmp(hr.ext, "php")){	//php 文件
 				if(!S_ISREG(st.st_mode) || !(S_IXUSR & st.st_mode)) {
+					// 403 无执行权限
 					send_http_responce(client_fd, 403, "Forbidden", &hr);
 				}else{
+					//执行php  -> 调用php-fpm
 					exec_php(client_fd, &hr);
 				}
 			}else{	//静态文件	
 				if(!S_ISREG(st.st_mode) || !(S_IRUSR & st.st_mode)) {
+					// 403 无读权限
 					send_http_responce(client_fd, 403, "Forbidden", &hr);
 				}else{
+					/* html静态页, jpg, png, pdf ...   */
 					exec_static(client_fd, &hr, st.st_size);
 				}
 			}
@@ -89,14 +106,19 @@ void *handle_request(void *arg){
 
 
 /* 解析HTTP请求信息 */
-void parse_request(const int client_fd, char *buf, http_header *hr){
+int parse_request(const int client_fd, char *buf, http_header *hr){
 
 	char web[50];
 	int recvbytes;
 	int i = 0, j = 0;
 	int start, end;
+
+	/* 根目录 */
 	sprintf(web, "%s%s", ROOT, WEB);
+	
+	/* http 请求行 */
 	recvbytes = get_line(client_fd, buf, MAX_BUF_SIZE);
+
 	/* 请求方法 */
 	while((i < recvbytes) && !isspace(buf[i])){
 		hr->method[i] = buf[i];
@@ -117,6 +139,7 @@ void parse_request(const int client_fd, char *buf, http_header *hr){
 		hr->version[j++] = buf[i++];
 	}
 	hr->version[j] = '\0';
+
 	/*  请求参数 */
 	if(strstr(hr->url, "?")){
 		strcpy(hr->filename, strtok(hr->url, "?"));
@@ -125,6 +148,7 @@ void parse_request(const int client_fd, char *buf, http_header *hr){
 		strcpy(hr->filename, hr->url);
 		strcpy(hr->param, "");
 	}
+
 	/* 文件路径 */
 	sprintf(hr->path, "%s%s", web, hr->filename);
 
@@ -139,19 +163,26 @@ void parse_request(const int client_fd, char *buf, http_header *hr){
 		}
 	}
 
-	/* body内容  recv不能一次性接受很大值...  或者setsockopt 增大接受缓冲区*/
+	/* body内容  recv不能一次性接受很大值...  或者可以setsockopt 增大接受缓冲区*/
 	int len = atoi(hr->conlength);
 	if(len > 0 && strcmp("POST", hr->method) == 0){	
-		if((hr->content = (char *)malloc(len)) == NULL) err_sys("http_content malloc");
+		if((hr->content = (char *)malloc(len)) == NULL){
+			err_sys("http body alloc memory fail", DEBUG);
+			return -1;
+		}
 		char *cur_recv = hr->content;
 		while(len > 0){
 			recvbytes =  recv(client_fd, cur_recv, MAX_RECV_SIZE, 0);
-			if(-1 == recvbytes) err_sys("http_recvbody");
+			if(-1 == recvbytes){
+				err_sys("recv http body fail", DEBUG);
+				return -1;
+			}
 			cur_recv += recvbytes;
 			len -= recvbytes;
 		}
 		// debug printf("recv body中的内容是%d\n");
 	}
+	return 1;
 }
 
 
@@ -166,7 +197,7 @@ char *get_http_Val(const char* str, const char *substr){
 	return start;
 }
 
-/* 获取http请求一行数据 */
+/*  获取http请求一行数据, 成功则返回数据长度*/
 int get_line(const int client_fd, char *buf, int size){
 	char c = '\0';
 	int n, i;
@@ -190,6 +221,7 @@ int get_line(const int client_fd, char *buf, int size){
 	return i;
 }
 
+/* 发送http响应信息 */
 void send_http_responce(int client_fd, const int http_code, const char *msg, const http_header * hr){
 	char header[MAX_BUF_SIZE], body[MAX_BUF_SIZE];
 	sprintf(body, "<html><body>%d:%s<hr /><em>studyHttpd Web Service</em></body></html>", http_code, msg);
@@ -200,7 +232,6 @@ void send_http_responce(int client_fd, const int http_code, const char *msg, con
 	sprintf(header, "Content-Length: %d\r\n\r\n", (int)strlen(body));
 	send(client_fd, header, strlen(header), 0);
 	send(client_fd, body, strlen(body), 0);
-	
 }
 
 /* 处理静态文件 */
@@ -235,7 +266,7 @@ void exec_static(int client_fd, http_header *hr, int size){
 
 /* 浏览目录 */
 void exec_dir(int client_fd, char *dirname, http_header *hr){
-
+	
 	char buf[MAX_BUF_SIZE], header[MAX_BUF_SIZE],img[MAX_BUF_SIZE], filename[MAX_BUF_SIZE];
 	char web[50];
 	DIR *dp;
@@ -245,7 +276,7 @@ void exec_dir(int client_fd, char *dirname, http_header *hr){
 	struct passwd *passwd;
 
 
-	if(NULL == (dp = opendir(dirname))) err_sys("open dir");
+	if(NULL == (dp = opendir(dirname))) err_sys("open dir fail", DEBUG);
 
 
 	sprintf(buf, "<html><head><meta charset=""utf-8""><title>DIR List</title>");
@@ -305,10 +336,10 @@ void exec_php(int client_fd, http_header *hr){
 	int fcgi_fd;
 	
 	/* 连接fastcgi服务器 */
-	fcgi_fd = conn_fastcgi();
+	if(-1 == (fcgi_fd = conn_fastcgi())) return ;
 	
 	/* 发送数据 */
-	send_fastcgi(fcgi_fd, client_fd, hr);
+	if(-1 == (send_fastcgi(fcgi_fd, client_fd, hr))) return ;
 
 	/* 接收数据 */
 	recv_fastcgi(fcgi_fd, client_fd, hr);
@@ -316,7 +347,11 @@ void exec_php(int client_fd, http_header *hr){
 }
 
 
-
+/*
+ * 连接php-fpm服务器
+ * 成功返回socket描述符, 失败返回-1
+ *
+ * */
 int conn_fastcgi(){	
 	int fcgi_fd;
 	struct sockaddr_in fcgi_sock;
@@ -325,13 +360,25 @@ int conn_fastcgi(){
 	fcgi_sock.sin_family = AF_INET;
 	fcgi_sock.sin_addr.s_addr = inet_addr(FCGI_HOST);
 	fcgi_sock.sin_port = htons(FCGI_PORT);
-	if(-1 == (fcgi_fd = socket(PF_INET, SOCK_STREAM, 0)))  err_sys("fcgi socket");
-	if(-1 == connect(fcgi_fd, (struct sockaddr *)&fcgi_sock, sizeof(fcgi_sock))) err_sys("fcgi connect");
 	
+	if(-1 == (fcgi_fd = socket(PF_INET, SOCK_STREAM, 0))){
+		err_sys("fcgi socket()", DEBUG);
+		return -1;
+	}
+	
+	if(-1 == connect(fcgi_fd, (struct sockaddr *)&fcgi_sock, sizeof(fcgi_sock))){
+		err_sys("php-fpm connect", DEBUG);
+		return -1;
+	}
 	return fcgi_fd;
 }
 
-void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
+/* 
+ * 与php-fpm通信
+ * 成功返回1, 失败返回-1
+ * 
+ * */
+int send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 		
 	char filename[50];
 	int requestId = client_fd, recvbytes, sendbytes;
@@ -340,14 +387,17 @@ void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 	FCGI_BeginRequestRecord beginRecord;
 	beginRecord.body = makeBeginRequestBody(FCGI_RESPONDER);
 	beginRecord.header =  makeHeader(FCGI_BEGIN_REQUEST, requestId, sizeof(beginRecord.body), 0);
-	if(-1 == (sendbytes = send(fcgi_fd, &beginRecord, sizeof(beginRecord), 0))) err_sys("fcgi send beginRecord");
-	
+	if(-1 == (sendbytes = send(fcgi_fd, &beginRecord, sizeof(beginRecord), 0))){
+		err_sys("fcgi send beginRecord error", DEBUG);
+		return -1;
+	}
+
+
 	getcwd(filename, sizeof(filename));
 	strcat(filename, "/");
 	strcat(filename, hr->path);
 	buffer_path_simplify(filename, filename);
 	char *params[][2] = {{"SCRIPT_FILENAME", filename}, {"REQUEST_METHOD", hr->method}, {"QUERY_STRING", hr->param}, {"CONTENT_TYPE", hr->contype },{"CONTENT_LENGTH", hr->conlength },{"", ""}};
-
 	/* 发送 FCGI_PARAMS */
 	int i, conLength, paddingLength;
 	FCGI_ParamsRecord *paramsRecord;
@@ -362,18 +412,25 @@ void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 		memset(paramsRecord->data, 0, conLength + paddingLength);
 		memcpy(paramsRecord->data, params[i][0], strlen(params[i][0]));
 		memcpy(paramsRecord->data + strlen(params[i][0]), params[i][1], strlen(params[i][1]));
-		if(-1 == (sendbytes = send(fcgi_fd, paramsRecord, 8 + conLength + paddingLength, 0))) err_sys("fcgi send paramsRecord");
+		if(-1 == (sendbytes = send(fcgi_fd, paramsRecord, 8 + conLength + paddingLength, 0))){
+			err_sys("fcgi send paramsRecord error", DEBUG);
+			return -1;
+		}
 		free(paramsRecord);
 	}
+	/* 空的FCGI_PARAMS参数 */
 	emptyData = makeHeader(FCGI_PARAMS, requestId, 0, 0);
-	if(-1 == (sendbytes = send(fcgi_fd, &emptyData, FCGI_HEADER_LEN, 0))) err_sys("fcgi send paramsRecord empty");
+	if(-1 == (sendbytes = send(fcgi_fd, &emptyData, FCGI_HEADER_LEN, 0))){
+		err_sys("fcgi send paramsRecord empty error", DEBUG);
+		return -1;
+	}
 
 	/*POST　并且有请求体 才会发送FCGI_STDIN数据 */
 	char buf[8] = {0};
 	int len = atoi(hr->conlength);
 	int send_len;
 	if(!strcmp("POST", hr->method)){
-		//printf("post数据总长度:%d\n", len);
+		// debug printf("post数据总长度:%d\n", len);
 		// debug printf("%s\n", hr->content);
 		while(len > 0){
 			send_len = len > FCGI_MAX_LEN  ? FCGI_MAX_LEN : len;
@@ -381,20 +438,32 @@ void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 			FCGI_Header stdinHeader;
 			paddingLength = (send_len %  8) == 0 ? 0 :  8 - (send_len % 8);
 			stdinHeader = makeHeader(FCGI_STDIN, requestId, send_len, paddingLength);
-			if(-1 == (sendbytes = send(fcgi_fd, &stdinHeader,FCGI_HEADER_LEN, 0))) err_sys("fcgi send stdinHeader");
-			if(-1 == (sendbytes = send(fcgi_fd, hr->content, send_len, 0))) err_sys("fcgi send stdin data");
-			//printf("单次发送大小:%d\n发送内容:\n%s\n", sendbytes, hr->content);
-			if(paddingLength > 0){	//发送填充数据
-				if(-1 == (sendbytes = send(fcgi_fd, buf, paddingLength, 0))) err_sys("fcgi send padding");
+			if(-1 == (sendbytes = send(fcgi_fd, &stdinHeader,FCGI_HEADER_LEN, 0))){
+				err_sys("fcgi send stdinHeader error", DEBUG);
+				return -1;
+			}
+			if(-1 == (sendbytes = send(fcgi_fd, hr->content, send_len, 0))){
+				err_sys("fcgi send stdin", DEBUG);
+				return -1;
+			}
+			// debug printf("单次发送大小:%d\n发送内容:\n%s\n", sendbytes, hr->content);
+			if((paddingLength > 0) && (-1 == (sendbytes = send(fcgi_fd, buf, paddingLength, 0)))){
+				err_sys("fcgi send stdin padding", DEBUG);
+				return -1;
 			}
 			hr->content += send_len;
 			// debug printf("长度%d\n", (int)strlen(hr->content));
 		}
 	}
+
 	//debug  printf("%d\n", sendbytes);
 	/* 发送空的FCGI_STDIN数据 */
 	FCGI_Header emptyStdin = makeHeader(FCGI_STDIN, requestId, 0, 0);
-	if(-1 == (sendbytes = send(fcgi_fd, &emptyStdin, FCGI_HEADER_LEN, 0))) err_sys("fcgi send stdinHeader enpty");
+	if(-1 == (sendbytes = send(fcgi_fd, &emptyStdin, FCGI_HEADER_LEN, 0))){
+		err_sys("fcgi send stdinHeader enpty", DEBUG);
+		return -1;
+	}
+	return 1;
 }
 
 void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
@@ -420,11 +489,16 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 				ok = (char *)malloc(contentLength);
 			}
 			recvbytes = recv(fcgi_fd, ok, contentLength, 0);
-			if(-1 == recvbytes || contentLength != recvbytes) err_sys("recv fcgi_stdout");
-
+			if(-1 == recvbytes || contentLength != recvbytes) {
+				err_sys("recv fcgi stdout fail", DEBUG); 
+				return ;
+			}
 			if(responseHeader.paddingLength > 0){
 				recvbytes = recv(fcgi_fd, buf, responseHeader.paddingLength, 0);
-				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength)	err_sys("fcgi_stdout padding");
+				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength){
+					err_sys("fcgi stdout padding fail", DEBUG);
+					return;
+				}
 			}
 		}else if(FCGI_STDERR == responseHeader.type && recvId == client_fd){
 			contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
@@ -434,19 +508,31 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 			}else{
 				err = (char *)malloc(contentLength);
 			}
+
 			recvbytes = recv(fcgi_fd, err, contentLength, 0);
-			if(-1 == recvbytes || contentLength != recvbytes) err_sys("recv fcgi_stderr");
+			if(-1 == recvbytes || contentLength != recvbytes){
+				err_sys("recv fcgi stderr", DEBUG);
+				return ;
+			}
+
 			if(responseHeader.paddingLength > 0){
 				recvbytes = recv(fcgi_fd, buf, responseHeader.paddingLength, 0);
-				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength) err_sys("fcgi_stdout padding");
+				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength){
+					err_sys("fcgi stdout padding", DEBUG);
+					return ;
+				}
 			}
 		}else if(FCGI_END_REQUEST == responseHeader.type && recvId == client_fd){
 			recvbytes = recv(fcgi_fd, &responseEnder, sizeof(responseEnder), 0);
+			
 			if(-1 == recvbytes || sizeof(responseEnder) != recvbytes){
 				free(err);
 				free(ok);
-				err_sys("fcgi_end");
+				err_sys("fcgi recv end fail", DEBUG);
+				return ;
 			}
+
+			/* 传输结束后构造http请求响应客户端 */
 			send_client(ok, outlen, err, errlen, client_fd, hr);
 			free(err);
 			free(ok);
@@ -487,7 +573,7 @@ void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, htt
 	sprintf(header, "%sContent-Type: %s\r\n\r\n", header,mime);
 	send(client_fd, header, strlen(header), 0);
 	send(client_fd, body, outlen - header_len, 0);
-	//printf("收到的stdin:\n%s\n收到的stderr:\n%s\n", ok, err);
+	// debug printf("收到的stdin:\n%s\n收到的stderr:\n%s\n", ok, err);
 	if(errlen > 0){
 		send(client_fd, err, errlen, 0);
 	}

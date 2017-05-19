@@ -2,24 +2,24 @@
 
 void *pthread_routine(void *arg){
 
-	// printf("starting pthread 0x%x\n", (unsigned int)pthread_self());
+	//debug  printf("starting pthread 0x%x\n", (unsigned int)pthread_self());
 
 	pool->pool_size++;
 	while(1){
 		pthread_mutex_lock(&(pool->queue_lock));
 	
 		while(0 == pool->wait_num && ! pool->is_destroy){
-	//		printf("thread 0x%x waiting\n", (unsigned int)pthread_self());
+	//debug printf("thread 0x%x waiting\n", (unsigned int)pthread_self());
 			pthread_cond_wait(&(pool->queue_cond), &(pool->queue_lock));
 		}
 
 		if(pool->is_destroy){
 			pthread_mutex_unlock(&(pool->queue_lock));
-	//		printf("thread 0x%x will exit\n", (unsigned int)pthread_self());
+	//debug printf("thread 0x%x will exit\n", (unsigned int)pthread_self());
 			pthread_exit(NULL);
 		}
 
-	//	printf("pthread 0x%x is starting to work\n", (unsigned int)pthread_self());
+	//debug printf("pthread 0x%x is starting to work\n", (unsigned int)pthread_self());
 		
 		pool->wait_num--;
 		thread_job *job = pool->queue_head;
@@ -31,30 +31,43 @@ void *pthread_routine(void *arg){
 		job = NULL;
 	}
 
-	printf("excute here\n");
+	// debug printf("excute here\n");
 	pthread_exit(NULL);
 }
 
-/* 初始化线程池 */
-void pool_init(int pool_size){
+/* 初始化线程池, 成功返回1, 失败返回-1 */
+int pool_init(int pool_size){
 	
-	if(pool_size <= 0) err_user("pool_size must > 0");
+	if(pool_size <= 0) {
+		err_user("threadpool size must > 0\n");
+		return -1;
+	}
 	
 
-	if(NULL == (pool = (thread_pool *)malloc(sizeof(thread_pool)))) err_sys("threadpool malloc");
+	if(NULL == (pool = (thread_pool *)malloc(sizeof(thread_pool)))){
+		err_sys("threadpool alloc memory fail", DEBUG);
+		return -1;
+	}
 	
 	if(0 != pthread_mutex_init(&(pool->queue_lock), NULL)){
 		free(pool);
-		err_sys("pthread_mutex_init");
+		err_sys("pthread_mutex_init fail", DEBUG);
+		return -1;
 	}
+
 	if(0 != pthread_cond_init(&(pool->queue_cond), NULL)){
 		pthread_mutex_destroy(&(pool->queue_lock));
 		free(pool);
-		err_sys("pthread_cond_init");
+		err_sys("pthread_cond_init fail", DEBUG);
+		return -1;
 	}
+
 	if(NULL == (pool->tid = (pthread_t *)malloc(pool_size * sizeof(pthread_t)))){
+		pthread_mutex_destroy(&(pool->queue_lock));
+		pthread_cond_destroy(&(pool->queue_cond));
 		free(pool);
-		err_sys("pthread_t malloc");
+		err_sys("pthread_t alloc memory fail", DEBUG);
+		return -1;
 	}
 	pool->wait_num = 0;
 	pool->pool_size = 0;
@@ -65,12 +78,14 @@ void pool_init(int pool_size){
 	for(; i < pool_size; i++){
 		if(0 != pthread_create(&(pool->tid[i]), NULL, pthread_routine, NULL)){
 			pool_destroy();
-			err_sys("pthread_create");
+			err_sys("pthread_create fail", DEBUG);
+			return -1;
 		}
 	}
 	
+	/* 等待所有线程创建完毕 */
 	while(pool_size != pool->pool_size){}
-
+	return 1;
 }
 
 /*
@@ -92,6 +107,7 @@ int pool_destroy(){
 	}
 
 	thread_job *head = NULL;
+
 	while(pool->queue_head != NULL){
 		head = pool->queue_head;
 		pool->queue_head = head->next;
@@ -107,13 +123,17 @@ int pool_destroy(){
 
 /*
  *
- * 添加任务, 成功返回0
+ * 添加到任务队列
+ * 成功返回1, 失败返回-1
  *
  */
 
 int add_job(void *(*process)(void *arg), void *arg){
 	thread_job *newjob;
-	if(NULL == (newjob = (thread_job *)malloc(sizeof(thread_job)))) err_sys("add_job malloc");
+	if(NULL == (newjob = (thread_job *)malloc(sizeof(thread_job)))){
+		err_sys("add_job alloc memory fail", DEBUG);
+		return -1;
+	}
 	newjob->process = process;
 	newjob->arg = arg;
 	newjob->next = NULL;
@@ -133,7 +153,7 @@ int add_job(void *(*process)(void *arg), void *arg){
 	pthread_mutex_unlock(&(pool->queue_lock));
 	pthread_cond_signal(&(pool->queue_cond));
 	
-	return 0;
+	return 1;
 
 }
 

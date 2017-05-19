@@ -1,21 +1,13 @@
 #include "common.h"
 
-
-
-
-void err_sys(const char *msg){
-	perror(msg);
-	exit(1);
+void err_sys(const char *msg, const char *filename, int line, const char *func){
+	fprintf(stderr, "%s(%d)-%s error --> %s : %s\n", filename, line, func, msg, strerror(errno));
 }
 
-void err_user(const char *msg){
-	fprintf(stderr, "%s", msg);
-	exit(1);
-}
-
-void err_msg(const char *msg){
+void err_user(char *msg){
 	fprintf(stderr, "%s", msg);
 }
+
 int buffer_path_simplify(char *dest, char *src){  
 	int count;  
 	char c;  

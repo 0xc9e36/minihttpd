@@ -8,6 +8,11 @@ php(需要php-fpm)
 GET/POST方法   
 ...   
 
+#  TODO
+recv, send的封装   
+内存管理   
+...
+
 #  演示   
 ubuntu 安装 php-fpm :  sudo apt-get install php5-fpm   
 改配置文件设置监听端口 :   listen =127.0.0.1:9000  

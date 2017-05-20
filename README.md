@@ -9,9 +9,9 @@ GET/POST方法
 ...   
 
 #  TODO
-recv, send的封装   
-内存管理   
-...
+recv, send的封装    
+内存管理    
+...   
 
 #  演示   
 ubuntu 安装 php-fpm :  sudo apt-get install php5-fpm   

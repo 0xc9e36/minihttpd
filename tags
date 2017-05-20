@@ -204,6 +204,7 @@ DB	htdocs/CodeIgniter/tests/mocks/database/db.php	/^	public static function DB($
 DB_driver_test	htdocs/CodeIgniter/tests/codeigniter/database/DB_driver_test.php	/^class DB_driver_test extends CI_TestCase {$/;"	c
 DB_result_dummy	htdocs/CodeIgniter/tests/codeigniter/libraries/Table_test.php	/^class DB_result_dummy extends CI_DB_result$/;"	c
 DB_test	htdocs/CodeIgniter/tests/codeigniter/database/DB_test.php	/^class DB_test extends CI_TestCase {$/;"	c
+DEBUG	src/common.h	11;"	d
 DIR_READ_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('DIR_READ_MODE')   OR define('DIR_READ_MODE', 0755);$/;"	d
 DIR_WRITE_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('DIR_WRITE_MODE')  OR define('DIR_WRITE_MODE', 0755);$/;"	d
 Date_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/date_helper_test.php	/^class Date_helper_test extends CI_TestCase {$/;"	c
@@ -331,7 +332,7 @@ Parser_test	htdocs/CodeIgniter/tests/codeigniter/libraries/Parser_test.php	/^cla
 Path_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/path_helper_test.php	/^class Path_helper_test extends CI_TestCase {$/;"	c
 PhpLexer	htdocs/CodeIgniter/user_guide_src/cilexer/cilexer/cilexer.py	/^from pygments.lexers.web import PhpLexer, HtmlLexer$/;"	i
 RES	htdocs/CodeIgniter/system/database/DB_driver.php	/^		$RES    = new $driver($this);$/;"	v
-ROOT	src/common.h	7;"	d
+ROOT	src/common.h	9;"	d
 RTR	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$RTR =& load_class('Router', 'core', isset($routing) ? $routing : NULL);$/;"	v
 SEC	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$SEC =& load_class('Security', 'core', $charset);$/;"	v
 SELF	htdocs/CodeIgniter/index.php	/^	define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));$/;"	d
@@ -368,7 +369,7 @@ Utf8_test	htdocs/CodeIgniter/tests/codeigniter/core/Utf8_test.php	/^class Utf8_t
 VERSION	htdocs/CodeIgniter/user_guide_src/source/_themes/sphinx_rtd_theme/__init__.py	/^VERSION = (0, 1, 5)$/;"	v
 VIEWPATH	htdocs/CodeIgniter/index.php	/^	define('VIEWPATH', $view_folder.DIRECTORY_SEPARATOR);$/;"	d
 VIEWPATH	htdocs/CodeIgniter/tests/Bootstrap.php	/^defined('VIEWPATH') OR define('VIEWPATH', APPPATH.'views\/');$/;"	d
-WEB	src/common.h	8;"	d
+WEB	src/common.h	10;"	d
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to strlen()$/;"	f
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to strpos()$/;"	f
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to substr()$/;"	f
@@ -2954,9 +2955,8 @@ epub_copyright	htdocs/CodeIgniter/user_guide_src/source/conf.py	/^epub_copyright
 epub_publisher	htdocs/CodeIgniter/user_guide_src/source/conf.py	/^epub_publisher = u'British Columbia Institute of Technology'$/;"	v
 epub_title	htdocs/CodeIgniter/user_guide_src/source/conf.py	/^epub_title = u'CodeIgniter'$/;"	v
 err_message	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$err_message = 'What a terrible error!';$/;"	v
-err_msg	src/common.c	/^void err_msg(const char *msg){$/;"	f
-err_sys	src/common.c	/^void err_sys(const char *msg){$/;"	f
-err_user	src/common.c	/^void err_user(const char *msg){$/;"	f
+err_sys	src/common.c	/^void err_sys(const char *msg, const char *filename, int line, const char *func){$/;"	f
+err_user	src/common.c	/^void err_user(char *msg){$/;"	f
 errno	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^				$errno = -1;$/;"	v
 errno	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^			$errno = $errno_v->scalarval();$/;"	v
 errno	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^			$this->errno = $code;$/;"	v
@@ -4984,7 +4984,7 @@ parse	htdocs/CodeIgniter/system/libraries/User_agent.php	/^	public function pars
 parseRequest	htdocs/CodeIgniter/system/libraries/Xmlrpcs.php	/^	public function parseRequest($data = '')$/;"	f
 parseResponse	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function parseResponse($fp)$/;"	f
 parse_exec_vars	htdocs/CodeIgniter/system/core/Output.php	/^	public $parse_exec_vars = TRUE;$/;"	v
-parse_request	src/http.c	/^void parse_request(const int client_fd, char *buf, http_header *hr){$/;"	f
+parse_request	src/http.c	/^int parse_request(const int client_fd, char *buf, http_header *hr){$/;"	f
 parse_string	htdocs/CodeIgniter/system/libraries/Parser.php	/^	public function parse_string($template, $data, $return = FALSE)$/;"	f
 parse_template	htdocs/CodeIgniter/system/libraries/Calendar.php	/^	public function parse_template()$/;"	f
 parser	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^		$parser = xml_parser_create($this->xmlrpc_defencoding);$/;"	v
@@ -5076,7 +5076,7 @@ pool	htdocs/CodeIgniter/system/helpers/string_helper.php	/^						$pool = '123456
 pool	htdocs/CodeIgniter/system/helpers/string_helper.php	/^						$pool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';$/;"	v
 pool	src/threadpool.h	/^static thread_pool *pool = NULL;$/;"	v
 pool_destroy	src/threadpool.c	/^int pool_destroy(){$/;"	f
-pool_init	src/threadpool.c	/^void pool_init(int pool_size){$/;"	f
+pool_init	src/threadpool.c	/^int pool_init(int pool_size){$/;"	f
 pool_length	htdocs/CodeIgniter/system/helpers/captcha_helper.php	/^			$pool_length = strlen($pool);$/;"	v
 pool_size	src/threadpool.h	/^	int pool_size;$/;"	m	struct:__anon7
 port	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public $port			= '';$/;"	v
@@ -5768,7 +5768,7 @@ sendPayload	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function se
 send_client	src/http.c	/^void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, http_header *hr){$/;"	f
 send_error	htdocs/CodeIgniter/system/libraries/Trackback.php	/^	public function send_error($message = 'Incomplete Information')$/;"	f
 send_error_message	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function send_error_message($number, $message)$/;"	f
-send_fastcgi	src/http.c	/^void send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){$/;"	f
+send_fastcgi	src/http.c	/^int send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){$/;"	f
 send_http_responce	src/http.c	/^void send_http_responce(int client_fd, const int http_code, const char *msg, const http_header * hr){$/;"	f
 send_multipart	htdocs/CodeIgniter/system/libraries/Email.php	/^	public $send_multipart	= TRUE;$/;"	v
 send_request	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function send_request()$/;"	f

@@ -109,8 +109,7 @@ void *handle_request(void *arg){
 int parse_request(const int client_fd, char *buf, http_header *hr){
 
 	char web[50];
-	int recvbytes;
-	int i = 0, j = 0;
+	int recvbytes,  i = 0, j = 0;
 	int start, end;
 
 	/* 根目录 */
@@ -470,29 +469,43 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 
 	FCGI_Header responseHeader;
 	FCGI_EndRequestBody responseEnder;
-	int recvbytes, recvId;
+	int recvbytes, recvId, ok_recved = 0, ok_recv = 0;	// ok_recved 已经从缓冲区读取的字节数目,  ok_recv 本次要从缓冲区读取的字节数
+	int err_recved = 0, err_recv = 0;					//同上
 	char buf[8];
 	char header[MAX_BUF_SIZE];
 	int contentLength;
 	int errlen = 0, outlen = 0;
 	char *ok = NULL , *err = NULL;
 
-	/*接受数据 */
+	/*接收数据 */
 	while(recv(fcgi_fd, &responseHeader, FCGI_HEADER_LEN, 0) > 0){
 		recvId = (int)(responseHeader.requestIdB1 << 8) + (int)(responseHeader.requestIdB0);
 		if(FCGI_STDOUT == responseHeader.type && recvId == client_fd){
 			contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
 			outlen += contentLength;
 			if(ok != NULL){
-				ok = realloc(ok, outlen);
+				if(NULL == (ok = realloc(ok, outlen))){
+					err_sys("realloc memory ok fail", DEBUG);
+					free(ok);
+					return ;
+				}
 			}else{
-				ok = (char *)malloc(contentLength);
+				if(NULL == (ok = (char *)malloc(contentLength))){
+					err_sys("alloc memory ok fail", DEBUG);
+					return ;
+				}
 			}
-			recvbytes = recv(fcgi_fd, ok, contentLength, 0);
-			if(-1 == recvbytes || contentLength != recvbytes) {
-				err_sys("recv fcgi stdout fail", DEBUG); 
-				return ;
-			}
+			while(contentLength > 0){
+				//本次从缓冲区读取大小
+				ok_recv = contentLength > MAX_RECV_SIZE ? MAX_RECV_SIZE : contentLength;
+				if( -1 == (recvbytes = recv(fcgi_fd, ok + ok_recved, ok_recv, 0))){
+					err_sys("fcgi recv stdout fail", DEBUG);
+					return ;
+				}
+				contentLength -= recvbytes;
+				ok_recved += recvbytes;
+			}	
+
 			if(responseHeader.paddingLength > 0){
 				recvbytes = recv(fcgi_fd, buf, responseHeader.paddingLength, 0);
 				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength){
@@ -504,16 +517,28 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 			contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
 			errlen += contentLength;
 			if(err != NULL){
-				err = realloc(err, errlen);
+				if( NULL == (err = realloc(err, errlen))){	
+					err_sys("fcgi stderr realloc memory fail", DEBUG);
+					free(err);
+					return ;
+				}
 			}else{
-				err = (char *)malloc(contentLength);
+				if(NULL == (err = (char *)malloc(contentLength))){	
+					err_sys("fcgi stderr alloc memory fail", DEBUG);
+					return ;
+				}
 			}
-
-			recvbytes = recv(fcgi_fd, err, contentLength, 0);
-			if(-1 == recvbytes || contentLength != recvbytes){
-				err_sys("recv fcgi stderr", DEBUG);
-				return ;
-			}
+		
+			while(contentLength > 0){
+				//本次从缓冲区读取大小
+				err_recv = contentLength > MAX_RECV_SIZE ? MAX_RECV_SIZE : contentLength;
+				if( -1 == (recvbytes = recv(fcgi_fd, err + err_recved, err_recv, 0))){
+					err_sys("fcgi recv stderr fail", DEBUG);
+					return ;
+				}
+				contentLength -= recvbytes;
+				err_recved += recvbytes;
+			}	
 
 			if(responseHeader.paddingLength > 0){
 				recvbytes = recv(fcgi_fd, buf, responseHeader.paddingLength, 0);
@@ -541,6 +566,7 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 
 }
 
+/* 构造http响应, 返回客户端 */
 void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, http_header *hr){
 			
 	char header[MAX_BUF_SIZE], header_buf[256];

@@ -10,7 +10,8 @@ GET/POST方法
 
 #  TODO
 recv, send的封装    
-内存管理    
+内存管理   
+日志管理    
 ...   
 
 #  演示   

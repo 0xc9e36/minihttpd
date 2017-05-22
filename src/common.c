@@ -8,6 +8,15 @@ void err_user(char *msg){
 	fprintf(stderr, "%s", msg);
 }
 
+void end_server(int sockfd){	
+	close(sockfd);
+	pool_destroy();
+}
+
+void cancel_request(){
+	printf("浏览器取消了请求\n");
+}
+
 int buffer_path_simplify(char *dest, char *src){  
 	int count;  
 	char c;  

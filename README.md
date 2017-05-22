@@ -1,6 +1,11 @@
 # studyHttpd
 一个简单的多线程http服务器,  用C语言写的, 支持php.  
 
+#  参考资料   
+TinyHttpd    
+深入理解计算机系统(第三部分)    
+
+
 #  支持   
 目录显示   
 html   

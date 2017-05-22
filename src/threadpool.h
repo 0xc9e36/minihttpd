@@ -8,7 +8,7 @@
 #include<sys/types.h>
 #include<pthread.h>
 
-#define MAX_POOL_SIZE	3	//最大线程数
+#define MAX_POOL_SIZE	4	//最大线程数
 
 /* 工作队列 */
 typedef struct job{

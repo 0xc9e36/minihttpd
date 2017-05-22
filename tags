@@ -204,7 +204,7 @@ DB	htdocs/CodeIgniter/tests/mocks/database/db.php	/^	public static function DB($
 DB_driver_test	htdocs/CodeIgniter/tests/codeigniter/database/DB_driver_test.php	/^class DB_driver_test extends CI_TestCase {$/;"	c
 DB_result_dummy	htdocs/CodeIgniter/tests/codeigniter/libraries/Table_test.php	/^class DB_result_dummy extends CI_DB_result$/;"	c
 DB_test	htdocs/CodeIgniter/tests/codeigniter/database/DB_test.php	/^class DB_test extends CI_TestCase {$/;"	c
-DEBUG	src/common.h	11;"	d
+DEBUGPARAMS	src/common.h	15;"	d
 DIR_READ_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('DIR_READ_MODE')   OR define('DIR_READ_MODE', 0755);$/;"	d
 DIR_WRITE_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('DIR_WRITE_MODE')  OR define('DIR_WRITE_MODE', 0755);$/;"	d
 Date_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/date_helper_test.php	/^class Date_helper_test extends CI_TestCase {$/;"	c
@@ -235,20 +235,20 @@ F	htdocs/CodeIgniter/system/database/drivers/oci8/oci8_result.php	/^			$F		= new
 FCGI_ABORT_REQUEST	src/fastcgi.h	31;"	d
 FCGI_AUTHORIZER	src/fastcgi.h	50;"	d
 FCGI_BEGIN_REQUEST	src/fastcgi.h	30;"	d
-FCGI_BeginRequestBody	src/fastcgi.h	/^}FCGI_BeginRequestBody;$/;"	t	typeref:struct:__anon2
-FCGI_BeginRequestRecord	src/fastcgi.h	/^}FCGI_BeginRequestRecord;$/;"	t	typeref:struct:__anon3
+FCGI_BeginRequestBody	src/fastcgi.h	/^}FCGI_BeginRequestBody;$/;"	t	typeref:struct:__anon3
+FCGI_BeginRequestRecord	src/fastcgi.h	/^}FCGI_BeginRequestRecord;$/;"	t	typeref:struct:__anon4
 FCGI_DATA	src/fastcgi.h	37;"	d
 FCGI_END_REQUEST	src/fastcgi.h	32;"	d
-FCGI_EndRequestBody	src/fastcgi.h	/^} FCGI_EndRequestBody;$/;"	t	typeref:struct:__anon5
-FCGI_EndRequestRecord	src/fastcgi.h	/^} FCGI_EndRequestRecord;$/;"	t	typeref:struct:__anon6
+FCGI_EndRequestBody	src/fastcgi.h	/^} FCGI_EndRequestBody;$/;"	t	typeref:struct:__anon6
+FCGI_EndRequestRecord	src/fastcgi.h	/^} FCGI_EndRequestRecord;$/;"	t	typeref:struct:__anon7
 FCGI_FILTER	src/fastcgi.h	51;"	d
 FCGI_HEADER_LEN	src/fastcgi.h	27;"	d
 FCGI_HOST	src/fastcgi.h	12;"	d
-FCGI_Header	src/fastcgi.h	/^}FCGI_Header;$/;"	t	typeref:struct:__anon1
+FCGI_Header	src/fastcgi.h	/^}FCGI_Header;$/;"	t	typeref:struct:__anon2
 FCGI_MAX_LEN	src/fastcgi.h	13;"	d
 FCGI_PARAMS	src/fastcgi.h	33;"	d
 FCGI_PORT	src/fastcgi.h	11;"	d
-FCGI_ParamsRecord	src/fastcgi.h	/^}FCGI_ParamsRecord;$/;"	t	typeref:struct:__anon4
+FCGI_ParamsRecord	src/fastcgi.h	/^}FCGI_ParamsRecord;$/;"	t	typeref:struct:__anon5
 FCGI_RESPONDER	src/fastcgi.h	49;"	d
 FCGI_STDERR	src/fastcgi.h	36;"	d
 FCGI_STDIN	src/fastcgi.h	34;"	d
@@ -279,22 +279,25 @@ ICONV_ENABLED	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^		define('ICONV_E
 ICONV_ENABLED	htdocs/CodeIgniter/tests/Bootstrap.php	/^	defined('ICONV_ENABLED') OR define('ICONV_ENABLED', FALSE);$/;"	d
 ICONV_ENABLED	htdocs/CodeIgniter/tests/Bootstrap.php	/^	defined('ICONV_ENABLED') OR define('ICONV_ENABLED', TRUE);$/;"	d
 IN	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$IN =& load_class('Input', 'core', $SEC);$/;"	v
+INIT_LIST_HEAD	src/list.h	/^static inline void INIT_LIST_HEAD(struct list_head *list){$/;"	f
 Inflector_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/inflector_helper_test.php	/^class Inflector_helper_test extends CI_TestCase {$/;"	c
 Input_test	htdocs/CodeIgniter/tests/codeigniter/core/Input_test.php	/^class Input_test extends CI_TestCase {$/;"	c
 Insert_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/insert_test.php	/^class Insert_test extends CI_TestCase {$/;"	c
 Join_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/join_test.php	/^class Join_test extends CI_TestCase {$/;"	c
 LANG	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$LANG =& load_class('Lang', 'core');$/;"	v
 LANG	htdocs/CodeIgniter/system/database/DB_driver.php	/^		$LANG =& load_class('Lang', 'core');$/;"	v
+LIST_HEAD	src/list.h	16;"	d
+LIST_HEAD_INIT	src/list.h	14;"	d
 Lang_test	htdocs/CodeIgniter/tests/codeigniter/core/Lang_test.php	/^class Lang_test extends CI_TestCase {$/;"	c
 Language_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/language_helper_test.php	/^class Language_helper_test extends CI_TestCase {$/;"	c
 Like_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/like_test.php	/^class Like_test extends CI_TestCase {$/;"	c
 Limit_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/limit_test.php	/^class Limit_test extends CI_TestCase {$/;"	c
 Loader_test	htdocs/CodeIgniter/tests/codeigniter/core/Loader_test.php	/^class Loader_test extends CI_TestCase {$/;"	c
 Log_test	htdocs/CodeIgniter/tests/codeigniter/core/Log_test.php	/^class Log_test extends CI_TestCase {$/;"	c
-MAX_BUF_SIZE	src/http.h	23;"	d
+MAX_BUF_SIZE	src/http.h	24;"	d
 MAX_POOL_SIZE	src/threadpool.h	11;"	d
-MAX_QUE_CONN_NM	src/http.h	22;"	d
-MAX_RECV_SIZE	src/http.h	24;"	d
+MAX_QUE_CONN_NM	src/http.h	23;"	d
+MAX_RECV_SIZE	src/http.h	25;"	d
 MB_ENABLED	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^		define('MB_ENABLED', FALSE);$/;"	d
 MB_ENABLED	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^		define('MB_ENABLED', TRUE);$/;"	d
 MB_ENABLED	htdocs/CodeIgniter/tests/Bootstrap.php	/^	defined('MB_ENABLED') OR define('MB_ENABLED', FALSE);$/;"	d
@@ -326,13 +329,14 @@ PAPEROPT_a4	htdocs/CodeIgniter/user_guide_src/Makefile	/^PAPEROPT_a4     = -D la
 PAPEROPT_letter	htdocs/CodeIgniter/user_guide_src/Makefile	/^PAPEROPT_letter = -D latex_paper_size=letter$/;"	m
 PASSWORD_BCRYPT	htdocs/CodeIgniter/system/core/compat/password.php	/^defined('PASSWORD_BCRYPT') OR define('PASSWORD_BCRYPT', 1);$/;"	d
 PASSWORD_DEFAULT	htdocs/CodeIgniter/system/core/compat/password.php	/^defined('PASSWORD_DEFAULT') OR define('PASSWORD_DEFAULT', PASSWORD_BCRYPT);$/;"	d
-PORT	src/http.h	21;"	d
+PORT	src/http.h	22;"	d
 PROJECT_BASE	htdocs/CodeIgniter/tests/Bootstrap.php	/^defined('PROJECT_BASE') OR define('PROJECT_BASE', realpath($dir.'\/..\/').'\/');$/;"	d
 Parser_test	htdocs/CodeIgniter/tests/codeigniter/libraries/Parser_test.php	/^class Parser_test extends CI_TestCase {$/;"	c
 Path_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/path_helper_test.php	/^class Path_helper_test extends CI_TestCase {$/;"	c
 PhpLexer	htdocs/CodeIgniter/user_guide_src/cilexer/cilexer/cilexer.py	/^from pygments.lexers.web import PhpLexer, HtmlLexer$/;"	i
 RES	htdocs/CodeIgniter/system/database/DB_driver.php	/^		$RES    = new $driver($this);$/;"	v
-ROOT	src/common.h	9;"	d
+RIO_BUFSIZE	src/rio.h	6;"	d
+ROOT	src/common.h	13;"	d
 RTR	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$RTR =& load_class('Router', 'core', isset($routing) ? $routing : NULL);$/;"	v
 SEC	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$SEC =& load_class('Security', 'core', $charset);$/;"	v
 SELF	htdocs/CodeIgniter/index.php	/^	define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));$/;"	d
@@ -369,7 +373,7 @@ Utf8_test	htdocs/CodeIgniter/tests/codeigniter/core/Utf8_test.php	/^class Utf8_t
 VERSION	htdocs/CodeIgniter/user_guide_src/source/_themes/sphinx_rtd_theme/__init__.py	/^VERSION = (0, 1, 5)$/;"	v
 VIEWPATH	htdocs/CodeIgniter/index.php	/^	define('VIEWPATH', $view_folder.DIRECTORY_SEPARATOR);$/;"	d
 VIEWPATH	htdocs/CodeIgniter/tests/Bootstrap.php	/^defined('VIEWPATH') OR define('VIEWPATH', APPPATH.'views\/');$/;"	d
-WEB	src/common.h	10;"	d
+WEB	src/common.h	14;"	d
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to strlen()$/;"	f
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to strpos()$/;"	f
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to substr()$/;"	f
@@ -387,6 +391,7 @@ _COOKIE	htdocs/CodeIgniter/tests/codeigniter/libraries/Session_test.php	/^		$_CO
 _COOKIE	htdocs/CodeIgniter/tests/codeigniter/libraries/Session_test.php	/^		$_COOKIE = array();$/;"	v
 _FASTCGI_H_	src/fastcgi.h	5;"	d
 _HTTP_H_	src/http.h	2;"	d
+_LIST_H_	src/list.h	2;"	d
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array('foo' => '');$/;"	v
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array('foo' => 'bar');$/;"	v
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array('foo' => 'foo', 'bar' => array('bar1', 'bar2'));$/;"	v
@@ -394,6 +399,7 @@ _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array('select' => array('foo', 'bar'));$/;"	v
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array('username' => 'foo42');$/;"	v
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array();$/;"	v
+_RIO_H_	src/rio.h	2;"	d
 _SESSION	htdocs/CodeIgniter/tests/codeigniter/libraries/Session_test.php	/^		$_SESSION = array();$/;"	v
 _THREADPOOL_H	src/threadpool.h	2;"	d
 __all__	htdocs/CodeIgniter/user_guide_src/cilexer/cilexer/cilexer.py	/^__all__ = ['CodeIgniterLexer']$/;"	v
@@ -1094,6 +1100,7 @@ _limit	htdocs/CodeIgniter/system/database/drivers/sqlsrv/sqlsrv_driver.php	/^	pr
 _link_types	htdocs/CodeIgniter/system/libraries/Pagination.php	/^		$this->_link_types = ($attributes['rel'])$/;"	v
 _link_types	htdocs/CodeIgniter/system/libraries/Pagination.php	/^	protected $_link_types = array();$/;"	v
 _list	htdocs/CodeIgniter/system/helpers/html_helper.php	/^	function _list($type = 'ul', $list = array(), $attributes = '', $depth = 0)$/;"	f
+_list_add	src/list.h	/^static inline void _list_add(struct list_head *new, struct list_head *prev, struct list_head *next){$/;"	f
 _list_columns	htdocs/CodeIgniter/system/database/drivers/cubrid/cubrid_driver.php	/^	protected function _list_columns($table = '')$/;"	f
 _list_columns	htdocs/CodeIgniter/system/database/drivers/ibase/ibase_driver.php	/^	protected function _list_columns($table = '')$/;"	f
 _list_columns	htdocs/CodeIgniter/system/database/drivers/mssql/mssql_driver.php	/^	protected function _list_columns($table = '')$/;"	f
@@ -1121,6 +1128,8 @@ _list_databases	htdocs/CodeIgniter/system/database/drivers/mysqli/mysqli_utility
 _list_databases	htdocs/CodeIgniter/system/database/drivers/oci8/oci8_utility.php	/^	protected $_list_databases	= 'SELECT username FROM dba_users'; \/\/ Schemas are actual usernames$/;"	v
 _list_databases	htdocs/CodeIgniter/system/database/drivers/postgre/postgre_utility.php	/^	protected $_list_databases	= 'SELECT datname FROM pg_database';$/;"	v
 _list_databases	htdocs/CodeIgniter/system/database/drivers/sqlsrv/sqlsrv_utility.php	/^	protected $_list_databases	= 'EXEC sp_helpdb'; \/\/ Can also be: EXEC sp_databases$/;"	v
+_list_del	src/list.h	/^static inline void _list_del(struct list_head *prev, struct list_head *next){$/;"	f
+_list_del_entry	src/list.h	/^static inline void _list_del_entry(struct list_head *entry){$/;"	f
 _list_tables	htdocs/CodeIgniter/system/database/drivers/cubrid/cubrid_driver.php	/^	protected function _list_tables($prefix_limit = FALSE)$/;"	f
 _list_tables	htdocs/CodeIgniter/system/database/drivers/ibase/ibase_driver.php	/^	protected function _list_tables($prefix_limit = FALSE)$/;"	f
 _list_tables	htdocs/CodeIgniter/system/database/drivers/mssql/mssql_driver.php	/^	protected function _list_tables($prefix_limit = FALSE)$/;"	f
@@ -1688,10 +1697,10 @@ angle	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^				case 270:	$angle =
 angle	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^				case 90:	$angle = 'r270';$/;"	v
 animate	htdocs/tab.html	/^    function animate() {$/;"	f
 another	htdocs/CodeIgniter/tests/codeigniter/libraries/Upload_test.php	/^		$another = 'Another error!';$/;"	v
-appStatusB0	src/fastcgi.h	/^	unsigned char appStatusB0;$/;"	m	struct:__anon5
-appStatusB1	src/fastcgi.h	/^	unsigned char appStatusB1;$/;"	m	struct:__anon5
-appStatusB2	src/fastcgi.h	/^	unsigned char appStatusB2;$/;"	m	struct:__anon5
-appStatusB3	src/fastcgi.h	/^	unsigned char appStatusB3;$/;"	m	struct:__anon5
+appStatusB0	src/fastcgi.h	/^	unsigned char appStatusB0;$/;"	m	struct:__anon6
+appStatusB1	src/fastcgi.h	/^	unsigned char appStatusB1;$/;"	m	struct:__anon6
+appStatusB2	src/fastcgi.h	/^	unsigned char appStatusB2;$/;"	m	struct:__anon6
+appStatusB3	src/fastcgi.h	/^	unsigned char appStatusB3;$/;"	m	struct:__anon6
 app_path	htdocs/CodeIgniter/system/core/Loader.php	/^			$app_path = APPPATH.'core'.DIRECTORY_SEPARATOR;$/;"	v
 append	htdocs/CodeIgniter/system/core/Router.php	/^	public function set_directory($dir, $append = FALSE)$/;"	v
 append	htdocs/CodeIgniter/system/helpers/form_helper.php	/^				$append  = str_repeat(" ", $noise);$/;"	v
@@ -1849,8 +1858,8 @@ body	htdocs/CodeIgniter/system/libraries/Email.php	/^		$body = '';$/;"	v
 body	htdocs/CodeIgniter/system/libraries/Email.php	/^		$body = preg_match('\/\\<body.*?\\>(.*)\\<\\\/body\\>\/si', $this->_body, $match) ? $match[1] : $this->_body;$/;"	v
 body	htdocs/CodeIgniter/system/libraries/Email.php	/^		$body = preg_replace('| +|', ' ', $body);$/;"	v
 body	htdocs/CodeIgniter/system/libraries/Email.php	/^		$body = str_replace("\\t", '', preg_replace('#<!--(.*)--\\>#', '', trim(strip_tags($body))));$/;"	v
-body	src/fastcgi.h	/^	FCGI_BeginRequestBody body;$/;"	m	struct:__anon3
-body	src/fastcgi.h	/^	FCGI_EndRequestBody body;$/;"	m	struct:__anon6
+body	src/fastcgi.h	/^	FCGI_BeginRequestBody body;$/;"	m	struct:__anon4
+body	src/fastcgi.h	/^	FCGI_EndRequestBody body;$/;"	m	struct:__anon7
 bottom	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^				$bottom = $height - 1;$/;"	v
 boundary	htdocs/CodeIgniter/system/libraries/Email.php	/^					$boundary = uniqid('B_ALT_');$/;"	v
 boundary	htdocs/CodeIgniter/system/libraries/Email.php	/^				$boundary = uniqid('B_ATC_');$/;"	v
@@ -2010,6 +2019,7 @@ camelize	htdocs/CodeIgniter/system/helpers/inflector_helper.php	/^	function came
 can	htdocs/CodeIgniter/system/core/Benchmark.php	/^	 * Multiple calls to this function can be made so that several$/;"	f
 can	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^ *  or the loader class can be called via the URI, nor can$/;"	c
 can	htdocs/CodeIgniter/system/libraries/Ftp.php	/^	 * this function can be used to test for the existence of a folder$/;"	f
+cancel_request	src/common.c	/^void cancel_request(){$/;"	f
 caption	htdocs/CodeIgniter/system/libraries/Table.php	/^		$this->caption = $caption;$/;"	v
 caption	htdocs/CodeIgniter/system/libraries/Table.php	/^		$this->caption = NULL;$/;"	v
 caption	htdocs/CodeIgniter/system/libraries/Table.php	/^	public $caption		= NULL;$/;"	v
@@ -2345,8 +2355,8 @@ content	htdocs/CodeIgniter/tests/codeigniter/libraries/Driver_test.php	/^		$cont
 content	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^		$content = file_get_contents(PROJECT_BASE.$path);$/;"	v
 content	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^	public function ci_vfs_create($file, $content = '', $root = NULL, $path = NULL)$/;"	v
 content	src/http.h	/^	char *content;			\/\/body$/;"	m	struct:http_head
-contentLengthB0	src/fastcgi.h	/^	unsigned char contentLengthB0;$/;"	m	struct:__anon1
-contentLengthB1	src/fastcgi.h	/^	unsigned char contentLengthB1;$/;"	m	struct:__anon1
+contentLengthB0	src/fastcgi.h	/^	unsigned char contentLengthB0;$/;"	m	struct:__anon2
+contentLengthB1	src/fastcgi.h	/^	unsigned char contentLengthB1;$/;"	m	struct:__anon2
 contents	htdocs/CodeIgniter/system/libraries/Cache/drivers/Cache_file.php	/^		$contents = array($/;"	v
 contype	src/http.h	/^	char contype[256];		\/\/消息类型$/;"	m	struct:http_head
 convert_accented_characters	htdocs/CodeIgniter/system/helpers/text_helper.php	/^	function convert_accented_characters($str)$/;"	f
@@ -2507,7 +2517,7 @@ data	htdocs/CodeIgniter/tests/codeigniter/libraries/Table_test.php	/^		$data = a
 data	htdocs/CodeIgniter/tests/codeigniter/libraries/Upload_test.php	/^		$data = array($/;"	v
 data	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^	public function __construct($name = null, array $data = [], $dataName = '')$/;"	v
 data	htdocs/CodeIgniter/tests/mocks/database/schema/skeleton.php	/^		$data = array($/;"	v
-data	src/fastcgi.h	/^	unsigned char data[0];$/;"	m	struct:__anon4
+data	src/fastcgi.h	/^	unsigned char data[0];$/;"	m	struct:__anon5
 data_cache	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public $data_cache		= array();$/;"	v
 data_cache	htdocs/CodeIgniter/system/database/drivers/mssql/mssql_driver.php	/^			$this->data_cache = array();$/;"	v
 data_cache	htdocs/CodeIgniter/system/database/drivers/mysql/mysql_driver.php	/^			$this->data_cache = array();$/;"	v
@@ -2944,6 +2954,7 @@ end	htdocs/CodeIgniter/system/helpers/text_helper.php	/^			$end = mb_substr($str
 end	htdocs/CodeIgniter/system/helpers/text_helper.php	/^			$end = mb_substr($str, 0, -($max_length - mb_strlen($beg)));$/;"	v
 end	htdocs/CodeIgniter/system/libraries/Pagination.php	/^		$end	= (($this->cur_page + $this->num_links) < $num_pages) ? $this->cur_page + $this->num_links : $num_pages;$/;"	v
 end_char	htdocs/CodeIgniter/system/helpers/text_helper.php	/^			$end_char = '';$/;"	v
+end_server	src/common.c	/^void end_server(int sockfd){	$/;"	f
 entities_to_ascii	htdocs/CodeIgniter/system/helpers/text_helper.php	/^	function entities_to_ascii($str, $all = TRUE)$/;"	f
 entity_decode	htdocs/CodeIgniter/system/core/Security.php	/^	public function entity_decode($str, $charset = NULL)$/;"	f
 entity_decode	htdocs/CodeIgniter/system/helpers/typography_helper.php	/^	function entity_decode($str, $charset = NULL)$/;"	f
@@ -3311,7 +3322,7 @@ first_url	htdocs/CodeIgniter/system/libraries/Pagination.php	/^				$first_url = 
 first_url	htdocs/CodeIgniter/system/libraries/Pagination.php	/^		$first_url = $this->first_url;$/;"	v
 first_url	htdocs/CodeIgniter/system/libraries/Pagination.php	/^	protected $first_url = '';$/;"	v
 five_values	htdocs/CodeIgniter/tests/codeigniter/libraries/Table_test.php	/^		$five_values = array($/;"	v
-flags	src/fastcgi.h	/^	unsigned char flags;$/;"	m	struct:__anon2
+flags	src/fastcgi.h	/^	unsigned char flags;$/;"	m	struct:__anon3
 flashdata	htdocs/CodeIgniter/system/libraries/Session/Session.php	/^		$flashdata = array();$/;"	v
 flashdata	htdocs/CodeIgniter/system/libraries/Session/Session.php	/^	public function flashdata($key = NULL)$/;"	f
 float	htdocs/CodeIgniter/system/libraries/Email.php	/^		$float = $this->bcc_batch_size - 1;$/;"	v
@@ -3555,9 +3566,9 @@ hdr	htdocs/CodeIgniter/system/libraries/Email.php	/^		$hdr = ($this->_get_protoc
 header	htdocs/CodeIgniter/system/core/Input.php	/^					$header = str_replace(' ', '-', ucwords($header));$/;"	v
 header	htdocs/CodeIgniter/system/core/Input.php	/^					$header = str_replace('_', ' ', strtolower($header));$/;"	v
 header	htdocs/CodeIgniter/system/core/Output.php	/^		$header = 'Content-Type: '.$mime_type$/;"	v
-header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon3
 header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon4
-header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon6
+header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon5
+header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon7
 headers	htdocs/CodeIgniter/system/core/Input.php	/^			$this->headers = apache_request_headers();$/;"	v
 headers	htdocs/CodeIgniter/system/core/Input.php	/^		static $headers;$/;"	v
 headers	htdocs/CodeIgniter/system/core/Input.php	/^	protected $headers = array();$/;"	v
@@ -3853,7 +3864,7 @@ is_cli	htdocs/CodeIgniter/system/core/URI.php	/^	protected function _set_uri_str
 is_cli	htdocs/CodeIgniter/tests/mocks/core/common.php	/^	function is_cli()$/;"	f
 is_countable	htdocs/CodeIgniter/system/helpers/inflector_helper.php	/^	function is_countable($word)$/;"	f
 is_current_month	htdocs/CodeIgniter/system/libraries/Calendar.php	/^		$is_current_month = ($cur_year == $year && $cur_month == $month);$/;"	v
-is_destroy	src/threadpool.h	/^	int is_destroy;$/;"	m	struct:__anon7
+is_destroy	src/threadpool.h	/^	int is_destroy;$/;"	m	struct:__anon8
 is_error	htdocs/CodeIgniter/system/core/Common.php	/^		$is_error = (((E_ERROR | E_PARSE | E_COMPILE_ERROR | E_CORE_ERROR | E_USER_ERROR) & $severity) === $severity);$/;"	v
 is_evil_pattern	htdocs/CodeIgniter/system/core/Security.php	/^			$is_evil_pattern = '#^('.implode('|', $evil_attributes).')$#i';$/;"	v
 is_false	htdocs/CodeIgniter/system/libraries/Unit_test.php	/^function is_false($test)$/;"	f
@@ -4302,8 +4313,13 @@ list	htdocs/CodeIgniter/system/helpers/html_helper.php	/^	function _list($type =
 list	htdocs/CodeIgniter/system/libraries/Ftp.php	/^		$list = $this->list_files($filepath);$/;"	v
 list	htdocs/CodeIgniter/tests/codeigniter/helpers/html_helper_test.php	/^		$list = array('foo', 'bar');$/;"	v
 listMethods	htdocs/CodeIgniter/system/libraries/Xmlrpcs.php	/^	public function listMethods($m)$/;"	f
+list_add	src/list.h	/^static inline void list_add(struct list_head *new, struct list_head *head){$/;"	f
+list_add_tail	src/list.h	/^static inline void list_add_tail(struct list_head *new, struct list_head *head){$/;"	f
 list_databases	htdocs/CodeIgniter/system/database/DB_utility.php	/^	public function list_databases()$/;"	f
 list_databases	htdocs/CodeIgniter/system/database/drivers/cubrid/cubrid_utility.php	/^	public function list_databases()$/;"	f
+list_del	src/list.h	/^static inline void list_del(struct list_head *entry){$/;"	f
+list_del_init	src/list.h	/^static inline void list_del_init(list_head *eentry){$/;"	f
+list_empty	src/list.h	/^static inline list_empty(const struct list_head *head){$/;"	f
 list_fields	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public function list_fields($table)$/;"	f
 list_fields	htdocs/CodeIgniter/system/database/DB_result.php	/^	public function list_fields()$/;"	f
 list_fields	htdocs/CodeIgniter/system/database/drivers/cubrid/cubrid_result.php	/^	public function list_fields()$/;"	f
@@ -4321,6 +4337,9 @@ list_fields	htdocs/CodeIgniter/system/database/drivers/sqlite3/sqlite3_result.ph
 list_fields	htdocs/CodeIgniter/system/database/drivers/sqlsrv/sqlsrv_result.php	/^	public function list_fields()$/;"	f
 list_fields	htdocs/CodeIgniter/tests/codeigniter/libraries/Table_test.php	/^	public function list_fields()$/;"	f
 list_files	htdocs/CodeIgniter/system/libraries/Ftp.php	/^	public function list_files($path = '.')$/;"	f
+list_for_each	src/list.h	11;"	d
+list_head	src/list.h	/^typedef struct list_head{$/;"	s
+list_head	src/list.h	/^}list_head;$/;"	t	typeref:struct:list_head
 list_tables	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public function list_tables($constrain_by_prefix = FALSE)$/;"	f
 load	htdocs/CodeIgniter/system/core/Config.php	/^	public function load($file = '', $use_sections = FALSE, $fail_gracefully = FALSE)$/;"	f
 load	htdocs/CodeIgniter/system/core/Controller.php	/^		$this->load =& load_class('Loader', 'core');$/;"	v
@@ -4636,7 +4655,7 @@ name	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^	 * and returns a referenc
 name	htdocs/CodeIgniter/tests/mocks/database/db/driver.php	/^	 * @param  string 	DB Driver class name$/;"	c
 name	htdocs/CodeIgniter/user_guide_src/cilexer/cilexer/cilexer.py	/^    name = 'CodeIgniter'$/;"	v	class:CodeIgniterLexer
 name	htdocs/CodeIgniter/user_guide_src/cilexer/setup.py	/^    name='pycilexer',$/;"	v
-nameLength	src/fastcgi.h	/^	unsigned char nameLength;$/;"	m	struct:__anon4
+nameLength	src/fastcgi.h	/^	unsigned char nameLength;$/;"	m	struct:__anon5
 named	htdocs/CodeIgniter/system/core/Output.php	/^		\/\/ Does the controller contain a function named _output()?$/;"	f
 names	htdocs/CodeIgniter/system/core/Hooks.php	/^		\/\/ Determine and class and\/or function names$/;"	f
 names	htdocs/CodeIgniter/system/libraries/Xmlrpcs.php	/^	 * Array of methods mapped to function names and signatures$/;"	f
@@ -4665,6 +4684,7 @@ newline	htdocs/CodeIgniter/system/libraries/Table.php	/^	public $newline		= "\\n
 newname	htdocs/CodeIgniter/system/libraries/Email.php	/^	 * @param	string	$newname = NULL$/;"	v
 newstr	htdocs/CodeIgniter/system/libraries/Typography.php	/^		$newstr = '';$/;"	v
 newval	htdocs/CodeIgniter/tests/codeigniter/libraries/Driver_test.php	/^		$newval = 'changed';$/;"	v
+next	src/list.h	/^	struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::list_head
 next	src/threadpool.h	/^	struct job *next;$/;"	m	struct:job	typeref:struct:job::job
 next_link	htdocs/CodeIgniter/system/libraries/Pagination.php	/^	protected $next_link = '&gt;';$/;"	v
 next_prev_url	htdocs/CodeIgniter/system/libraries/Calendar.php	/^			$this->next_prev_url = $this->CI->config->site_url($this->CI->router->class.'\/'.$this->CI->router->method);$/;"	v
@@ -4945,7 +4965,7 @@ p	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^			\/\/ $p = XML_RPC_Values$/
 p	htdocs/CodeIgniter/system/libraries/Xmlrpcs.php	/^						$p = $m->params[$n];$/;"	v
 packages	htdocs/CodeIgniter/user_guide_src/cilexer/setup.py	/^    packages=['cilexer'],$/;"	v
 pad	htdocs/CodeIgniter/system/libraries/Encryption.php	/^			$pad = $block_size - (self::strlen($data) % $block_size);$/;"	v
-paddingLength	src/fastcgi.h	/^	unsigned char paddingLength;$/;"	m	struct:__anon1
+paddingLength	src/fastcgi.h	/^	unsigned char paddingLength;$/;"	m	struct:__anon2
 page_query_string	htdocs/CodeIgniter/system/libraries/Pagination.php	/^			$this->page_query_string = TRUE;$/;"	v
 page_query_string	htdocs/CodeIgniter/system/libraries/Pagination.php	/^	protected $page_query_string = FALSE;$/;"	v
 pair	htdocs/CodeIgniter/system/libraries/Parser.php	/^						$pair = $this->_parse_pair($key, $val, $match[1]);$/;"	v
@@ -5078,7 +5098,7 @@ pool	src/threadpool.h	/^static thread_pool *pool = NULL;$/;"	v
 pool_destroy	src/threadpool.c	/^int pool_destroy(){$/;"	f
 pool_init	src/threadpool.c	/^int pool_init(int pool_size){$/;"	f
 pool_length	htdocs/CodeIgniter/system/helpers/captcha_helper.php	/^			$pool_length = strlen($pool);$/;"	v
-pool_size	src/threadpool.h	/^	int pool_size;$/;"	m	struct:__anon7
+pool_size	src/threadpool.h	/^	int pool_size;$/;"	m	struct:__anon8
 port	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public $port			= '';$/;"	v
 port	htdocs/CodeIgniter/system/database/drivers/cubrid/cubrid_driver.php	/^			empty($this->port) OR $this->port = 33000;$/;"	v
 port	htdocs/CodeIgniter/system/database/drivers/mysqli/mysqli_driver.php	/^			$port = NULL;$/;"	v
@@ -5137,6 +5157,7 @@ prepare_response	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public functi
 prepend	htdocs/CodeIgniter/system/helpers/form_helper.php	/^				$prepend = str_repeat(" ", abs($noise));$/;"	v
 prepend	htdocs/CodeIgniter/system/helpers/form_helper.php	/^			$prepend = $append = '';$/;"	v
 preserve_filepath	htdocs/CodeIgniter/system/libraries/Zip.php	/^	public function read_dir($path, $preserve_filepath = TRUE, $root_path = NULL)$/;"	v
+prev	src/list.h	/^	struct list_head *next, *prev;$/;"	m	struct:list_head	typeref:struct:list_head::
 prev_link	htdocs/CodeIgniter/system/libraries/Pagination.php	/^	protected $prev_link = '&lt;';$/;"	v
 prev_month	htdocs/CodeIgniter/system/libraries/Calendar.php	/^						$prev_month = $this->adjust_date($month - 1, $year);$/;"	v
 prev_month_days	htdocs/CodeIgniter/system/libraries/Calendar.php	/^						$prev_month_days = $this->get_total_days($prev_month['month'], $prev_month['year']);$/;"	v
@@ -5186,7 +5207,7 @@ protocol	htdocs/CodeIgniter/system/libraries/Email.php	/^		in_array($this->proto
 protocol	htdocs/CodeIgniter/system/libraries/Email.php	/^	public $protocol	= 'mail';		\/\/ mail\/sendmail\/smtp$/;"	v
 protocol	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^			$protocol = 'image_process_'.$this->image_library;$/;"	v
 protocol	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^		$protocol = ($this->image_library === 'gd2') ? 'image_process_gd' : 'image_process_'.$this->image_library;$/;"	v
-protocolStatus	src/fastcgi.h	/^	unsigned char protocolStatus;   \/\/ 协议级别的状态码$/;"	m	struct:__anon5
+protocolStatus	src/fastcgi.h	/^	unsigned char protocolStatus;   \/\/ 协议级别的状态码$/;"	m	struct:__anon6
 proxy	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^		$this->proxy = $proxy;$/;"	v
 proxy	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public $proxy			= FALSE;$/;"	v
 proxy_ips	htdocs/CodeIgniter/system/core/Input.php	/^			$proxy_ips = explode(',', str_replace(' ', '', $proxy_ips));$/;"	v
@@ -5340,9 +5361,9 @@ query_string	htdocs/CodeIgniter/system/libraries/Pagination.php	/^		$query_strin
 query_string_segment	htdocs/CodeIgniter/system/libraries/Pagination.php	/^	protected $query_string_segment = 'per_page';$/;"	v
 query_string_sep	htdocs/CodeIgniter/system/libraries/Pagination.php	/^		$query_string_sep = (strpos($base_url, '?') === FALSE) ? '?' : '&amp;';$/;"	v
 query_times	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public $query_times		= array();$/;"	v
-queue_cond	src/threadpool.h	/^	pthread_cond_t  queue_cond;$/;"	m	struct:__anon7
-queue_head	src/threadpool.h	/^	thread_job *queue_head;$/;"	m	struct:__anon7
-queue_lock	src/threadpool.h	/^	pthread_mutex_t queue_lock;$/;"	m	struct:__anon7
+queue_cond	src/threadpool.h	/^	pthread_cond_t  queue_cond;$/;"	m	struct:__anon8
+queue_head	src/threadpool.h	/^	thread_job *queue_head;$/;"	m	struct:__anon8
+queue_lock	src/threadpool.h	/^	pthread_mutex_t queue_lock;$/;"	m	struct:__anon8
 quotes_to_entities	htdocs/CodeIgniter/system/helpers/string_helper.php	/^	function quotes_to_entities($str)$/;"	f
 r	htdocs/CodeIgniter/system/helpers/date_helper.php	/^		$r = date('Y', $time).'-'.date('m', $time).'-'.date('d', $time).' ';$/;"	v
 r	htdocs/CodeIgniter/system/libraries/Driver.php	/^			$r = new ReflectionObject($parent);$/;"	v
@@ -5446,8 +5467,8 @@ report	htdocs/CodeIgniter/system/libraries/Unit_test.php	/^		$report = array ($/
 report	htdocs/CodeIgniter/system/libraries/Unit_test.php	/^	public function report($result = array())$/;"	f
 request	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function request($incoming)$/;"	f
 request	htdocs/CodeIgniter/tests/codeigniter/core/URI_test.php	/^		foreach ($requests as $request => $expected)$/;"	v
-requestIdB0	src/fastcgi.h	/^	unsigned char requestIdB0;$/;"	m	struct:__anon1
-requestIdB1	src/fastcgi.h	/^	unsigned char requestIdB1;$/;"	m	struct:__anon1
+requestIdB0	src/fastcgi.h	/^	unsigned char requestIdB0;$/;"	m	struct:__anon2
+requestIdB1	src/fastcgi.h	/^	unsigned char requestIdB1;$/;"	m	struct:__anon2
 request_headers	htdocs/CodeIgniter/system/core/Input.php	/^	public function request_headers($xss_clean = FALSE)$/;"	f
 requests	htdocs/CodeIgniter/tests/codeigniter/core/URI_test.php	/^		$requests = array($/;"	v
 required	htdocs/CodeIgniter/system/language/english/imglib_lang.php	/^$lang['imglib_unsupported_imagecreate'] = 'Your server does not support the GD function required to process this type of image.';$/;"	f
@@ -5459,9 +5480,9 @@ res	htdocs/CodeIgniter/system/database/DB_utility.php	/^			$res = $this->db->que
 res	htdocs/CodeIgniter/system/database/DB_utility.php	/^			$res = current($res);$/;"	v
 res	htdocs/CodeIgniter/system/database/drivers/ibase/ibase_utility.php	/^			$res = ibase_backup($service, $this->db->database, $filename.'.fbk');$/;"	v
 res	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/escape_test.php	/^		$res = $this->db->query($sql)->result_array();$/;"	v
-reserved	src/fastcgi.h	/^	unsigned char reserved;$/;"	m	struct:__anon1
-reserved	src/fastcgi.h	/^	unsigned char reserved[3];$/;"	m	struct:__anon5
-reserved	src/fastcgi.h	/^	unsigned char reserved[5];$/;"	m	struct:__anon2
+reserved	src/fastcgi.h	/^	unsigned char reserved;$/;"	m	struct:__anon2
+reserved	src/fastcgi.h	/^	unsigned char reserved[3];$/;"	m	struct:__anon6
+reserved	src/fastcgi.h	/^	unsigned char reserved[5];$/;"	m	struct:__anon3
 reset	htdocs/CodeIgniter/system/database/DB_query_builder.php	/^	public function count_all_results($table = '', $reset = TRUE)$/;"	v
 reset	htdocs/CodeIgniter/system/database/DB_query_builder.php	/^	public function get_compiled_delete($table = '', $reset = TRUE)$/;"	v
 reset	htdocs/CodeIgniter/system/database/DB_query_builder.php	/^	public function get_compiled_insert($table = '', $reset = TRUE)$/;"	v
@@ -5606,6 +5627,17 @@ retval	htdocs/CodeIgniter/system/libraries/Unit_test.php	/^		$retval = array();$
 reuse_query_string	htdocs/CodeIgniter/system/libraries/Pagination.php	/^	protected $reuse_query_string = FALSE;$/;"	v
 rgba	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^		$rgba = imagecolorat($wm_img, $this->wm_x_transp, $this->wm_y_transp);$/;"	v
 right	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^				$right = $width - 1;$/;"	v
+rio_buf	src/rio.h	/^	char rio_buf[RIO_BUFSIZE];$/;"	m	struct:__anon1
+rio_bufptr	src/rio.h	/^	char *rio_bufptr;$/;"	m	struct:__anon1
+rio_cnt	src/rio.h	/^	int rio_cnt;$/;"	m	struct:__anon1
+rio_fd	src/rio.h	/^	int rio_fd;$/;"	m	struct:__anon1
+rio_read	src/rio.c	/^static ssize_t rio_read(rio_t *rp, char *usrbuf, size_t n){$/;"	f	file:
+rio_readinitb	src/rio.c	/^void rio_readinitb(rio_t *rp, int fd){$/;"	f
+rio_readlineb	src/rio.c	/^ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen){$/;"	f
+rio_readn	src/rio.c	/^ssize_t rio_readn(int fd, void *usrbuf, size_t n){$/;"	f
+rio_readnb	src/rio.c	/^ssize_t rio_readnb(rio_t *rp, void *usrbuf, size_t n){$/;"	f
+rio_t	src/rio.h	/^}rio_t;$/;"	t	typeref:struct:__anon1
+rio_writen	src/rio.c	/^ssize_t rio_writen(int fd, void *usrbuf, size_t n){$/;"	f
 robot	htdocs/CodeIgniter/system/libraries/User_agent.php	/^					$this->robot = $val;$/;"	v
 robot	htdocs/CodeIgniter/system/libraries/User_agent.php	/^		$this->robot = '';$/;"	v
 robot	htdocs/CodeIgniter/system/libraries/User_agent.php	/^		return (isset($this->robots[$key]) && $this->robot === $this->robots[$key]);$/;"	v
@@ -5614,8 +5646,8 @@ robot	htdocs/CodeIgniter/system/libraries/User_agent.php	/^	public function robo
 robots	htdocs/CodeIgniter/application/config/user_agents.php	/^$robots = array($/;"	v
 robots	htdocs/CodeIgniter/system/libraries/User_agent.php	/^			$this->robots = $robots;$/;"	v
 robots	htdocs/CodeIgniter/system/libraries/User_agent.php	/^	public $robots = array();$/;"	v
-roleB0	src/fastcgi.h	/^	unsigned char roleB0;$/;"	m	struct:__anon2
-roleB1	src/fastcgi.h	/^	unsigned char roleB1;$/;"	m	struct:__anon2
+roleB0	src/fastcgi.h	/^	unsigned char roleB0;$/;"	m	struct:__anon3
+roleB1	src/fastcgi.h	/^	unsigned char roleB1;$/;"	m	struct:__anon3
 root	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^				$root = $dir_root;$/;"	v
 root	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^			$root = $this->ci_vfs_root;$/;"	v
 root	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^	public function ci_vfs_mkdir($name, $root = NULL)$/;"	v
@@ -6876,13 +6908,13 @@ the_parser	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^		$the_parser = (str
 theta	htdocs/CodeIgniter/system/helpers/captcha_helper.php	/^		$theta		= 1;$/;"	v
 thetac	htdocs/CodeIgniter/system/helpers/captcha_helper.php	/^		$thetac		= 7;$/;"	v
 thread_job	src/threadpool.h	/^}thread_job;$/;"	t	typeref:struct:job
-thread_pool	src/threadpool.h	/^}thread_pool;$/;"	t	typeref:struct:__anon7
+thread_pool	src/threadpool.h	/^}thread_pool;$/;"	t	typeref:struct:__anon8
 threshold	htdocs/CodeIgniter/tests/codeigniter/core/Log_test.php	/^		$threshold  = new ReflectionProperty('CI_Log', '_threshold');$/;"	v
 thumb_marker	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^			$this->thumb_marker = '';$/;"	v
 thumb_marker	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^		$this->thumb_marker 		= '_thumb';$/;"	v
 thumb_marker	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^		if ($this->create_thumb === FALSE OR $this->thumb_marker === '')$/;"	v
 thumb_marker	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^	public $thumb_marker		= '_thumb';$/;"	v
-tid	src/threadpool.h	/^	pthread_t *tid;$/;"	m	struct:__anon7
+tid	src/threadpool.h	/^	pthread_t *tid;$/;"	m	struct:__anon8
 time	htdocs/CodeIgniter/system/helpers/date_helper.php	/^			$time = now();$/;"	v
 time	htdocs/CodeIgniter/system/helpers/date_helper.php	/^			$time = time();$/;"	v
 time	htdocs/CodeIgniter/system/helpers/date_helper.php	/^		$time = str_replace(array('-', ':', ' '), '', $time);$/;"	v
@@ -7005,7 +7037,7 @@ type	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^			$type = $type === '' ? 
 type	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function __construct($val = -1, $type = '')$/;"	v
 type	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function addScalar($val, $type = 'string')$/;"	v
 type	htdocs/CodeIgniter/tests/codeigniter/libraries/Typography_test.php	/^		$this->type = new CI_Typography();$/;"	v
-type	src/fastcgi.h	/^	unsigned char type;$/;"	m	struct:__anon1
+type	src/fastcgi.h	/^	unsigned char type;$/;"	m	struct:__anon2
 typeof	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^		$typeof = $this->xmlrpcTypes[$type];$/;"	v
 types	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^		$types = array(1 => 'gif', 2 => 'jpeg', 3 => 'png');$/;"	v
 types	htdocs/CodeIgniter/system/libraries/Upload.php	/^				$types = array(1 => 'gif', 2 => 'jpeg', 3 => 'png');$/;"	v
@@ -7240,7 +7272,7 @@ value	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function value()$
 value	htdocs/CodeIgniter/tests/codeigniter/core/Loader_test.php	/^		$value = 'World!';$/;"	v
 value	htdocs/CodeIgniter/tests/codeigniter/libraries/Driver_test.php	/^		$value = 'initial';$/;"	v
 value	htdocs/CodeIgniter/tests/mocks/libraries/session.php	/^	protected function _setcookie($name, $value = '', $expire = 0, $path = '', $domain = '', $secure = FALSE, $httponly = FALSE)$/;"	v
-valueLength	src/fastcgi.h	/^	unsigned char valueLength;$/;"	m	struct:__anon4
+valueLength	src/fastcgi.h	/^	unsigned char valueLength;$/;"	m	struct:__anon5
 values	htdocs/CodeIgniter/system/database/DB_query_builder.php	/^			$values = array($values);$/;"	v
 values	htdocs/CodeIgniter/system/database/DB_query_builder.php	/^		if ($key === NULL OR $values === NULL)$/;"	v
 values	htdocs/CodeIgniter/system/database/DB_query_builder.php	/^	public function having_in($key = NULL, $values = NULL, $escape = NULL)$/;"	v
@@ -7286,7 +7318,7 @@ version	htdocs/CodeIgniter/system/libraries/User_agent.php	/^	public $version = 
 version	htdocs/CodeIgniter/system/libraries/User_agent.php	/^	public function version()$/;"	f
 version	htdocs/CodeIgniter/user_guide_src/cilexer/setup.py	/^    version='0.1',$/;"	v
 version	htdocs/CodeIgniter/user_guide_src/source/conf.py	/^version = '3.2.0-dev'$/;"	v
-version	src/fastcgi.h	/^	unsigned char version;$/;"	m	struct:__anon1
+version	src/fastcgi.h	/^	unsigned char version;$/;"	m	struct:__anon2
 version	src/http.h	/^	char version[10];		\/\/HTTP协议版本$/;"	m	struct:http_head
 version_string	htdocs/CodeIgniter/system/database/drivers/pdo/subdrivers/pdo_oci_driver.php	/^		$version_string = parent::version();$/;"	v
 via	htdocs/CodeIgniter/system/libraries/Driver.php	/^ * to extend the capabilities of a class via additional driver objects$/;"	c
@@ -7298,7 +7330,7 @@ view_folder	htdocs/CodeIgniter/index.php	/^			$view_folder = strtr($/;"	v
 view_folder	htdocs/CodeIgniter/index.php	/^		$view_folder = APPPATH.'views';$/;"	v
 view_folder	htdocs/CodeIgniter/index.php	/^		$view_folder = APPPATH.strtr($/;"	v
 view_folder	htdocs/CodeIgniter/index.php	/^	$view_folder = '';$/;"	v
-wait_num	src/threadpool.h	/^	int wait_num;$/;"	m	struct:__anon7
+wait_num	src/threadpool.h	/^	int wait_num;$/;"	m	struct:__anon8
 wanted	htdocs/CodeIgniter/system/libraries/Xmlrpcs.php	/^							$wanted = $current_sig[$n+1];$/;"	v
 was	htdocs/CodeIgniter/system/helpers/form_helper.php	/^	 * Determines what the form validation class was instantiated as, fetches$/;"	c
 watermark	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^	public function watermark()$/;"	f

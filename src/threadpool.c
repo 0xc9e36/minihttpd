@@ -45,20 +45,20 @@ int pool_init(int pool_size){
 	
 
 	if(NULL == (pool = (thread_pool *)malloc(sizeof(thread_pool)))){
-		err_sys("threadpool alloc memory fail", DEBUG);
+		err_sys("threadpool alloc memory fail", DEBUGPARAMS);
 		return -1;
 	}
 	
 	if(0 != pthread_mutex_init(&(pool->queue_lock), NULL)){
 		free(pool);
-		err_sys("pthread_mutex_init fail", DEBUG);
+		err_sys("pthread_mutex_init fail", DEBUGPARAMS);
 		return -1;
 	}
 
 	if(0 != pthread_cond_init(&(pool->queue_cond), NULL)){
 		pthread_mutex_destroy(&(pool->queue_lock));
 		free(pool);
-		err_sys("pthread_cond_init fail", DEBUG);
+		err_sys("pthread_cond_init fail", DEBUGPARAMS);
 		return -1;
 	}
 
@@ -66,7 +66,7 @@ int pool_init(int pool_size){
 		pthread_mutex_destroy(&(pool->queue_lock));
 		pthread_cond_destroy(&(pool->queue_cond));
 		free(pool);
-		err_sys("pthread_t alloc memory fail", DEBUG);
+		err_sys("pthread_t alloc memory fail", DEBUGPARAMS);
 		return -1;
 	}
 	pool->wait_num = 0;
@@ -78,7 +78,7 @@ int pool_init(int pool_size){
 	for(; i < pool_size; i++){
 		if(0 != pthread_create(&(pool->tid[i]), NULL, pthread_routine, NULL)){
 			pool_destroy();
-			err_sys("pthread_create fail", DEBUG);
+			err_sys("pthread_create fail", DEBUGPARAMS);
 			return -1;
 		}
 	}
@@ -131,7 +131,7 @@ int pool_destroy(){
 int add_job(void *(*process)(void *arg), void *arg){
 	thread_job *newjob;
 	if(NULL == (newjob = (thread_job *)malloc(sizeof(thread_job)))){
-		err_sys("add_job alloc memory fail", DEBUG);
+		err_sys("add_job alloc memory fail", DEBUGPARAMS);
 		return -1;
 	}
 	newjob->process = process;

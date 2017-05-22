@@ -286,8 +286,8 @@ Insert_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/insert_t
 Join_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/join_test.php	/^class Join_test extends CI_TestCase {$/;"	c
 LANG	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$LANG =& load_class('Lang', 'core');$/;"	v
 LANG	htdocs/CodeIgniter/system/database/DB_driver.php	/^		$LANG =& load_class('Lang', 'core');$/;"	v
-LIST_HEAD	src/list.h	16;"	d
-LIST_HEAD_INIT	src/list.h	14;"	d
+LIST_HEAD	src/list.h	21;"	d
+LIST_HEAD_INIT	src/list.h	19;"	d
 Lang_test	htdocs/CodeIgniter/tests/codeigniter/core/Lang_test.php	/^class Lang_test extends CI_TestCase {$/;"	c
 Language_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/language_helper_test.php	/^class Language_helper_test extends CI_TestCase {$/;"	c
 Like_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/like_test.php	/^class Like_test extends CI_TestCase {$/;"	c
@@ -391,7 +391,7 @@ _COOKIE	htdocs/CodeIgniter/tests/codeigniter/libraries/Session_test.php	/^		$_CO
 _COOKIE	htdocs/CodeIgniter/tests/codeigniter/libraries/Session_test.php	/^		$_COOKIE = array();$/;"	v
 _FASTCGI_H_	src/fastcgi.h	5;"	d
 _HTTP_H_	src/http.h	2;"	d
-_LIST_H_	src/list.h	2;"	d
+_LIST_HEAD_H_	src/list.h	2;"	d
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array('foo' => '');$/;"	v
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array('foo' => 'bar');$/;"	v
 _POST	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^		$_POST = array('foo' => 'foo', 'bar' => array('bar1', 'bar2'));$/;"	v
@@ -1629,6 +1629,7 @@ affected_rows	htdocs/CodeIgniter/system/database/drivers/postgre/postgre_driver.
 affected_rows	htdocs/CodeIgniter/system/database/drivers/sqlite3/sqlite3_driver.php	/^	public function affected_rows()$/;"	f
 affected_rows	htdocs/CodeIgniter/system/database/drivers/sqlsrv/sqlsrv_driver.php	/^	public function affected_rows()$/;"	f
 age	htdocs/CodeIgniter/system/libraries/Cache/drivers/Cache_wincache.php	/^			$age = $stored['ucache_entries'][1]['age_seconds'];$/;"	v
+age	tests/list_test.c	/^    int age; $/;"	m	struct:person	file:
 agent	htdocs/CodeIgniter/system/libraries/User_agent.php	/^			$this->agent = trim($_SERVER['HTTP_USER_AGENT']);$/;"	v
 agent	htdocs/CodeIgniter/system/libraries/User_agent.php	/^		$this->agent = $string;$/;"	v
 agent	htdocs/CodeIgniter/system/libraries/User_agent.php	/^	public $agent = NULL;$/;"	v
@@ -2334,6 +2335,7 @@ constructor	htdocs/CodeIgniter/system/core/Common.php	/^	 * @param	string	an opt
 constructor	htdocs/CodeIgniter/system/core/Loader.php	/^	 * @param	array	$params		Optional parameters to pass to the library class constructor$/;"	c
 constructor	htdocs/CodeIgniter/system/core/Loader.php	/^	 * @param	array|null|bool	$config		Optional configuration to pass to the class constructor:$/;"	c
 constructor	htdocs/CodeIgniter/system/core/Loader.php	/^	 * @param	mixed	$params		Optional parameters to pass to the class constructor$/;"	c
+container_of	src/list.h	76;"	d
 contains	htdocs/CodeIgniter/system/core/Config.php	/^ * This class contains functions that enable config files to be managed$/;"	c
 content	htdocs/CodeIgniter/system/helpers/form_helper.php	/^			$content = $data['content'];$/;"	v
 content	htdocs/CodeIgniter/system/helpers/form_helper.php	/^	function form_button($data = '', $content = '', $extra = '')$/;"	v
@@ -4312,14 +4314,16 @@ link_tag	htdocs/CodeIgniter/system/helpers/html_helper.php	/^	function link_tag(
 list	htdocs/CodeIgniter/system/helpers/html_helper.php	/^	function _list($type = 'ul', $list = array(), $attributes = '', $depth = 0)$/;"	v
 list	htdocs/CodeIgniter/system/libraries/Ftp.php	/^		$list = $this->list_files($filepath);$/;"	v
 list	htdocs/CodeIgniter/tests/codeigniter/helpers/html_helper_test.php	/^		$list = array('foo', 'bar');$/;"	v
+list	tests/list_test.c	/^    struct list_head list; $/;"	m	struct:person	typeref:struct:person::list_head	file:
 listMethods	htdocs/CodeIgniter/system/libraries/Xmlrpcs.php	/^	public function listMethods($m)$/;"	f
 list_add	src/list.h	/^static inline void list_add(struct list_head *new, struct list_head *head){$/;"	f
 list_add_tail	src/list.h	/^static inline void list_add_tail(struct list_head *new, struct list_head *head){$/;"	f
 list_databases	htdocs/CodeIgniter/system/database/DB_utility.php	/^	public function list_databases()$/;"	f
 list_databases	htdocs/CodeIgniter/system/database/drivers/cubrid/cubrid_utility.php	/^	public function list_databases()$/;"	f
 list_del	src/list.h	/^static inline void list_del(struct list_head *entry){$/;"	f
-list_del_init	src/list.h	/^static inline void list_del_init(list_head *eentry){$/;"	f
+list_del_init	src/list.h	/^static inline void list_del_init(list_head *entry){$/;"	f
 list_empty	src/list.h	/^static inline list_empty(const struct list_head *head){$/;"	f
+list_entry	src/list.h	80;"	d
 list_fields	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public function list_fields($table)$/;"	f
 list_fields	htdocs/CodeIgniter/system/database/DB_result.php	/^	public function list_fields()$/;"	f
 list_fields	htdocs/CodeIgniter/system/database/drivers/cubrid/cubrid_result.php	/^	public function list_fields()$/;"	f
@@ -4338,6 +4342,7 @@ list_fields	htdocs/CodeIgniter/system/database/drivers/sqlsrv/sqlsrv_result.php	
 list_fields	htdocs/CodeIgniter/tests/codeigniter/libraries/Table_test.php	/^	public function list_fields()$/;"	f
 list_files	htdocs/CodeIgniter/system/libraries/Ftp.php	/^	public function list_files($path = '.')$/;"	f
 list_for_each	src/list.h	11;"	d
+list_for_each_safe	src/list.h	15;"	d
 list_head	src/list.h	/^typedef struct list_head{$/;"	s
 list_head	src/list.h	/^}list_head;$/;"	t	typeref:struct:list_head
 list_tables	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public function list_tables($constrain_by_prefix = FALSE)$/;"	f
@@ -4383,6 +4388,7 @@ mailto	htdocs/CodeIgniter/system/helpers/url_helper.php	/^	function mailto($emai
 mailtype	htdocs/CodeIgniter/system/libraries/Email.php	/^		$this->mailtype = ($type === 'html') ? 'html' : 'text';$/;"	v
 mailtype	htdocs/CodeIgniter/system/libraries/Email.php	/^	public $mailtype	= 'text';$/;"	v
 main	src/studyHttpd.c	/^int main(int argc, char *argv[]){$/;"	f
+main	tests/list_test.c	/^int main(void) { $/;"	f
 main	tests/threadpool_test.c	/^int main(void){$/;"	f
 mainly	htdocs/CodeIgniter/system/libraries/Typography.php	/^	 * This function mainly converts double and single quotes$/;"	f
 maintain_ratio	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^		$this->maintain_ratio 		= TRUE;$/;"	v
@@ -4655,6 +4661,7 @@ name	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^	 * and returns a referenc
 name	htdocs/CodeIgniter/tests/mocks/database/db/driver.php	/^	 * @param  string 	DB Driver class name$/;"	c
 name	htdocs/CodeIgniter/user_guide_src/cilexer/cilexer/cilexer.py	/^    name = 'CodeIgniter'$/;"	v	class:CodeIgniterLexer
 name	htdocs/CodeIgniter/user_guide_src/cilexer/setup.py	/^    name='pycilexer',$/;"	v
+name	tests/list_test.c	/^    char name[20];$/;"	m	struct:person	file:
 nameLength	src/fastcgi.h	/^	unsigned char nameLength;$/;"	m	struct:__anon5
 named	htdocs/CodeIgniter/system/core/Output.php	/^		\/\/ Does the controller contain a function named _output()?$/;"	f
 names	htdocs/CodeIgniter/system/core/Hooks.php	/^		\/\/ Determine and class and\/or function names$/;"	f
@@ -4831,6 +4838,7 @@ offset	htdocs/CodeIgniter/system/libraries/Cache/drivers/Cache_wincache.php	/^	p
 offset	htdocs/CodeIgniter/system/libraries/Zip.php	/^		$this->offset = 0;$/;"	v
 offset	htdocs/CodeIgniter/system/libraries/Zip.php	/^		$this->offset = self::strlen($this->zipdata);$/;"	v
 offset	htdocs/CodeIgniter/system/libraries/Zip.php	/^	public $offset = 0;$/;"	v
+offsetof	src/list.h	72;"	d
 ol	htdocs/CodeIgniter/system/helpers/html_helper.php	/^	function ol($list, $attributes = '')$/;"	f
 old	htdocs/CodeIgniter/system/core/Security.php	/^			$old = $str;$/;"	v
 old_base	htdocs/CodeIgniter/tests/codeigniter/core/Config_test.php	/^		$old_base = $this->config->item('base_url');$/;"	v
@@ -5071,6 +5079,7 @@ per_page	htdocs/CodeIgniter/system/libraries/Pagination.php	/^		if ($this->total
 per_page	htdocs/CodeIgniter/system/libraries/Pagination.php	/^	public $per_page = 10;$/;"	v
 period	htdocs/CodeIgniter/system/helpers/date_helper.php	/^		$period = new DatePeriod($from, new DateInterval('P1D'), $arg);$/;"	v
 permissions	htdocs/CodeIgniter/system/libraries/Ftp.php	/^	public function mkdir($path, $permissions = NULL)$/;"	v
+person	tests/list_test.c	/^struct person { $/;"	s	file:
 pgsql	htdocs/CodeIgniter/tests/codeigniter/database/DB_driver_test.php	/^	protected function pgsql($config)$/;"	f
 pkg_dir	htdocs/CodeIgniter/tests/codeigniter/core/Config_test.php	/^		$pkg_dir = 'package';$/;"	v
 platform	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public function platform()$/;"	f

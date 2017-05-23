@@ -8,13 +8,18 @@ void err_user(char *msg){
 	fprintf(stderr, "%s", msg);
 }
 
-void end_server(int sockfd){	
-	close(sockfd);
-	pool_destroy();
-}
 
-void cancel_request(){
-	printf("浏览器取消了请求\n");
+/* 信号处理, 成功返回1, 失败返回-1 */
+int init_signal(){
+	struct sigaction act;
+	act.sa_handler = SIG_IGN;
+	act.sa_flags = 0;
+	//浏览器取消请求
+	if(-1 == sigaction(SIGPIPE, &act, NULL)){
+		err_sys("signal SIGPIPE fail", DEBUGPARAMS);
+		return -1;
+	}
+	return 1;
 }
 
 int buffer_path_simplify(char *dest, char *src){  

@@ -12,6 +12,7 @@
 #include<sys/types.h>
 #include<arpa/inet.h>
 #include<sys/stat.h>
+#include<fcntl.h>
 #include<sys/wait.h>
 #include<ctype.h>
 #include<stdlib.h>
@@ -39,6 +40,7 @@ typedef struct http_head{
 }http_header;
 
 int init_server();
+int set_non_blocking(int sockfd);
 int parse_request(const int, char *, http_header *);
 int get_line(const int, char *, int);
 void *handle_request(void *);

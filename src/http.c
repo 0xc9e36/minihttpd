@@ -38,6 +38,22 @@ int init_server(){
 	return sockfd;
 }
 
+/* 设置非阻塞IO */
+set_non_blocking(int sockfd){
+	int flag;
+	if(flag = fcntl(sockfd, F_GETFL, 0) < 0){
+		err_sys("get open Identification fail", DEBUGPARAMS);
+		return -1;
+	}
+	
+	flag |= O_NONBLOCK;
+	if(fcntl(sockfd, F_SETFL, flag) < 0){	
+		err_sys("set non-blocking IO fail", DEBUGPARAMS);
+		return -1;
+	}
+	return 1;
+}
+
 void *handle_request(void *arg){
 	struct stat st;
 	int client_fd;

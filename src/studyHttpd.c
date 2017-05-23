@@ -13,14 +13,24 @@ int main(int argc, char *argv[]){
 	/* 线程池初始化 */
 	if(-1 == pool_init(MAX_POOL_SIZE)) exit(1);
 
+	/* 信号处理 */
+	if(-1 == init_signal()){
+		pool_destroy();
+		exit(1);
+	}
 	/* 建立套接字, 绑定sockaddr信息, 监听... */
-	if(-1 == (sockfd = init_server())) exit(1);
-
-	/* 退出 */
-	//signal(SIGINT, handle_exit);
+	if(-1 == (sockfd = init_server())){
+		pool_destroy();
+		exit(1);
+	}
 	
-	/* 浏览器取消请求 */
-	//signal(SIGPIPE, cancel_request);
+	/* 设置非阻塞I/O */
+	if(-1 == set_non_blocking(sockfd)){
+		close(sockfd);
+		pool_destroy();
+		exit(1);
+	};
+
 
 	sin_size = sizeof(client_sock);
 
@@ -41,7 +51,8 @@ int main(int argc, char *argv[]){
 	}
 	
 	/* 退出服务 */
-	end_server(sockfd);
+	close(sockfd);
+	pool_destroy();
 
     return 0;
 }

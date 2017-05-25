@@ -15,7 +15,7 @@ void *pthread_routine(void *arg){
 
 		if(pool->is_destroy){
 			pthread_mutex_unlock(&(pool->queue_lock));
-	 printf("thread 0x%x will exit\n", (unsigned int)pthread_self());
+	//	debug  printf("thread 0x%x will exit\n", (unsigned int)pthread_self());
 			pthread_exit(NULL);
 		}
 

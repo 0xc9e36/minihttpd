@@ -54,64 +54,71 @@ set_non_blocking(int sockfd){
 	return 1;
 }
 
+int init_http_request(http_request *request, int sockfd, int epfd){
+	request->sockfd = sockfd;
+	request->epfd = epfd;
+    INIT_LIST_HEAD(&(request->list)); 
+	return 1;
+}
+
+/* 处理一个http请求 */
 void *handle_request(void *arg){
 	struct stat st;
 	int client_fd;
 	int recvbytes;
 	char buf[MAX_BUF_SIZE];
-	http_header hr;
 
-	client_fd = *(int *)arg;
-	memset(&hr, 0, sizeof(hr));
+	http_request *hr = (http_request *)arg;
+	client_fd = hr->sockfd;
 	memset(&buf, 0, sizeof(buf));
 
 	/* 解析url, 提取关键请求信息 */
-	if(-1 == parse_request(client_fd, buf, &hr)) return ;
+	if(-1 == parse_request(client_fd, buf, hr)) return ;
 	
 	/* 只支持 GET 和 POST请求 */
-	if(strcasecmp(hr.method, "GET") && strcasecmp(hr.method, "POST")){
+	if(strcasecmp(hr->method, "GET") && strcasecmp(hr->method, "POST")){
 		//501未实现
-		send_http_responce(client_fd, 501, "Not Implemented", &hr);
+		send_http_responce(client_fd, 501, "Not Implemented", hr);
 		close(client_fd);
 		return ;
 	}
 	/* 简单判断HTTP协议 */
-	if(NULL == strstr(hr.version, "HTTP/")){
+	if(NULL == strstr(hr->version, "HTTP/")){
 		// 505协议版本不支持
-		send_http_responce(client_fd, 505, "HTTP Version Not Supported", &hr);
+		send_http_responce(client_fd, 505, "HTTP Version Not Supported", hr);
 		close(client_fd);
 		return;
 	}
 	
 	/* 访问文件 */
-	if(-1 == stat(hr.path, &st)){
+	if(-1 == stat(hr->path, &st)){
 		/* 404文件未找到 */
-		send_http_responce(client_fd, 404, "Not Found", &hr);
+		send_http_responce(client_fd, 404, "Not Found", hr);
 	}else{
 		//目录浏览
 		if((st.st_mode & S_IFMT) == S_IFDIR){
-			exec_dir(client_fd, hr.path, &hr);
+			exec_dir(client_fd, hr->path, hr);
 		}else{	
 			/* 提取文件类型 */
 			char *path;
-			path = strrchr(hr.path, '.');
-			strcpy(hr.ext, (path + 1));
+			path = strrchr(hr->path, '.');
+			strcpy(hr->ext, (path + 1));
 
-			if(0 == strcmp(hr.ext, "php")){	//php 文件
+			if(0 == strcmp(hr->ext, "php")){	//php 文件
 				if(!S_ISREG(st.st_mode) || !(S_IXUSR & st.st_mode)) {
 					// 403 无执行权限
-					send_http_responce(client_fd, 403, "Forbidden", &hr);
+					send_http_responce(client_fd, 403, "Forbidden", hr);
 				}else{
 					//执行php  -> 调用php-fpm
-					exec_php(client_fd, &hr);
+					exec_php(client_fd, hr);
 				}
 			}else{	//静态文件	
 				if(!S_ISREG(st.st_mode) || !(S_IRUSR & st.st_mode)) {
 					// 403 无读权限
-					send_http_responce(client_fd, 403, "Forbidden", &hr);
+					send_http_responce(client_fd, 403, "Forbidden", hr);
 				}else{
 					/* html静态页, jpg, png, pdf ...   */
-					exec_static(client_fd, &hr, st.st_size);
+					exec_static(client_fd, hr, st.st_size);
 				}
 			}
 		}
@@ -122,7 +129,7 @@ void *handle_request(void *arg){
 
 
 /* 解析HTTP请求信息 */
-int parse_request(const int client_fd, char *buf, http_header *hr){
+int parse_request(const int client_fd, char *buf, http_request *hr){
 
 	char web[50];
 	int recvbytes,  i = 0, j = 0;
@@ -185,10 +192,15 @@ int parse_request(const int client_fd, char *buf, http_header *hr){
 			err_sys("http body alloc memory fail", DEBUGPARAMS);
 			return -1;
 		}
+		printf("%d\n", len);
 		char *cur_recv = hr->content;
 		while(len > 0){
 			recvbytes =  recv(client_fd, cur_recv, MAX_RECV_SIZE, 0);
 			if(-1 == recvbytes){
+				if(errno == EAGAIN){
+					printf("EAGAIN\n");
+					break;
+				}
 				err_sys("recv http body fail", DEBUGPARAMS);
 				return -1;
 			}
@@ -237,7 +249,7 @@ int get_line(const int client_fd, char *buf, int size){
 }
 
 /* 发送http响应信息 */
-void send_http_responce(int client_fd, const int http_code, const char *msg, const http_header * hr){
+void send_http_responce(int client_fd, const int http_code, const char *msg, const http_request * hr){
 	char header[MAX_BUF_SIZE], body[MAX_BUF_SIZE];
 
 	/*
@@ -269,7 +281,7 @@ void send_http_responce(int client_fd, const int http_code, const char *msg, con
 }
 
 /* 处理静态文件 */
-void exec_static(int client_fd, http_header *hr, int size){
+void exec_static(int client_fd, http_request *hr, int size){
 	FILE *fp;
 	int sendbytes;
 	char header[MAX_BUF_SIZE];
@@ -301,7 +313,7 @@ void exec_static(int client_fd, http_header *hr, int size){
 }
 
 /* 浏览目录 */
-void exec_dir(int client_fd, char *dirname, http_header *hr){
+void exec_dir(int client_fd, char *dirname, http_request *hr){
 	
 	char buf[MAX_BUF_SIZE], header[MAX_BUF_SIZE],img[MAX_BUF_SIZE], filename[MAX_BUF_SIZE];
 	char web[50];
@@ -368,7 +380,7 @@ void get_http_mime(char *ext, char *mime){
 
 
 /* 与 php-fpm 通信 */
-void exec_php(int client_fd, http_header *hr){
+void exec_php(int client_fd, http_request *hr){
 	
 	int fcgi_fd;
 	
@@ -415,7 +427,7 @@ int conn_fastcgi(){
  * 成功返回1, 失败返回-1
  * 
  * */
-int send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
+int send_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 		
 	char filename[50];
 	int requestId = client_fd, recvbytes, sendbytes;
@@ -503,7 +515,7 @@ int send_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 	return 1;
 }
 
-void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
+void recv_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 
 	FCGI_Header responseHeader;
 	FCGI_EndRequestBody responseEnder;
@@ -605,7 +617,7 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_header *hr){
 }
 
 /* 构造http响应, 返回客户端 */
-void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, http_header *hr){
+void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, http_request *hr){
 			
 	char header[MAX_BUF_SIZE], header_buf[256];
 	char *body, *start, *end, mime[256];

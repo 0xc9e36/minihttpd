@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
 	init_http_request(request, sockfd, epfd);
 
 	event.data.ptr = (void *)request;
-	event.events  = EPOLLIN | EPOLLET;	//设置可读
+	event.events  = EPOLLIN | EPOLLET;
 
 	/* 添加监听 */
 	int ret = epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &event);
@@ -95,6 +95,10 @@ int main(int argc, char *argv[]){
 					}
 				}
 			}else{
+				if((events[i].events & EPOLLERR) || events[i].events & EPOLLHUP || (!(events[i].events & EPOLLIN))){
+					close(hr->sockfd);
+					continue;
+				}
 				if(-1 == add_job(handle_request, events[i].data.ptr)) break;
 			}
 		}

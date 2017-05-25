@@ -192,15 +192,11 @@ int parse_request(const int client_fd, char *buf, http_request *hr){
 			err_sys("http body alloc memory fail", DEBUGPARAMS);
 			return -1;
 		}
-		printf("%d\n", len);
 		char *cur_recv = hr->content;
 		while(len > 0){
 			recvbytes =  recv(client_fd, cur_recv, MAX_RECV_SIZE, 0);
 			if(-1 == recvbytes){
-				if(errno == EAGAIN){
-					printf("EAGAIN\n");
-					break;
-				}
+				if(errno == EAGAIN) continue;
 				err_sys("recv http body fail", DEBUGPARAMS);
 				return -1;
 			}

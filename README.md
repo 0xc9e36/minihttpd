@@ -1,5 +1,5 @@
 # studyHttpd
-一个简单的多线程http服务器,  用C语言写的, 支持php.  
+一个简单的http服务器,  用C语言写的, epoll+非阻塞io+线程池结构, 支持php.  
 
 #  参考资料   
 TinyHttpd    
@@ -13,8 +13,8 @@ php(需要php-fpm)
 GET/POST方法   
 ...   
 
-#  TODO
-recv, send的封装    
+#  TODO    
+https   
 内存管理    
 日志管理    
 ...   

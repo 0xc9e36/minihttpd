@@ -204,7 +204,7 @@ DB	htdocs/CodeIgniter/tests/mocks/database/db.php	/^	public static function DB($
 DB_driver_test	htdocs/CodeIgniter/tests/codeigniter/database/DB_driver_test.php	/^class DB_driver_test extends CI_TestCase {$/;"	c
 DB_result_dummy	htdocs/CodeIgniter/tests/codeigniter/libraries/Table_test.php	/^class DB_result_dummy extends CI_DB_result$/;"	c
 DB_test	htdocs/CodeIgniter/tests/codeigniter/database/DB_test.php	/^class DB_test extends CI_TestCase {$/;"	c
-DEBUGPARAMS	src/common.h	16;"	d
+DEBUGPARAMS	src/common.h	18;"	d
 DF_PQ_SIZE	src/priority_queue.h	11;"	d
 DIR_READ_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('DIR_READ_MODE')   OR define('DIR_READ_MODE', 0755);$/;"	d
 DIR_WRITE_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('DIR_WRITE_MODE')  OR define('DIR_WRITE_MODE', 0755);$/;"	d
@@ -4342,7 +4342,7 @@ list_databases	htdocs/CodeIgniter/system/database/DB_utility.php	/^	public funct
 list_databases	htdocs/CodeIgniter/system/database/drivers/cubrid/cubrid_utility.php	/^	public function list_databases()$/;"	f
 list_del	src/list.h	/^static inline void list_del(struct list_head *entry){$/;"	f
 list_del_init	src/list.h	/^static inline void list_del_init(list_head *entry){$/;"	f
-list_empty	src/list.h	/^static inline list_empty(const struct list_head *head){$/;"	f
+list_empty	src/list.h	/^static inline int list_empty(const struct list_head *head){$/;"	f
 list_entry	src/list.h	80;"	d
 list_fields	htdocs/CodeIgniter/system/database/DB_driver.php	/^	public function list_fields($table)$/;"	f
 list_fields	htdocs/CodeIgniter/system/database/DB_result.php	/^	public function list_fields()$/;"	f
@@ -5130,7 +5130,7 @@ pool	htdocs/CodeIgniter/system/helpers/string_helper.php	/^						$pool = '012345
 pool	htdocs/CodeIgniter/system/helpers/string_helper.php	/^						$pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';$/;"	v
 pool	htdocs/CodeIgniter/system/helpers/string_helper.php	/^						$pool = '123456789';$/;"	v
 pool	htdocs/CodeIgniter/system/helpers/string_helper.php	/^						$pool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';$/;"	v
-pool	src/threadpool.h	/^static thread_pool *pool = NULL;$/;"	v
+pool	src/threadpool.c	/^static thread_pool *pool = NULL;$/;"	v	file:
 pool_destroy	src/threadpool.c	/^int pool_destroy(){$/;"	f
 pool_init	src/threadpool.c	/^int pool_init(int pool_size){$/;"	f
 pool_length	htdocs/CodeIgniter/system/helpers/captcha_helper.php	/^			$pool_length = strlen($pool);$/;"	v
@@ -5934,7 +5934,7 @@ set_min_height	htdocs/CodeIgniter/system/libraries/Upload.php	/^	public function
 set_min_width	htdocs/CodeIgniter/system/libraries/Upload.php	/^	public function set_min_width($n)$/;"	f
 set_mode	htdocs/CodeIgniter/system/libraries/Encrypt.php	/^	public function set_mode($mode)$/;"	f
 set_newline	htdocs/CodeIgniter/system/libraries/Email.php	/^	public function set_newline($newline = "\\n")$/;"	f
-set_non_blocking	src/http.c	/^set_non_blocking(int sockfd){$/;"	f
+set_non_blocking	src/http.c	/^int set_non_blocking(int sockfd){$/;"	f
 set_output	htdocs/CodeIgniter/system/core/Output.php	/^	public function set_output($output)$/;"	f
 set_priority	htdocs/CodeIgniter/system/libraries/Email.php	/^	public function set_priority($n = 3)$/;"	f
 set_profiler_sections	htdocs/CodeIgniter/system/core/Output.php	/^	public function set_profiler_sections($sections)$/;"	f
@@ -6511,7 +6511,6 @@ test	htdocs/CodeIgniter/tests/codeigniter/helpers/html_helper_test.php	/^		$test
 test	htdocs/CodeIgniter/tests/mocks/core/common.php	/^		$test = $test->ci_instance();$/;"	v
 test	htdocs/CodeIgniter/tests/mocks/core/common.php	/^		$test = CI_TestCase::instance();$/;"	v
 test	htdocs/CodeIgniter/tests/mocks/core/uri.php	/^		$test = CI_TestCase::instance();$/;"	v
-test	src/threadpool.c	/^void *test(void *arg){$/;"	f
 testDatabase	htdocs/CodeIgniter/tests/codeigniter/core/Loader_test.php	/^	\/\/ public function testDatabase()$/;"	f
 test_Ul	htdocs/CodeIgniter/tests/codeigniter/helpers/html_helper_test.php	/^	public function test_Ul()$/;"	f
 test___construct	htdocs/CodeIgniter/tests/codeigniter/libraries/Encryption_test.php	/^	public function test___construct()$/;"	f

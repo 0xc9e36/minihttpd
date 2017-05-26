@@ -1,5 +1,7 @@
 #include "threadpool.h"
 
+static thread_pool *pool = NULL;
+
 void *pthread_routine(void *arg){
 
 	//debug  printf("starting pthread 0x%x\n", (unsigned int)pthread_self());
@@ -157,8 +159,9 @@ int add_job(void *(*process)(void *arg), void *arg){
 
 }
 
+/*
 void *test(void *arg){
 	printf("tid is 0x%x, working on job %d\n", (unsigned int)pthread_self(), *(int *)arg);
 	return ;
 }
-
+*/

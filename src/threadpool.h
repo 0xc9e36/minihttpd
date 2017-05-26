@@ -29,7 +29,6 @@ typedef struct{
 	pthread_t *tid;
 }thread_pool;
 
-static thread_pool *pool = NULL;
 
 int pool_init(int pool_size);
 void *thread_routine(void *arg);

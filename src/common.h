@@ -13,9 +13,9 @@
 
 #define	ROOT	"../"
 #define WEB		"./htdocs"
+
+
 #define DEBUGPARAMS __FILE__, __LINE__, __FUNCTION__ 
-
-
 void err_sys(const char *msg, const char *filename, int line, const char *func);
 void err_user(char *msg);
 int buffer_path_simplify(char *dest, char *src); 

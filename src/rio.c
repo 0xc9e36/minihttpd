@@ -57,6 +57,7 @@ ssize_t rio_writen(int fd, void *usrbuf, size_t n){
 		nleft -= nwritten;
 		bufp += nwritten;
 	}
+	return n;
 }
 
 void rio_readinitb(rio_t *rp, int fd){

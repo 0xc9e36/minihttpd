@@ -8,7 +8,6 @@
 struct epoll_event *events;
 
 
-int epoll_create(int flags);
-//int epoll_add(int epoll_fd, );
+int epoll_init(int flags);
 
 #endif

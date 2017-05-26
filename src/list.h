@@ -64,7 +64,7 @@ static inline void list_del_init(list_head *entry){
 }
 
 /* 判断双链表是否为空 */
-static inline list_empty(const struct list_head *head){
+static inline int list_empty(const struct list_head *head){
 	return head->next == head;
 }
 

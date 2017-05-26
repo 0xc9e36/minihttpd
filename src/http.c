@@ -39,9 +39,9 @@ int init_server(){
 }
 
 /* 设置非阻塞IO */
-set_non_blocking(int sockfd){
+int set_non_blocking(int sockfd){
 	int flag;
-	if(flag = fcntl(sockfd, F_GETFL, 0) < 0){
+	if((flag = fcntl(sockfd, F_GETFL, 0)) < 0){
 		err_sys("get open Identification fail", DEBUGPARAMS);
 		return -1;
 	}
@@ -65,7 +65,6 @@ int init_http_request(http_request *request, int sockfd, int epfd){
 void *handle_request(void *arg){
 	struct stat st;
 	int client_fd;
-	int recvbytes;
 	char buf[MAX_BUF_SIZE];
 
 	http_request *hr = (http_request *)arg;
@@ -73,21 +72,21 @@ void *handle_request(void *arg){
 	memset(&buf, 0, sizeof(buf));
 
 	/* 解析url, 提取关键请求信息 */
-	if(-1 == parse_request(client_fd, buf, hr)) return ;
+	if(-1 == parse_request(client_fd, buf, hr)) return NULL;
 	
 	/* 只支持 GET 和 POST请求 */
 	if(strcasecmp(hr->method, "GET") && strcasecmp(hr->method, "POST")){
 		//501未实现
 		send_http_responce(client_fd, 501, "Not Implemented", hr);
 		close(client_fd);
-		return ;
+		return NULL;
 	}
 	/* 简单判断HTTP协议 */
 	if(NULL == strstr(hr->version, "HTTP/")){
 		// 505协议版本不支持
 		send_http_responce(client_fd, 505, "HTTP Version Not Supported", hr);
 		close(client_fd);
-		return;
+		return NULL;
 	}
 	
 	/* 访问文件 */
@@ -125,6 +124,7 @@ void *handle_request(void *arg){
 	}
 
 	close(client_fd);	
+	return NULL;
 }
 
 
@@ -133,7 +133,7 @@ int parse_request(const int client_fd, char *buf, http_request *hr){
 
 	char web[50];
 	int recvbytes,  i = 0, j = 0;
-	int start, end;
+	//int start, end;
 
 	/* 根目录 */
 	sprintf(web, "%s%s", ROOT, WEB);
@@ -247,20 +247,6 @@ int get_line(const int client_fd, char *buf, int size){
 /* 发送http响应信息 */
 void send_http_responce(int client_fd, const int http_code, const char *msg, const http_request * hr){
 	char header[MAX_BUF_SIZE], body[MAX_BUF_SIZE];
-
-	/*
-	sprintf(body, "<html><body>%d:%s<hr /><em>studyHttpd Web Service</em></body></html>", http_code, msg);
-	sprintf(header, "%s %d %s\r\n",hr->version, http_code, msg);
-	send(client_fd, header, strlen(header), 0);
-	sprintf(header, "Content-Type: text/html\r\n");
-	send(client_fd, header, strlen(header), 0);
-	sprintf(header, "Connection: close\r\n");
-	send(client_fd, header, strlen(header), 0);
-	sprintf(header, "Content-Length: %d\r\n\r\n", (int)strlen(body));
-	send(client_fd, header, strlen(header), 0);
-	send(client_fd, body, strlen(body), 0);
-	*/	
-
 	sprintf(body, "<html><body>%d:%s<hr /><em>studyHttpd Web Service</em></body></html>", http_code, msg);
 	
 	sprintf(header, "%s %d %s\r\n",hr->version, http_code, msg);
@@ -312,7 +298,7 @@ void exec_static(int client_fd, http_request *hr, int size){
 void exec_dir(int client_fd, char *dirname, http_request *hr){
 	
 	char buf[MAX_BUF_SIZE], header[MAX_BUF_SIZE],img[MAX_BUF_SIZE], filename[MAX_BUF_SIZE];
-	char web[50];
+	//char web[50];
 	DIR *dp;
 	int num = 1;
 	struct dirent *dirp;
@@ -426,7 +412,7 @@ int conn_fastcgi(){
 int send_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 		
 	char filename[50];
-	int requestId = client_fd, recvbytes, sendbytes;
+	int requestId = client_fd, sendbytes;
 
 	/* 发送FCGI_BEGIN_REQUEST */	
 	FCGI_BeginRequestRecord beginRecord;
@@ -447,7 +433,7 @@ int send_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 	int i, conLength, paddingLength;
 	FCGI_ParamsRecord *paramsRecord;
 	FCGI_Header emptyData;
-	for(i = 0; params[i][0] != ""; i++){   // debug printf("%s : %s\n", params[i][0], params[i][1]);
+	for(i = 0; strcmp(params[i][0],  "") != 0; i++){   // debug printf("%s : %s\n", params[i][0], params[i][1]);
 		conLength = strlen(params[i][0]) + strlen(params[i][1]) + 2;
 		paddingLength = (conLength % 8) == 0 ? 0 : 8 - (conLength % 8);
 		paramsRecord = (FCGI_ParamsRecord *)malloc(sizeof(FCGI_ParamsRecord) + conLength + paddingLength);
@@ -518,7 +504,6 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 	int recvbytes, recvId, ok_recved = 0, ok_recv = 0;	// ok_recved 已经从缓冲区读取的字节数目,  ok_recv 本次要从缓冲区读取的字节数
 	int err_recved = 0, err_recv = 0;					//同上
 	char buf[8];
-	char header[MAX_BUF_SIZE];
 	int contentLength;
 	int errlen = 0, outlen = 0;
 	char *ok = NULL , *err = NULL;

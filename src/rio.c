@@ -19,13 +19,16 @@ ssize_t rio_readn(int fd, void *usrbuf, size_t n){
 
 	while(nleft > 0){
 		if((nread = read(fd, bufp, nleft)) < 0){
-			if(errno == EINTR){
-				nread = 0;
+			if((errno == EINTR) || (errno == EWOULDBLOCK)){
+				//已经读取完毕
+				break;
 			}else{
+				//出错
 				return -1;
 			}
 		}else if(nread == 0){
-			break;
+			//客户端已关闭连接
+			return -1;
 		}
 		nleft -= nread;
 		bufp += nread;

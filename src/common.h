@@ -13,6 +13,7 @@
 
 #define	ROOT	"../"
 #define WEB		"./htdocs"
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 
 #define DEBUGPARAMS __FILE__, __LINE__, __FUNCTION__ 

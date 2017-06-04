@@ -62,7 +62,7 @@ int main(int argc, char *argv[]){
 
 	socklen_t sin_size = sizeof(client_sock);
 
-	for(; ; ){
+	for(; ;){
 
 		ret = epoll_wait(epfd, events, MAX_FD, -1);
 		
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]){
 					close(hr->sockfd);
 					continue;
 				}
-				if(-1 == add_job(handle_request, events[i].data.ptr)) break;
+				if(-1 == add_job(handle_request, events[i].data.ptr)) continue;
 			}
 		}
 	}

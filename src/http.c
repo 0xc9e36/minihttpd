@@ -1,4 +1,16 @@
 #include "http.h"
+#include "rio.h"
+#include "http_parse.h"
+
+int init_http_request(http_request *request, int sockfd, int epfd){
+	request->sockfd = sockfd;
+	request->state = 0;
+	request->pos = 0;
+	request->last = 0;
+	request->epfd = epfd;
+    INIT_LIST_HEAD(&(request->list)); 
+	return 1;
+}
 
 /*
  * 初始化socket
@@ -54,115 +66,155 @@ int set_non_blocking(int sockfd){
 	return 1;
 }
 
-int init_http_request(http_request *request, int sockfd, int epfd){
-	request->sockfd = sockfd;
-	request->epfd = epfd;
-    INIT_LIST_HEAD(&(request->list)); 
-	return 1;
-}
-
-/* 处理一个http请求 */
+/* 处理http请求 */
 void *handle_request(void *arg){
-	struct stat st;
-	int client_fd;
-	char buf[MAX_BUF_SIZE];
 
 	http_request *hr = (http_request *)arg;
-	client_fd = hr->sockfd;
-	memset(&buf, 0, sizeof(buf));
 
-	/* 解析url, 提取关键请求信息 */
-	if(-1 == parse_request(client_fd, buf, hr)) return NULL;
+	char *plast = NULL, path[MAX_BUF_SIZE], param[MAX_BUF_SIZE];
+	struct stat st;
+	size_t remain_size;
+	int n, res;
+
+	while(1){
+		plast = &(hr->buf[hr->last]);
+		remain_size = min(MAX_BUF_SIZE - (hr->last - hr->pos + 1), MAX_BUF_SIZE - hr->last % MAX_BUF_SIZE);  
 	
-	/* 只支持 GET 和 POST请求 */
-	if(strcasecmp(hr->method, "GET") && strcasecmp(hr->method, "POST")){
-		//501未实现
-		send_http_responce(client_fd, 501, "Not Implemented", hr);
-		close(client_fd);
-		return NULL;
-	}
-	/* 简单判断HTTP协议 */
-	if(NULL == strstr(hr->version, "HTTP/")){
-		// 505协议版本不支持
-		send_http_responce(client_fd, 505, "HTTP Version Not Supported", hr);
-		close(client_fd);
-		return NULL;
-	}
+		if (0 == (n = read(hr->sockfd, plast, remain_size))){
+			err_sys("client close", DEBUGPARAMS);
+			http_close(hr);
+			return NULL;
+		}else if(n < 0){
+			if((errno == EAGAIN) || (errno == EWOULDBLOCK)) break;	
+			err_sys("read error", DEBUGPARAMS);
+			http_close(hr);
+			return NULL;
+		}
+
+		hr->last += n;
 	
-	/* 访问文件 */
-	if(-1 == stat(hr->path, &st)){
-		/* 404文件未找到 */
-		send_http_responce(client_fd, 404, "Not Found", hr);
-	}else{
+		/* 解析请求行 */
+		res = http_parse_line(hr);
+		
+		if(res == HTTP_AGAIN){
+			continue;
+		}else if(res != HTTP_OK){
+			err_sys("parst request error", DEBUGPARAMS);
+			http_close(hr);
+			return NULL;
+		}
+
+		/* 解析请求头 */
+		res = http_parse_body(hr);
+
+		if(res == HTTP_AGAIN){
+			continue;
+		}else if(res != HTTP_OK){
+			err_sys("parst request error", DEBUGPARAMS);
+			http_close(hr);
+			return NULL;
+		}
+
+		http_response *response = (http_response *)malloc(sizeof(http_response));
+		init_response(response, hr->sockfd);
+
+		/* 解析请求数据 */
+		parse_request(hr);
+
+		/* 只支持 GET 和 POST请求 */
+		if(hr->method == UNKNOW){
+			//501未实现
+			send_http_responce(hr->sockfd, 501, "Not Implemented", hr);
+			continue;
+		}
+	
+		/* 简单判断HTTP协议, http1.0 和 http1.1  */
+	  	if(strcasecmp(hr->version, "HTTP/1.0") && strcasecmp(hr->version, "HTTP/1.1")){
+			// 505协议版本不支持
+			send_http_responce(hr->sockfd, 505, "HTTP Version Not Supported", hr);
+			continue;
+		}
+
+		/* 访问文件 */
+		if(-1 == stat(hr->path, &st)){
+			/* 404文件未找到 */
+			send_http_responce(hr->sockfd, 404, "Not Found", hr);
+			continue;
+		}
+	
+		//最后修改时间
+		response->ctime = st.st_mtime;
+		
 		//目录浏览
 		if((st.st_mode & S_IFMT) == S_IFDIR){
-			exec_dir(client_fd, hr->path, hr);
+			exec_dir(hr->sockfd, hr->path, hr);
 		}else{	
-			/* 提取文件类型 */
-			char *path;
-			path = strrchr(hr->path, '.');
-			strcpy(hr->ext, (path + 1));
+			//printf("文件后缀 : %s\n", ext);
 
 			if(0 == strcmp(hr->ext, "php")){	//php 文件
 				if(!S_ISREG(st.st_mode) || !(S_IXUSR & st.st_mode)) {
 					// 403 无执行权限
-					send_http_responce(client_fd, 403, "Forbidden", hr);
+					send_http_responce(hr->sockfd, 403, "Forbidden", hr);
 				}else{
 					//执行php  -> 调用php-fpm
-					exec_php(client_fd, hr);
+					//exec_php(hr->sockfd, hr);
 				}
 			}else{	//静态文件	
 				if(!S_ISREG(st.st_mode) || !(S_IRUSR & st.st_mode)) {
 					// 403 无读权限
-					send_http_responce(client_fd, 403, "Forbidden", hr);
+					send_http_responce(hr->sockfd, 403, "Forbidden", hr);
 				}else{
-					/* html静态页, jpg, png, pdf ...   */
-					exec_static(client_fd, hr, st.st_size);
+					exec_static(hr,st.st_size);
 				}
 			}
 		}
+		
 	}
 
-	close(client_fd);	
+	//printf("下一次事件\n");
+	struct epoll_event event;
+	event.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
+	event.data.ptr = hr;
+	
+	epoll_ctl(hr->epfd,EPOLL_CTL_MOD, hr->sockfd, &event);
 	return NULL;
+}
+
+void init_response(http_response *rs, int sockfd){
+	rs->sockfd = sockfd;
+	rs->keep_alive = 0;
+	rs->modifyed = 1;
+	rs->status = 0;
+}
+
+void http_close(http_request *hr){
+	printf("关闭连接\n");
+	close(hr->sockfd);
+	free(hr);
 }
 
 
 /* 解析HTTP请求信息 */
-int parse_request(const int client_fd, char *buf, http_request *hr){
+int parse_request(http_request *hr){
 
 	char web[50];
-	int recvbytes,  i = 0, j = 0;
-	//int start, end;
-
 	/* 根目录 */
 	sprintf(web, "%s%s", ROOT, WEB);
-	
-	/* http 请求行 */
-	recvbytes = get_line(client_fd, buf, MAX_BUF_SIZE);
 
-	/* 请求方法 */
-	while((i < recvbytes) && !isspace(buf[i])){
-		hr->method[i] = buf[i];
-		i++;
-	}
-	hr->method[i++] = '\0';
+	memset(hr->ext, 0, sizeof(char)*10);
+	memset(hr->version, 0, sizeof(char)*10);
+	memset(hr->filename, 0, sizeof(char)*1024);
+	memset(hr->url, 0, sizeof(char)*1024);
+	memset(hr->param, 0, sizeof(char)*1024);
+	memset(hr->path, 0, sizeof(char)*1024);
 
-	/* 请求url */
-	while((i < recvbytes) && !isspace(buf[i])){
-		hr->url[j++] = buf[i++];
-	}
-	hr->url[j] = '\0';
-	i++;
+	int len;
 
-	j = 0;
-	/* 协议版本 */
-	while((i < recvbytes) && !isspace(buf[i])){
-		hr->version[j++] = buf[i++];
-	}
-	hr->version[j] = '\0';
+	/* url */
+	len = hr->url_end - hr->url_start;
+	strncpy(hr->url, hr->url_start, len);
 
-	/*  请求参数 */
+	/*请求参数 */
 	if(strstr(hr->url, "?")){
 		strcpy(hr->filename, strtok(hr->url, "?"));
 		strcpy(hr->param, strtok(NULL, "?"));
@@ -171,99 +223,41 @@ int parse_request(const int client_fd, char *buf, http_request *hr){
 		strcpy(hr->param, "");
 	}
 
+	/* 版本信息 */
+	sprintf(hr->version, "HTTP/%d.%d", hr->http_major, hr->http_minor);
+
 	/* 文件路径 */
 	sprintf(hr->path, "%s%s", web, hr->filename);
 
-	char *val;
-	/*Content-Type以及Content-Length */
-	while((recvbytes > 0) && strcmp("\n", buf)){
-		recvbytes = get_line(client_fd, buf, MAX_BUF_SIZE);
-		if((val = get_http_Val(buf, "Content-Length")) != NULL){
-			strcpy(hr->conlength, val);	
-		}else if((val = get_http_Val(buf, "Content-Type")) != NULL){
-			strcpy(hr->contype, val);
-		}
-	}
+	/* 扩展名 */
+	char *t_path;
+	t_path = strrchr(hr->path, '.');
+	strcpy(hr->ext, (t_path + 1));
 
-	/* body内容  recv不能一次性接受很大值...  或者可以setsockopt 增大接受缓冲区*/
-	int len = atoi(hr->conlength);
-	if(len > 0 && strcmp("POST", hr->method) == 0){	
-		if((hr->content = (char *)malloc(len)) == NULL){
-			err_sys("http body alloc memory fail", DEBUGPARAMS);
-			return -1;
-		}
-		char *cur_recv = hr->content;
-		while(len > 0){
-			recvbytes =  recv(client_fd, cur_recv, MAX_RECV_SIZE, 0);
-			if(-1 == recvbytes){
-				if(errno == EAGAIN) continue;
-				err_sys("recv http body fail", DEBUGPARAMS);
-				return -1;
-			}
-			cur_recv += recvbytes;
-			len -= recvbytes;
-		}
-		// debug printf("recv body中的内容是%d\n");
-	}
+	printf("请求url%s\n请求路径%s\n请求参数%s\n版本%s\n\n\n", hr->url, hr->path, hr->param, hr->version);
+
 	return 1;
-}
-
-
-char *get_http_Val(const char* str, const char *substr){
-	char *start;
-	if(strstr(str, substr) == NULL) return NULL;
-	start = index(str, ':');
-	//去掉空格冒号
-	start += 2;
-	//去掉换行符
-	start[strlen(start) - 1] = '\0';
-	return start;
-}
-
-/*  获取http请求一行数据, 成功则返回数据长度*/
-int get_line(const int client_fd, char *buf, int size){
-	char c = '\0';
-	int n, i;
-	for(i = 0; (c != '\n') &&  (i < size - 1); i++){
-		n = recv(client_fd, &c, 1, 0);
-		if(n > 0){
-			if('\r' == c){
-				n = recv(client_fd, &c, 1, MSG_PEEK);
-				if((n > 0) && ('\n' == c)){
-					recv(client_fd, &c, 1, 0);
-				}else{
-					c = '\n';
-				}
-			}
-			buf[i] = c;
-		}else{
-			c = '\n';
-		}
-	}
-	buf[i] = '\0';
-	return i;
 }
 
 /* 发送http响应信息 */
 void send_http_responce(int client_fd, const int http_code, const char *msg, const http_request * hr){
 	char header[MAX_BUF_SIZE], body[MAX_BUF_SIZE];
 	sprintf(body, "<html><body>%d:%s<hr /><em>studyHttpd Web Service</em></body></html>", http_code, msg);
+
+	sprintf(header, "HTTP/%d.%d %d %s\r\n",hr->http_major, hr->http_minor, http_code, msg);
+	sprintf(header, "%sContent-Type: text/html\r\n", header);
+	sprintf(header, "%sConnection: close\r\n", header);
+	sprintf(header, "%sContent-Length: %d\r\n\r\n", header, (int)strlen(body));
 	
-	sprintf(header, "%s %d %s\r\n",hr->version, http_code, msg);
+	// debug printf("\n%s%s\n", header, body);
+
 	rio_writen(client_fd, header, strlen(header));
-	sprintf(header, "Content-Type: text/html\r\n");
-	rio_writen(client_fd, header, strlen(header));
-	sprintf(header, "Connection: close\r\n");
-	rio_writen(client_fd, header, strlen(header));
-	sprintf(header, "Content-Length: %d\r\n\r\n", (int)strlen(body));
-	rio_writen(client_fd, header, strlen(header));
-	
 	rio_writen(client_fd, body, strlen(body));
 	
 }
 
 /* 处理静态文件 */
-void exec_static(int client_fd, http_request *hr, int size){
+void exec_static(http_request *hr,  int size){
 	FILE *fp;
 	int sendbytes;
 	char header[MAX_BUF_SIZE];
@@ -273,41 +267,35 @@ void exec_static(int client_fd, http_request *hr, int size){
 	fp = fopen(hr->path, "rb");
 	
 	if(NULL == fp){
-		send_http_responce(client_fd, 404, "Not Found", hr);
+		send_http_responce(hr->sockfd, 404, "Not Found", hr);
 		return ;
 	}
-	/* 获取文件MIME类型 text/html image/png ... */
 	get_http_mime(hr->ext, mime);
 
-	sprintf(header, "%s 200 OK\r\n",hr->version);
-	rio_writen(client_fd, header, strlen(header));
+	sprintf(header, "HTTP/%d.%d 200 OK\r\n",hr->http_major, hr->http_minor);
+	rio_writen(hr->sockfd, header, strlen(header));
 	sprintf(header, "Content-Type: %s\r\n", mime);
-	rio_writen(client_fd, header, strlen(header));
-	sprintf(header, "Connection: close\r\n");
-	rio_writen(client_fd, header, strlen(header));
+	rio_writen(hr->sockfd, header, strlen(header));
 	sprintf(header, "Content-Length: %d\r\n\r\n", size);
-    rio_writen(client_fd, header, strlen(header));
+    rio_writen(hr->sockfd, header, strlen(header));
 	
 	while((sendbytes = fread(body, 1, MAX_BUF_SIZE, fp)) > 0){
-		rio_writen(client_fd, body, sendbytes);
+		rio_writen(hr->sockfd, body, sendbytes);
 	}
 	fclose(fp);
 }
 
 /* 浏览目录 */
 void exec_dir(int client_fd, char *dirname, http_request *hr){
-	
+
 	char buf[MAX_BUF_SIZE], header[MAX_BUF_SIZE],img[MAX_BUF_SIZE], filename[MAX_BUF_SIZE];
-	//char web[50];
 	DIR *dp;
 	int num = 1;
 	struct dirent *dirp;
 	struct stat st;
 	struct passwd *passwd;
 
-
 	if(NULL == (dp = opendir(dirname))) err_sys("open dir fail", DEBUGPARAMS);
-
 
 	sprintf(buf, "<html><head><meta charset=""utf-8""><title>DIR List</title>");
 	sprintf(buf, "%s<style type=""text/css"">img{ width:24px; height:24px;}</style></head>", buf);
@@ -333,7 +321,7 @@ void exec_dir(int client_fd, char *dirname, http_request *hr){
 	
 	closedir(dp);
 
-    sprintf(header, "%s 200 OK\r\n", hr->version);  
+    sprintf(header, "HTTP/%d.%d 200 OK\r\n", hr->http_major, hr->http_minor);  
 	sprintf(header, "%sContent-length: %d\r\n", header, (int)strlen(buf)); 
 	sprintf(header, "%sConnection: close\r\n", header);
 	sprintf(header, "%sContent-type: %s\r\n\r\n", header, "text/html"); 
@@ -341,6 +329,7 @@ void exec_dir(int client_fd, char *dirname, http_request *hr){
 	sprintf(buf, "%s</table></body></html>\r\n", buf);
 	send(client_fd, buf, strlen(buf), 0);	
 }	
+
 
 void get_http_mime(char *ext, char *mime){
 	
@@ -361,18 +350,14 @@ void get_http_mime(char *ext, char *mime){
 }
 
 
-/* 与 php-fpm 通信 */
+/*
 void exec_php(int client_fd, http_request *hr){
 	
 	int fcgi_fd;
 	
-	/* 连接fastcgi服务器 */
 	if(-1 == (fcgi_fd = conn_fastcgi())) return ;
-	
-	/* 发送数据 */
 	if(-1 == (send_fastcgi(fcgi_fd, client_fd, hr))) return ;
 
-	/* 接收数据 */
 	recv_fastcgi(fcgi_fd, client_fd, hr);
 	close(fcgi_fd);
 }
@@ -382,7 +367,8 @@ void exec_php(int client_fd, http_request *hr){
  * 连接php-fpm服务器
  * 成功返回socket描述符, 失败返回-1
  *
- * */
+ */
+  /*  
 int conn_fastcgi(){	
 	int fcgi_fd;
 	struct sockaddr_in fcgi_sock;
@@ -406,15 +392,15 @@ int conn_fastcgi(){
 
 /* 
  * 与php-fpm通信
- * 成功返回1, 失败返回-1
- * 
+ * 成功返回1, 失败返回-1 * 
  * */
+
+  /*  
 int send_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 		
 	char filename[50];
 	int requestId = client_fd, sendbytes;
 
-	/* 发送FCGI_BEGIN_REQUEST */	
 	FCGI_BeginRequestRecord beginRecord;
 	beginRecord.body = makeBeginRequestBody(FCGI_RESPONDER);
 	beginRecord.header =  makeHeader(FCGI_BEGIN_REQUEST, requestId, sizeof(beginRecord.body), 0);
@@ -429,7 +415,6 @@ int send_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 	strcat(filename, hr->path);
 	buffer_path_simplify(filename, filename);
 	char *params[][2] = {{"SCRIPT_FILENAME", filename}, {"REQUEST_METHOD", hr->method}, {"QUERY_STRING", hr->param}, {"CONTENT_TYPE", hr->contype },{"CONTENT_LENGTH", hr->conlength },{"", ""}};
-	/* 发送 FCGI_PARAMS */
 	int i, conLength, paddingLength;
 	FCGI_ParamsRecord *paramsRecord;
 	FCGI_Header emptyData;
@@ -449,14 +434,12 @@ int send_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 		}
 		free(paramsRecord);
 	}
-	/* 空的FCGI_PARAMS参数 */
 	emptyData = makeHeader(FCGI_PARAMS, requestId, 0, 0);
 	if(-1 == (sendbytes = send(fcgi_fd, &emptyData, FCGI_HEADER_LEN, 0))){
 		err_sys("fcgi send paramsRecord empty error", DEBUGPARAMS);
 		return -1;
 	}
 
-	/*POST　并且有请求体 才会发送FCGI_STDIN数据 */
 	char buf[8] = {0};
 	int len = atoi(hr->conlength);
 	int send_len;
@@ -488,7 +471,6 @@ int send_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 	}
 
 	//debug  printf("%d\n", sendbytes);
-	/* 发送空的FCGI_STDIN数据 */
 	FCGI_Header emptyStdin = makeHeader(FCGI_STDIN, requestId, 0, 0);
 	if(-1 == (sendbytes = send(fcgi_fd, &emptyStdin, FCGI_HEADER_LEN, 0))){
 		err_sys("fcgi send stdinHeader enpty", DEBUGPARAMS);
@@ -508,7 +490,6 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 	int errlen = 0, outlen = 0;
 	char *ok = NULL , *err = NULL;
 
-	/*接收数据 */
 	while(recv(fcgi_fd, &responseHeader, FCGI_HEADER_LEN, 0) > 0){
 		recvId = (int)(responseHeader.requestIdB1 << 8) + (int)(responseHeader.requestIdB0);
 		if(FCGI_STDOUT == responseHeader.type && recvId == client_fd){
@@ -588,7 +569,6 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 				return ;
 			}
 
-			/* 传输结束后构造http请求响应客户端 */
 			send_client(ok, outlen, err, errlen, client_fd, hr);
 			free(err);
 			free(ok);
@@ -597,7 +577,6 @@ void recv_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
 
 }
 
-/* 构造http响应, 返回客户端 */
 void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, http_request *hr){
 			
 	char header[MAX_BUF_SIZE], header_buf[256];
@@ -606,19 +585,21 @@ void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, htt
 
 	/* 请求头 */
 	/*
+	printf("发数据完毕\n");
 	 * header
 	 * \r\n\r\n
 	 * body
 	 */
-	sprintf(header, "%s 200 OK\r\n", hr->version); 
+	/*   
+	sprintf(header, "HTTP/%s 200 OK\r\n", hr->version); 
 	sprintf(header, "%sConnection: close\r\n", header);
+	printf("%s\n", header);
 	body = strstr(ok, "\r\n\r\n") + 4;
 
 	header_len = (int)(body - ok);	//头长度
 	strncpy(header_buf, ok, header_len);
 	sprintf(header, "%sContent-Length: %d\r\n", header,errlen + outlen - header_len);
 			
-	/*提取mime */
 	start = strstr(header_buf, "Content-type");
 	if(start != NULL){
 		start = index(start, ':') + 2;
@@ -636,3 +617,5 @@ void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, htt
 		send(client_fd, err, errlen, 0);
 	}
 }
+
+*/

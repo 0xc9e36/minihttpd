@@ -1,6 +1,7 @@
 #ifndef _RIO_H_
 #define _RIO_H_
 
+#include "http.h"
 #include<sys/types.h>
 
 #define RIO_BUFSIZE 8192

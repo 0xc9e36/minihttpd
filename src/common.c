@@ -14,7 +14,7 @@ int init_signal(){
 	struct sigaction act;
 	act.sa_handler = SIG_IGN;
 	act.sa_flags = 0;
-	//浏览器取消请求
+	//浏览器取消请求会导致产生SIGPIPE信号， 忽略之
 	if(-1 == sigaction(SIGPIPE, &act, NULL)){
 		err_sys("signal SIGPIPE fail", DEBUGPARAMS);
 		return -1;

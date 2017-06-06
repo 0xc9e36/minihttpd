@@ -1,37 +1,39 @@
 #include "http.h"
 #include "epoll.h"
+#include "common.h"
+#include "threadpool.h"
+#include "http_info.h"
 
 int main(int argc, char *argv[]){
 	
 	if(argc != 2){
 		err_user("Usage: ./studyHttpd <ip address>\n");
+		exit(1);
 	}
+
+	/* 载入配置文件 */
+	config_t config;
+	if(-1 == load_config(&config)) exit;
 
 	int  i;
 	int sockfd;
 	struct sockaddr_in client_sock;
 	struct epoll_event event;
 
-	/* 线程池初始化 */
-	if(-1 == pool_init(MAX_POOL_SIZE)) exit(1);
-
+	/* 初始化线程池 */
+	if(-1 == pool_init(config.thread_num)) exit(1);
+	
 	/* 信号处理 */
 	if(-1 == init_signal()){
 		pool_destroy();
 		exit(1);
 	}
+
 	/* 建立套接字, 绑定sockaddr信息, 监听... */
-	if(-1 == (sockfd = init_server())){
+	if(-1 == (sockfd = init_server(config.port))){
 		pool_destroy();
 		exit(1);
 	}
-	
-	/* 设置非阻塞I/O */
-	if(-1 == set_non_blocking(sockfd)){
-		close(sockfd);
-		pool_destroy();
-		exit(1);
-	};
 
 	int epfd;
 	/* epoll 初始化*/
@@ -46,7 +48,7 @@ int main(int argc, char *argv[]){
 		pool_destroy();
 	}
 
-	init_http_request(request, sockfd, epfd);
+	init_http_request(request, sockfd, epfd, &config);
 
 	event.data.ptr = (void *)request;
 	event.events  = EPOLLIN | EPOLLET;
@@ -66,7 +68,7 @@ int main(int argc, char *argv[]){
 
 		ret = epoll_wait(epfd, events, MAX_FD, -1);
 		
-		/* 遍历 */
+		/* 遍历事件集合 */
 		for(i = 0; i < ret; i++){
 			http_request *hr = (http_request *)events[i].data.ptr;
 		
@@ -86,7 +88,11 @@ int main(int argc, char *argv[]){
 					/* 初始化操作 */
 					set_non_blocking(client_fd);
 					http_request *request = (http_request *)malloc(sizeof(http_request));
-					init_http_request(request, client_fd, epfd);
+					if(request == NULL){
+						err_sys("alloc memory request fail", DEBUGPARAMS);
+						break;
+					}
+					init_http_request(request, client_fd, epfd, &config);
 					event.data.ptr = (void *)request;
 					event.events = EPOLLIN | EPOLLET | EPOLLONESHOT;  //可读 + 边沿触发 + 避免分配给多个线程
 					if(-1 == (ret = epoll_ctl(epfd, EPOLL_CTL_ADD, client_fd, &event))){

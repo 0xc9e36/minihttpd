@@ -1,13 +1,24 @@
 #include "http.h"
 #include "rio.h"
-#include "http_parse.h"
 
-int init_http_request(http_request *request, int sockfd, int epfd){
+/* 请求头信息 */
+header_handle headers[] = {
+	{"Host", header_ignore},
+	{"Connection", header_connection},
+	{"If-Modified-Since", header_modified},
+	{"", header_ignore},
+};
+
+int init_http_request(http_request *request, int sockfd, int epfd, config_t *config){
+	strcpy(request->root, config->web);
 	request->sockfd = sockfd;
 	request->state = 0;
 	request->pos = 0;
+	request->content_length = request->read_length = 0;
 	request->last = 0;
 	request->epfd = epfd;
+	request->alalyzed = 0;
+	//初始化请求头链表
     INIT_LIST_HEAD(&(request->list)); 
 	return 1;
 }
@@ -16,17 +27,18 @@ int init_http_request(http_request *request, int sockfd, int epfd){
  * 初始化socket
  * 成功返回socket描述符, 失败返回-1
  */
-int init_server(){
+int init_server(int port){
 	int sockfd;
 	struct sockaddr_in server_sock;
 	if(-1 == (sockfd = socket(AF_INET, SOCK_STREAM, 0))){
 		err_sys("socket() fail", DEBUGPARAMS);
 		return -1;
 	}
+	printf("------启动server------\n");
 	printf("Socket id = %d\n", sockfd);
 
 	server_sock.sin_family = AF_INET;
-	server_sock.sin_port = htons(PORT);
+	server_sock.sin_port = htons(port);
 	server_sock.sin_addr.s_addr = INADDR_ANY;
 	bzero(&(server_sock.sin_zero), 8);
 
@@ -46,7 +58,11 @@ int init_server(){
 		return -1;
 	}
 	printf("Listening port = %d\n", PORT);
-	
+
+	if(-1 == set_non_blocking(sockfd)){
+		close(sockfd);
+		return -1;
+	}
 	return sockfd;
 }
 
@@ -77,11 +93,13 @@ void *handle_request(void *arg){
 	int n, res;
 
 	while(1){
-		plast = &(hr->buf[hr->last]);
+		//空闲地址
+		plast = &(hr->buf[hr->last % MAX_BUF_SIZE]);
+		//空闲大小
 		remain_size = min(MAX_BUF_SIZE - (hr->last - hr->pos + 1), MAX_BUF_SIZE - hr->last % MAX_BUF_SIZE);  
 	
 		if (0 == (n = read(hr->sockfd, plast, remain_size))){
-			err_sys("client close", DEBUGPARAMS);
+			//err_sys("client close", DEBUGPARAMS);
 			http_close(hr);
 			return NULL;
 		}else if(n < 0){
@@ -99,21 +117,36 @@ void *handle_request(void *arg){
 		if(res == HTTP_AGAIN){
 			continue;
 		}else if(res != HTTP_OK){
-			err_sys("parst request error", DEBUGPARAMS);
+			err_sys("parse request line error", DEBUGPARAMS);
 			http_close(hr);
 			return NULL;
 		}
 
+
 		/* 解析请求头 */
+		res = http_parse_head(hr);
+
+		if(res == HTTP_AGAIN){
+			continue;
+		}else if(res != HTTP_OK){
+			err_sys("parse request header error", DEBUGPARAMS);
+			http_close(hr);
+			return NULL;
+		}
+		
+		/* 解析请求主体 */
 		res = http_parse_body(hr);
 
 		if(res == HTTP_AGAIN){
 			continue;
 		}else if(res != HTTP_OK){
-			err_sys("parst request error", DEBUGPARAMS);
+			err_sys("parst request body error", DEBUGPARAMS);
 			http_close(hr);
 			return NULL;
 		}
+
+
+		//printf("请求主体解析success\n");
 
 		http_response *response = (http_response *)malloc(sizeof(http_response));
 		init_response(response, hr->sockfd);
@@ -124,37 +157,38 @@ void *handle_request(void *arg){
 		/* 只支持 GET 和 POST请求 */
 		if(hr->method == UNKNOW){
 			//501未实现
-			send_http_responce(hr->sockfd, 501, "Not Implemented", hr);
+			send_http_responce(501, "NOT IMPLEMENTED", hr);
 			continue;
 		}
 	
 		/* 简单判断HTTP协议, http1.0 和 http1.1  */
 	  	if(strcasecmp(hr->version, "HTTP/1.0") && strcasecmp(hr->version, "HTTP/1.1")){
 			// 505协议版本不支持
-			send_http_responce(hr->sockfd, 505, "HTTP Version Not Supported", hr);
+			send_http_responce(505, "HTTP Version Not Supported", hr);
 			continue;
 		}
 
 		/* 访问文件 */
 		if(-1 == stat(hr->path, &st)){
 			/* 404文件未找到 */
-			send_http_responce(hr->sockfd, 404, "Not Found", hr);
+			send_http_responce(404, "Not Found", hr);
 			continue;
 		}
 	
 		//最后修改时间
 		response->ctime = st.st_mtime;
-		
+
+		paser_header(hr, response);
+
 		//目录浏览
 		if((st.st_mode & S_IFMT) == S_IFDIR){
-			exec_dir(hr->sockfd, hr->path, hr);
+			exec_dir(hr, response);
 		}else{	
-			//printf("文件后缀 : %s\n", ext);
 
 			if(0 == strcmp(hr->ext, "php")){	//php 文件
 				if(!S_ISREG(st.st_mode) || !(S_IXUSR & st.st_mode)) {
 					// 403 无执行权限
-					send_http_responce(hr->sockfd, 403, "Forbidden", hr);
+					send_http_responce(403, "Forbidden", hr);
 				}else{
 					//执行php  -> 调用php-fpm
 					//exec_php(hr->sockfd, hr);
@@ -162,13 +196,19 @@ void *handle_request(void *arg){
 			}else{	//静态文件	
 				if(!S_ISREG(st.st_mode) || !(S_IRUSR & st.st_mode)) {
 					// 403 无读权限
-					send_http_responce(hr->sockfd, 403, "Forbidden", hr);
+					send_http_responce(403, "Forbidden", hr);
 				}else{
-					exec_static(hr,st.st_size);
+					exec_static(hr, response, st.st_size);
 				}
 			}
 		}
 		
+		/* 关闭连接 */
+		if(!response->keep_alive){
+			free(response);
+			http_close(hr);
+			return NULL;
+		}
 	}
 
 	//printf("下一次事件\n");
@@ -183,23 +223,46 @@ void *handle_request(void *arg){
 void init_response(http_response *rs, int sockfd){
 	rs->sockfd = sockfd;
 	rs->keep_alive = 0;
-	rs->modifyed = 1;
+	rs->modified = 1;
 	rs->status = 0;
 }
 
 void http_close(http_request *hr){
-	printf("关闭连接\n");
+	//printf("关闭连接\n");
 	close(hr->sockfd);
 	free(hr);
 }
 
+/* 解析http请求头 */
+void paser_header(http_request *hr, http_response *response){
+	list_head *pos;
+	http_header *hd;
+	header_handle *header_h;
+	int len;
+
+	list_for_each(pos, &(hr->list)){
+		hd = list_entry(pos, http_header, list);
+
+		for(header_h = headers; strlen(header_h->key) > 0; header_h++){
+				
+			if(strncmp(hd->key_start, header_h->key, hd->key_end - hd->key_start) == 0){
+				len = hd->val_end - hd->val_start;
+				(*(header_h->handle))(hr, response, hd->val_start, len);
+				break;
+			}
+		}
+	
+		list_del(pos);
+		free(hd);
+	}
+}
 
 /* 解析HTTP请求信息 */
 int parse_request(http_request *hr){
 
 	char web[50];
 	/* 根目录 */
-	sprintf(web, "%s%s", ROOT, WEB);
+	sprintf(web, "%s%s", ROOT, hr->root);
 
 	memset(hr->ext, 0, sizeof(char)*10);
 	memset(hr->version, 0, sizeof(char)*10);
@@ -234,13 +297,13 @@ int parse_request(http_request *hr){
 	t_path = strrchr(hr->path, '.');
 	strcpy(hr->ext, (t_path + 1));
 
-	printf("请求url%s\n请求路径%s\n请求参数%s\n版本%s\n\n\n", hr->url, hr->path, hr->param, hr->version);
+	//printf("请求url%s\n请求路径%s\n请求参数%s\n版本%s\n\n\n", hr->url, hr->path, hr->param, hr->version);
 
 	return 1;
 }
 
 /* 发送http响应信息 */
-void send_http_responce(int client_fd, const int http_code, const char *msg, const http_request * hr){
+void send_http_responce(const int http_code, const char *msg, const http_request * hr){
 	char header[MAX_BUF_SIZE], body[MAX_BUF_SIZE];
 	sprintf(body, "<html><body>%d:%s<hr /><em>studyHttpd Web Service</em></body></html>", http_code, msg);
 
@@ -251,34 +314,55 @@ void send_http_responce(int client_fd, const int http_code, const char *msg, con
 	
 	// debug printf("\n%s%s\n", header, body);
 
-	rio_writen(client_fd, header, strlen(header));
-	rio_writen(client_fd, body, strlen(body));
+	rio_writen(hr->sockfd, header, strlen(header));
+	rio_writen(hr->sockfd, body, strlen(body));
 	
 }
 
 /* 处理静态文件 */
-void exec_static(http_request *hr,  int size){
+void exec_static(http_request *hr,  http_response *response, int size){
 	FILE *fp;
 	int sendbytes;
 	char header[MAX_BUF_SIZE];
 	char body[MAX_BUF_SIZE];
 	char mime[MAX_BUF_SIZE];
+	char time_str[100];
+	struct tm tm;
+	
+	memset(time_str, '\0', sizeof(char) * 100);
 
 	fp = fopen(hr->path, "rb");
 	
 	if(NULL == fp){
-		send_http_responce(hr->sockfd, 404, "Not Found", hr);
+		send_http_responce(404, "Not Found", hr);
 		return ;
 	}
 	get_http_mime(hr->ext, mime);
 
-	sprintf(header, "HTTP/%d.%d 200 OK\r\n",hr->http_major, hr->http_minor);
-	rio_writen(hr->sockfd, header, strlen(header));
-	sprintf(header, "Content-Type: %s\r\n", mime);
-	rio_writen(hr->sockfd, header, strlen(header));
-	sprintf(header, "Content-Length: %d\r\n\r\n", size);
+	if(response->modified){
+
+	    sprintf(header, "%s 200 OK\r\n", hr->version);  
+		sprintf(header, "%sContent-length: %d\r\n", header, size); 
+	    localtime_r(&(response->ctime), &tm);
+		strftime(time_str, 100,  "%a, %d %b %Y %H:%M:%S GMT", &tm);
+		sprintf(header, "%sLast-Modified: %s\r\n", header, time_str);
+		sprintf(header, "%sContent-type: %s\r\n", header, mime); 
+
+	}else{
+
+		sprintf(header, "%s 304 Not Modified\r\n", hr->version);  
+	}
+
+	if(response->keep_alive){
+		sprintf(header, "%sConnection: keep-alive\r\n", header);
+		sprintf(header, "%sKeep-Alive: timeout=%d\r\n", header, TIMEOUT);
+	}
+
+	sprintf(header, "%s\r\n", header);
+
     rio_writen(hr->sockfd, header, strlen(header));
 	
+
 	while((sendbytes = fread(body, 1, MAX_BUF_SIZE, fp)) > 0){
 		rio_writen(hr->sockfd, body, sendbytes);
 	}
@@ -286,7 +370,7 @@ void exec_static(http_request *hr,  int size){
 }
 
 /* 浏览目录 */
-void exec_dir(int client_fd, char *dirname, http_request *hr){
+void exec_dir(http_request *hr, http_response *response){
 
 	char buf[MAX_BUF_SIZE], header[MAX_BUF_SIZE],img[MAX_BUF_SIZE], filename[MAX_BUF_SIZE];
 	DIR *dp;
@@ -295,18 +379,19 @@ void exec_dir(int client_fd, char *dirname, http_request *hr){
 	struct stat st;
 	struct passwd *passwd;
 
-	if(NULL == (dp = opendir(dirname))) err_sys("open dir fail", DEBUGPARAMS);
+	if(NULL == (dp = opendir(hr->path))) err_sys("open dir fail", DEBUGPARAMS);
 
 	sprintf(buf, "<html><head><meta charset=""utf-8""><title>DIR List</title>");
 	sprintf(buf, "%s<style type=""text/css"">img{ width:24px; height:24px;}</style></head>", buf);
 	sprintf(buf, "%s<body bgcolor=""ffffff"" font-family=""Arial"" color=""#fff"" font-size=""14px"" >", buf);	
-	sprintf(buf, "%s<h1>Index of %s</h1>", buf, dirname + 4);
+	sprintf(buf, "%s<h1>Index of %s</h1>", buf, hr->path + 4);
 	sprintf(buf, "%s<table cellpadding=\"0\" cellspacing=\"0\">", buf);
 	if(hr->filename[strlen(hr->filename) - 1] != '/') strcat(hr->filename, "/");
 
+
 	while(NULL != (dirp = readdir(dp))){
 		if(0 == strcmp(dirp->d_name, ".") || 0 == strcmp(dirp->d_name, "..")) continue;
-		sprintf(filename, "%s/%s", dirname, dirp->d_name);
+		sprintf(filename, "%s/%s", hr->path, dirp->d_name);
 		stat(filename, &st);
 		passwd = getpwuid(st.st_uid);
 	
@@ -319,15 +404,39 @@ void exec_dir(int client_fd, char *dirname, http_request *hr){
 		sprintf(buf, "%s<tr  valign='middle'><td width='10'>%d</td><td width='30'>%s</td><td width='150'><a href='%s%s'>%s</a></td><td width='80'>%s</td><td width='100'>%d</td><td width='200'>%s</td></tr>", buf, num++, img, hr->filename, dirp->d_name, dirp->d_name, passwd->pw_name, (int)st.st_size, ctime(&st.st_atime));
 	}
 	
+	sprintf(buf, "%s</table></body></html>", buf);
+
 	closedir(dp);
 
-    sprintf(header, "HTTP/%d.%d 200 OK\r\n", hr->http_major, hr->http_minor);  
-	sprintf(header, "%sContent-length: %d\r\n", header, (int)strlen(buf)); 
-	sprintf(header, "%sConnection: close\r\n", header);
-	sprintf(header, "%sContent-type: %s\r\n\r\n", header, "text/html"); 
-	send(client_fd, header, strlen(header), 0);
-	sprintf(buf, "%s</table></body></html>\r\n", buf);
-	send(client_fd, buf, strlen(buf), 0);	
+	
+	struct tm tm;
+	char time_str[100];
+	memset(time_str, '\0', sizeof(char) * 100);
+	if(response->modified){
+	    sprintf(header, "%s 200 OK\r\n", hr->version);  
+		sprintf(header, "%sContent-length: %d\r\n", header, (int)strlen(buf)); 
+	    localtime_r(&(response->ctime), &tm);
+		strftime(time_str, 100,  "%a, %d %b %Y %H:%M:%S GMT", &tm);
+		sprintf(header, "%sLast-Modified: %s\r\n", header, time_str);
+		sprintf(header, "%sContent-type: %s\r\n", header, "text/html"); 
+
+	}else{
+
+		sprintf(header, "%s 304 Not Modified\r\n", hr->version);  
+	}
+
+	if(response->keep_alive){
+		sprintf(header, "%sConnection: keep-alive\r\n", header);
+		sprintf(header, "%sKeep-Alive: timeout=%d\r\n", header, TIMEOUT);
+	}
+
+	sprintf(header, "%s\r\n", header);
+
+	send(hr->sockfd, header, strlen(header), 0);
+	
+	if(!response->modified) return ;	
+	
+	send(hr->sockfd, buf, strlen(buf), 0);	
 }	
 
 
@@ -350,6 +459,44 @@ void get_http_mime(char *ext, char *mime){
 }
 
 
+int header_ignore(http_request *hr, http_response *response, char *val, int len){
+	(void) hr;
+	(void) response;
+	(void) val;
+	(void) len;
+	//printf("该请求头忽略\n");
+}
+
+int header_connection(http_request *hr, http_response *response, char *val, int len){
+	
+	
+	if(strncasecmp(val, "keep-alive", len) == 0){
+		response->keep_alive = 1;
+	}
+
+	hr->alalyzed = 0;
+	return 1;
+}
+
+int header_modified(http_request *hr, http_response *response, char *val, int len){
+	
+	(void)hr;
+	(void)len;
+
+	struct tm time;
+	//将字符串转化为struct tm结构失败
+	if(strptime(val, "%a, %d %b %Y %H:%M:%S GMT", &time) == 0)  return 1;
+	
+	time_t c_time = mktime(&time);
+	double df_time = difftime(response->ctime, c_time);
+	/* 1微秒之内算作未改变 */
+	if(fabs(df_time) < 1e-6){
+		response->modified = 0;
+		response->status = HTTP_NOT_MODIFIED; 
+	}
+
+	return 1;
+}
 /*
 void exec_php(int client_fd, http_request *hr){
 	

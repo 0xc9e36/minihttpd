@@ -3,12 +3,15 @@
 /* 解析http请求行 */
 int http_parse_line(http_request *hr){
 	
+
+	if(hr->alalyzed != 0) return HTTP_OK;
+
 	size_t index;
 	u_char ch, *cur, *m;
 
 	/* 用一个状态机维持请求头, 类似 GET /index.html HTTP/1.1\r\n   */
 	enum{
-		line_start = 0,
+		start = 0,
 		method_start,
 		space_before_url,
 		url_start,
@@ -25,7 +28,6 @@ int http_parse_line(http_request *hr){
 	}state;
 
 	state = hr->state;
-	
 	for(index = hr->pos; index < hr->last; index++){
 	
 		cur = (u_char *)&(hr->buf[index % MAX_BUF_SIZE]);
@@ -33,7 +35,7 @@ int http_parse_line(http_request *hr){
 	
 		switch(state){
 		
-			case line_start:
+			case start:
 				hr->request_start = cur;
 				
 				if(ch == '\r' || ch == '\n') break;
@@ -188,8 +190,10 @@ int http_parse_line(http_request *hr){
 					case '\n':
 						hr->pos = index + 1;
 						
+						//printf("---请求行解析成功---\n");
 						if(hr->request_end == NULL) hr->request_end = cur;
-						hr->state = line_start;
+						hr->state = start;
+						hr->alalyzed = 1;
 						return HTTP_OK;
 					default:
 						return HTTP_LINE_ERROR;
@@ -204,13 +208,15 @@ int http_parse_line(http_request *hr){
 
 
 /* 解析http请求 */
-int http_parse_body(http_request *hr){
+int http_parse_head(http_request *hr){
+
+	if(hr->alalyzed != 1) return HTTP_OK;
 
 	u_char ch, *cur;
 	size_t index;
 	
 	enum{
-		start,
+		start = 0,
 		key_start,
 		space_before_colon,
 		space_before_val,
@@ -237,11 +243,13 @@ int http_parse_body(http_request *hr){
 
 			case key_start:
 				if(ch == ' '){
+					//当前读取到的key
 					hr->key_end = cur;
 					state = space_before_colon;
 					break;
 				}
 
+				//key读取完毕
 				if(ch == ':'){
 					hr->key_end = cur;
 					state = space_before_val;
@@ -256,8 +264,9 @@ int http_parse_body(http_request *hr){
 				}else if(ch == ':'){
 					state = space_before_val;
 					break;		
+				}else{
+					return HTTP_HEADER_ERROR;
 				}
-				break;
 
 			case space_before_val:
 				if(ch == ' ') break;
@@ -280,13 +289,22 @@ int http_parse_body(http_request *hr){
 
 			case cr:
 				if(ch == '\n'){
+
 					//放到链表里面保存头信息
 					state = lf;
 					hd = (http_header *)malloc(sizeof(http_header));
 					hd->key_start = hr->key_start;
 					hd->key_end = hr->key_end;
+
 					hd->val_start = hr->val_start;
 					hd->val_end = hr->val_end;
+
+					/* 获取 COntent-Length字段 */
+					if(strncmp("Content-Length", hd->key_start, hd->key_end - hd->key_start) == 0){
+						char *val;
+						strncpy(val, hd->val_start, hd->val_end - hd->val_start);
+						hr->content_length = atoi(val);
+					}
 
 					list_add(&(hd->list), &(hr->list));
 					break;
@@ -295,9 +313,9 @@ int http_parse_body(http_request *hr){
 				}
 
 			case lf:
-				if(ch == '\r'){
+				if(ch == '\r'){ //空行
 					state = crlf;
-				}else{
+				}else{	//下一个请求头
 					hr->key_start = cur;
 					state = key_start;
 				}
@@ -308,6 +326,9 @@ int http_parse_body(http_request *hr){
 					case '\n' :
 						hr->pos = index + 1;
 						hr->state = start;
+						hr->alalyzed = 2;
+						//printf("空行解析完成\n");
+						//printf("Content-Length:%d\n", hr->content_length);
 						return HTTP_OK;
 					default :
 						return HTTP_HEADER_ERROR;
@@ -319,5 +340,34 @@ int http_parse_body(http_request *hr){
 
 	hr->pos = index;
 	hr->state = state;
+	return HTTP_AGAIN;
+}
+
+
+
+int http_parse_body(http_request *hr){
+	
+	if(hr->alalyzed != 2 || hr->content_length == 0){
+		return HTTP_OK;
+	}
+	size_t index;
+	u_char *cur;
+
+	index = hr->pos;
+	
+	cur = (u_char *)&(hr->buf[index % MAX_BUF_SIZE]);
+	if(hr->read_length == 0) hr->content_start = cur;
+	
+	hr->read_length += hr->last - index;
+	
+	if(hr->read_length == hr->content_length){
+		hr->alalyzed = 3;
+		//printf("请求体读取完毕\n");
+		printf("Content-Length:%d\n", hr->content_length);
+		return HTTP_OK;
+	}
+		
+	hr->pos = hr->last;
+
 	return HTTP_AGAIN;
 }

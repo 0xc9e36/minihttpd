@@ -5,6 +5,7 @@
 #include "http.h"
 
 int http_parse_line(http_request *hr);
+int http_parse_head(http_request *hr);
 int http_parse_body(http_request *hr);
 
 

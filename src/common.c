@@ -14,7 +14,9 @@ int init_signal(){
 	struct sigaction act;
 	act.sa_handler = SIG_IGN;
 	act.sa_flags = 0;
-	//浏览器取消请求会导致产生SIGPIPE信号， 忽略之
+	/* 
+	 *	浏览器端关闭, 第一次往里write数据, 返回RST报文, 第二次write则产生SIGPIPE信号, 这里将其忽略
+	 */
 	if(-1 == sigaction(SIGPIPE, &act, NULL)){
 		err_sys("signal SIGPIPE fail", DEBUGPARAMS);
 		return -1;
@@ -84,4 +86,45 @@ int buffer_path_simplify(char *dest, char *src){
 	}  
 	 *out = '\0';  
 	 return 0;  
+}
+
+
+int  load_config(config_t *config){
+	
+	char src[50];
+	sprintf(src, "%shttp.conf", ROOT);
+
+	FILE *fp;
+	char line[512];
+	
+	if(NULL == (fp = fopen(src, "r"))){
+		err_sys("load config file error", DEBUGPARAMS);
+		return -1;
+	}
+
+	int len, i;
+	char *val;
+	while(fgets(line, 512, fp)){
+		
+		i = 0;
+		//去掉空格
+		while(line[i] == ' ') i++;
+		if(line[i] == '\n' || line[i] == '#') continue;
+	
+		val = strstr(line, "=");
+		if(!val) return -1;
+		val++;
+
+		if(val[strlen(val) - 1] == '\n') val[strlen(val) - 1] = '\0';
+
+		if(strncmp(line, "root", 4) == 0)strcpy(config->web, val);
+		else if(strncmp(line, "port", 4) == 0) config->port = atoi(val);
+		else if(strncmp(line, "thread_num", 10) == 0)	config->thread_num = atoi(val);
+
+	}
+
+	printf("------载入配置文件------\nweb:%s\nport:%d\nthread num:%d\n", config->web, config->port, config->thread_num);
+
+	fclose(fp);
+	return 1;
 }

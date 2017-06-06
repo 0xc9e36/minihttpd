@@ -34,7 +34,7 @@ int main(void) {
         printf("name:%-2s, age:%d\n", person_node->name, person_node->age); 
     } 
     
-	/* 删除age为20额节点*/
+	/* 删除age为20的节点*/
 	list_for_each_safe(pos, next, &person_head.list){
 		person_node = list_entry(pos, struct person, list);
 		if(20 == person_node->age){

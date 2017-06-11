@@ -70,13 +70,13 @@ typedef struct http_request{
 
 	char ext[10];
 
-	char root[512];
-
 	int alalyzed;			//已经解析的请求体 初始为0 
 
-	char *content_start;	//body
-	int content_length;
+	char *content;	//body
+	int conlength;
 	int read_length;		//已经读取的长度
+
+	char contype[100];		//读取请求类型
 
 	int sockfd;				//socket描述符
 	int epfd;				//事件

@@ -204,7 +204,7 @@ DB	htdocs/CodeIgniter/tests/mocks/database/db.php	/^	public static function DB($
 DB_driver_test	htdocs/CodeIgniter/tests/codeigniter/database/DB_driver_test.php	/^class DB_driver_test extends CI_TestCase {$/;"	c
 DB_result_dummy	htdocs/CodeIgniter/tests/codeigniter/libraries/Table_test.php	/^class DB_result_dummy extends CI_DB_result$/;"	c
 DB_test	htdocs/CodeIgniter/tests/codeigniter/database/DB_test.php	/^class DB_test extends CI_TestCase {$/;"	c
-DEBUGPARAMS	src/common.h	29;"	d
+DEBUGPARAMS	src/common.h	30;"	d
 DF_PQ_SIZE	src/priority_queue.h	11;"	d
 DIR_READ_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('DIR_READ_MODE')   OR define('DIR_READ_MODE', 0755);$/;"	d
 DIR_WRITE_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('DIR_WRITE_MODE')  OR define('DIR_WRITE_MODE', 0755);$/;"	d
@@ -233,28 +233,28 @@ Encrypt_test	htdocs/CodeIgniter/tests/codeigniter/libraries/Encrypt_test.php	/^c
 Encryption_test	htdocs/CodeIgniter/tests/codeigniter/libraries/Encryption_test.php	/^class Encryption_test extends CI_TestCase {$/;"	c
 Escape_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/escape_test.php	/^class Escape_test extends CI_TestCase {$/;"	c
 F	htdocs/CodeIgniter/system/database/drivers/oci8/oci8_result.php	/^			$F		= new stdClass();$/;"	v
-FCGI_ABORT_REQUEST	src/fastcgi.h	31;"	d
-FCGI_AUTHORIZER	src/fastcgi.h	50;"	d
-FCGI_BEGIN_REQUEST	src/fastcgi.h	30;"	d
+FCGI_ABORT_REQUEST	src/fastcgi.h	32;"	d
+FCGI_AUTHORIZER	src/fastcgi.h	51;"	d
+FCGI_BEGIN_REQUEST	src/fastcgi.h	31;"	d
 FCGI_BeginRequestBody	src/fastcgi.h	/^}FCGI_BeginRequestBody;$/;"	t	typeref:struct:__anon6
 FCGI_BeginRequestRecord	src/fastcgi.h	/^}FCGI_BeginRequestRecord;$/;"	t	typeref:struct:__anon7
-FCGI_DATA	src/fastcgi.h	37;"	d
-FCGI_END_REQUEST	src/fastcgi.h	32;"	d
+FCGI_DATA	src/fastcgi.h	38;"	d
+FCGI_END_REQUEST	src/fastcgi.h	33;"	d
 FCGI_EndRequestBody	src/fastcgi.h	/^} FCGI_EndRequestBody;$/;"	t	typeref:struct:__anon9
 FCGI_EndRequestRecord	src/fastcgi.h	/^} FCGI_EndRequestRecord;$/;"	t	typeref:struct:__anon10
-FCGI_FILTER	src/fastcgi.h	51;"	d
-FCGI_HEADER_LEN	src/fastcgi.h	27;"	d
-FCGI_HOST	src/fastcgi.h	12;"	d
+FCGI_FILTER	src/fastcgi.h	52;"	d
+FCGI_HEADER_LEN	src/fastcgi.h	28;"	d
+FCGI_HOST	src/fastcgi.h	13;"	d
 FCGI_Header	src/fastcgi.h	/^}FCGI_Header;$/;"	t	typeref:struct:__anon5
-FCGI_MAX_LEN	src/fastcgi.h	13;"	d
-FCGI_PARAMS	src/fastcgi.h	33;"	d
-FCGI_PORT	src/fastcgi.h	11;"	d
+FCGI_MAX_LEN	src/fastcgi.h	14;"	d
+FCGI_PARAMS	src/fastcgi.h	34;"	d
+FCGI_PORT	src/fastcgi.h	12;"	d
 FCGI_ParamsRecord	src/fastcgi.h	/^}FCGI_ParamsRecord;$/;"	t	typeref:struct:__anon8
-FCGI_RESPONDER	src/fastcgi.h	49;"	d
-FCGI_STDERR	src/fastcgi.h	36;"	d
-FCGI_STDIN	src/fastcgi.h	34;"	d
-FCGI_STDOUT	src/fastcgi.h	35;"	d
-FCGI_VERSION_1	src/fastcgi.h	10;"	d
+FCGI_RESPONDER	src/fastcgi.h	50;"	d
+FCGI_STDERR	src/fastcgi.h	37;"	d
+FCGI_STDIN	src/fastcgi.h	35;"	d
+FCGI_STDOUT	src/fastcgi.h	36;"	d
+FCGI_VERSION_1	src/fastcgi.h	11;"	d
 FCPATH	htdocs/CodeIgniter/index.php	/^	define('FCPATH', dirname(__FILE__).DIRECTORY_SEPARATOR);$/;"	d
 FILE_READ_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('FILE_READ_MODE')  OR define('FILE_READ_MODE', 0644);$/;"	d
 FILE_WRITE_MODE	htdocs/CodeIgniter/application/config/constants.php	/^defined('FILE_WRITE_MODE') OR define('FILE_WRITE_MODE', 0666);$/;"	d
@@ -390,6 +390,7 @@ Utf8_test	htdocs/CodeIgniter/tests/codeigniter/core/Utf8_test.php	/^class Utf8_t
 VERSION	htdocs/CodeIgniter/user_guide_src/source/_themes/sphinx_rtd_theme/__init__.py	/^VERSION = (0, 1, 5)$/;"	v
 VIEWPATH	htdocs/CodeIgniter/index.php	/^	define('VIEWPATH', $view_folder.DIRECTORY_SEPARATOR);$/;"	d
 VIEWPATH	htdocs/CodeIgniter/tests/Bootstrap.php	/^defined('VIEWPATH') OR define('VIEWPATH', APPPATH.'views\/');$/;"	d
+WEB	src/common.h	17;"	d
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to strlen()$/;"	f
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to strpos()$/;"	f
 WILL	htdocs/CodeIgniter/system/core/compat/mbstring.php	/^	 * WARNING: This function WILL fall-back to substr()$/;"	f
@@ -2330,6 +2331,8 @@ config_component	htdocs/CodeIgniter/system/core/Loader.php	/^			$config_componen
 config_item	htdocs/CodeIgniter/system/core/Common.php	/^	function config_item($item)$/;"	f
 config_item	htdocs/CodeIgniter/tests/mocks/core/common.php	/^	function config_item($item)$/;"	f
 config_t	src/common.h	/^}config_t;$/;"	t	typeref:struct:config
+conlength	src/http_info.h	/^	int conlength;$/;"	m	struct:http_request
+conn_fastcgi	src/fastcgi.c	/^int conn_fastcgi(){	$/;"	f
 conn_id	htdocs/CodeIgniter/system/database/DB_driver.php	/^					$this->conn_id = $this->db_connect($this->pconnect);$/;"	v
 conn_id	htdocs/CodeIgniter/system/database/DB_driver.php	/^			$this->conn_id = FALSE;$/;"	v
 conn_id	htdocs/CodeIgniter/system/database/DB_driver.php	/^		$this->conn_id = $this->db_connect($this->pconnect);$/;"	v
@@ -2380,11 +2383,11 @@ content	htdocs/CodeIgniter/tests/codeigniter/libraries/Driver_test.php	/^		$cont
 content	htdocs/CodeIgniter/tests/codeigniter/libraries/Driver_test.php	/^		$content = '<?php class '.$class.' extends CI_Driver { public $'.$prop.' = FALSE; '.$/;"	v
 content	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^		$content = file_get_contents(PROJECT_BASE.$path);$/;"	v
 content	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^	public function ci_vfs_create($file, $content = '', $root = NULL, $path = NULL)$/;"	v
+content	src/http_info.h	/^	char *content;	\/\/body$/;"	m	struct:http_request
 contentLengthB0	src/fastcgi.h	/^	unsigned char contentLengthB0;$/;"	m	struct:__anon5
 contentLengthB1	src/fastcgi.h	/^	unsigned char contentLengthB1;$/;"	m	struct:__anon5
-content_length	src/http_info.h	/^	int content_length;$/;"	m	struct:http_request
-content_start	src/http_info.h	/^	char *content_start;	\/\/body$/;"	m	struct:http_request
 contents	htdocs/CodeIgniter/system/libraries/Cache/drivers/Cache_file.php	/^		$contents = array($/;"	v
+contype	src/http_info.h	/^	char contype[100];		\/\/读取请求类型$/;"	m	struct:http_request
 convert_accented_characters	htdocs/CodeIgniter/system/helpers/text_helper.php	/^	function convert_accented_characters($str)$/;"	f
 convert_ascii	htdocs/CodeIgniter/system/libraries/Trackback.php	/^	public $convert_ascii = TRUE;$/;"	v
 convert_ascii	htdocs/CodeIgniter/system/libraries/Trackback.php	/^	public function convert_ascii($str)$/;"	f
@@ -3076,6 +3079,7 @@ exact_length	htdocs/CodeIgniter/system/libraries/Form_validation.php	/^	public f
 exch	src/priority_queue.c	/^void exch(priority_queue *pq_obj, size_t i, size_t j){$/;"	f
 exclude_patterns	htdocs/CodeIgniter/user_guide_src/source/conf.py	/^exclude_patterns = []$/;"	v
 exec_dir	src/http.c	/^void exec_dir(http_request *hr, http_response *response){$/;"	f
+exec_php	src/http.c	/^void exec_php(http_request *hr, http_response *rs){$/;"	f
 exec_static	src/http.c	/^void exec_static(http_request *hr,  http_response *response, int size){$/;"	f
 exfunc	htdocs/CodeIgniter/tests/codeigniter/core/Loader_test.php	/^		$exfunc = '_my_extension_func';$/;"	v
 exist	htdocs/CodeIgniter/system/core/Common.php	/^		\/\/ Does the class exist? If so, we're done...$/;"	c
@@ -3600,6 +3604,7 @@ header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon10
 header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon7
 header	src/fastcgi.h	/^	FCGI_Header header;$/;"	m	struct:__anon8
 header_connection	src/http.c	/^int header_connection(http_request *hr, http_response *response, char *val, int len){$/;"	f
+header_contype	src/http.c	/^int header_contype(http_request *hr, http_response *response, char *val, int len){$/;"	f
 header_handle	src/http_info.h	/^}header_handle;$/;"	t	typeref:struct:__anon4
 header_ignore	src/http.c	/^int header_ignore(http_request *hr, http_response *response, char *val, int len){$/;"	f
 header_modified	src/http.c	/^int header_modified(http_request *hr, http_response *response, char *val, int len){$/;"	f
@@ -4592,7 +4597,7 @@ mimes	htdocs/CodeIgniter/system/helpers/file_helper.php	/^			$mimes = get_mimes(
 mimes	htdocs/CodeIgniter/system/helpers/file_helper.php	/^		static $mimes;$/;"	v
 mimes	htdocs/CodeIgniter/system/libraries/Email.php	/^		$mimes =& get_mimes();$/;"	v
 mimetypes	htdocs/CodeIgniter/user_guide_src/cilexer/cilexer/cilexer.py	/^    mimetypes = ['text\/html', 'application\/xhtml+xml']$/;"	v	class:CodeIgniterLexer
-min	src/common.h	18;"	d
+min	src/common.h	19;"	d
 min_heap	src/priority_queue.c	/^void *min_heap(priority_queue *pq_obj){$/;"	f
 min_heapify	src/priority_queue.c	/^void min_heapify(priority_queue *pq_obj, size_t i){$/;"	f
 min_height	htdocs/CodeIgniter/system/libraries/Upload.php	/^		$this->min_height = ($n < 0) ? 0 : (int) $n;$/;"	v
@@ -5499,6 +5504,7 @@ reconnect	htdocs/CodeIgniter/system/database/drivers/mysqli/mysqli_driver.php	/^
 reconnect	htdocs/CodeIgniter/system/database/drivers/postgre/postgre_driver.php	/^	public function reconnect()$/;"	f
 recursively	htdocs/CodeIgniter/system/libraries/Ftp.php	/^	 * This function recursively reads a folder and everything it contains$/;"	f
 recursively	htdocs/CodeIgniter/system/libraries/Zip.php	/^	 * This function recursively reads a folder and everything it contains (including$/;"	f
+recv_fastcgi	src/fastcgi.c	/^void recv_fastcgi(int fcgi_fd, http_request *hr, http_response *rs){$/;"	f
 redirect	htdocs/CodeIgniter/system/helpers/url_helper.php	/^	function redirect($uri = '', $method = 'auto', $code = NULL)$/;"	f
 redis	htdocs/CodeIgniter/system/libraries/Session/drivers/Session_redis_driver.php	/^		$redis = new Redis();$/;"	v
 reduce_double_slashes	htdocs/CodeIgniter/system/helpers/string_helper.php	/^	function reduce_double_slashes($str)$/;"	f
@@ -5746,7 +5752,6 @@ roleB1	src/fastcgi.h	/^	unsigned char roleB1;$/;"	m	struct:__anon6
 root	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^				$root = $dir_root;$/;"	v
 root	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^			$root = $this->ci_vfs_root;$/;"	v
 root	htdocs/CodeIgniter/tests/mocks/ci_testcase.php	/^	public function ci_vfs_mkdir($name, $root = NULL)$/;"	v
-root	src/http_info.h	/^	char root[512];$/;"	m	struct:http_request
 root_path	htdocs/CodeIgniter/system/libraries/Zip.php	/^			$root_path = str_replace(array('\\\\', '\/'), DIRECTORY_SEPARATOR, dirname($path)).DIRECTORY_SEPARATOR;$/;"	v
 rotate	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^	public function rotate()$/;"	f
 rotation_angle	htdocs/CodeIgniter/system/libraries/Image_lib.php	/^			$cmd .= ($this->rotation_angle === 'hor' OR $this->rotation_angle === 'vrt')$/;"	v
@@ -5893,8 +5898,10 @@ send	htdocs/CodeIgniter/system/libraries/Email.php	/^	public function send($auto
 send	htdocs/CodeIgniter/system/libraries/Trackback.php	/^	public function send($tb_data)$/;"	f
 send	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function send($msg)$/;"	f
 sendPayload	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function sendPayload($msg)$/;"	f
+send_client	src/http.c	/^void send_client(char *ok, int outlen, char *err, int errlen,http_request *hr, http_response *rs){$/;"	f
 send_error	htdocs/CodeIgniter/system/libraries/Trackback.php	/^	public function send_error($message = 'Incomplete Information')$/;"	f
 send_error_message	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function send_error_message($number, $message)$/;"	f
+send_fastcgi	src/fastcgi.c	/^int send_fastcgi(int fcgi_fd, http_request *hr){$/;"	f
 send_http_responce	src/http.c	/^void send_http_responce(const int http_code, const char *msg, const http_request * hr){$/;"	f
 send_multipart	htdocs/CodeIgniter/system/libraries/Email.php	/^	public $send_multipart	= TRUE;$/;"	v
 send_request	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^	public function send_request()$/;"	f

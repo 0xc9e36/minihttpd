@@ -14,6 +14,7 @@
 
 #define TIMEOUT	500
 #define	ROOT	"../"			//根目录
+#define	WEB		"./htdocs"		//web目录
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 

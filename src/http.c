@@ -6,15 +6,15 @@ header_handle headers[] = {
 	{"Host", header_ignore},
 	{"Connection", header_connection},
 	{"If-Modified-Since", header_modified},
+	{"Content-Type", header_contype},
 	{"", header_ignore},
 };
 
 int init_http_request(http_request *request, int sockfd, int epfd, config_t *config){
-	strcpy(request->root, config->web);
 	request->sockfd = sockfd;
 	request->state = 0;
 	request->pos = 0;
-	request->content_length = request->read_length = 0;
+	request->conlength = request->read_length = 0;
 	request->last = 0;
 	request->epfd = epfd;
 	request->alalyzed = 0;
@@ -99,6 +99,8 @@ void *handle_request(void *arg){
 		remain_size = min(MAX_BUF_SIZE - (hr->last - hr->pos + 1), MAX_BUF_SIZE - hr->last % MAX_BUF_SIZE);  
 	
 		if (0 == (n = read(hr->sockfd, plast, remain_size))){
+			//浏览器关闭时， 会在下一个epoll_wait()返回时，从fd上面读取0
+			//printf("无数据可读\n");
 			//err_sys("client close", DEBUGPARAMS);
 			http_close(hr);
 			return NULL;
@@ -122,7 +124,6 @@ void *handle_request(void *arg){
 			return NULL;
 		}
 
-
 		/* 解析请求头 */
 		res = http_parse_head(hr);
 
@@ -145,9 +146,6 @@ void *handle_request(void *arg){
 			return NULL;
 		}
 
-
-		//printf("请求主体解析success\n");
-
 		http_response *response = (http_response *)malloc(sizeof(http_response));
 		init_response(response, hr->sockfd);
 
@@ -168,8 +166,11 @@ void *handle_request(void *arg){
 			continue;
 		}
 
+		//printf("解析完毕\n");
 		/* 访问文件 */
 		if(-1 == stat(hr->path, &st)){
+			//printf("%s\n", hr->filename);
+			//printf("111\n");
 			/* 404文件未找到 */
 			send_http_responce(404, "Not Found", hr);
 			continue;
@@ -191,7 +192,8 @@ void *handle_request(void *arg){
 					send_http_responce(403, "Forbidden", hr);
 				}else{
 					//执行php  -> 调用php-fpm
-					//exec_php(hr->sockfd, hr);
+					//printf("读取内容%s\n", hr->content);
+					exec_php(hr, response);
 				}
 			}else{	//静态文件	
 				if(!S_ISREG(st.st_mode) || !(S_IRUSR & st.st_mode)) {
@@ -205,10 +207,14 @@ void *handle_request(void *arg){
 		
 		/* 关闭连接 */
 		if(!response->keep_alive){
+
+			//printf("读取了%d长度, 长连接关闭\n\n", hr->read_length);
 			free(response);
 			http_close(hr);
 			return NULL;
 		}
+	
+		free(response);
 	}
 
 	//printf("下一次事件\n");
@@ -262,20 +268,17 @@ int parse_request(http_request *hr){
 
 	char web[50];
 	/* 根目录 */
-	sprintf(web, "%s%s", ROOT, hr->root);
+	sprintf(web, "%s%s", ROOT, WEB);
+	//printf("%s\n", hr->root);
 
-	memset(hr->ext, 0, sizeof(char)*10);
-	memset(hr->version, 0, sizeof(char)*10);
-	memset(hr->filename, 0, sizeof(char)*1024);
-	memset(hr->url, 0, sizeof(char)*1024);
-	memset(hr->param, 0, sizeof(char)*1024);
-	memset(hr->path, 0, sizeof(char)*1024);
+	memset(hr->ext, '\0', sizeof(char)*10);
+	memset(hr->version, '\0', sizeof(char)*10);
+	memset(hr->filename, '\0', sizeof(char)*1024);
+	memset(hr->param, '\0', sizeof(char)*1024);
+	memset(hr->path, '\0', sizeof(char)*1024);
 
-	int len;
-
-	/* url */
-	len = hr->url_end - hr->url_start;
-	strncpy(hr->url, hr->url_start, len);
+	
+	//strncpy(hr->url, hr->url_start, hr->url_end - hr->url_start);
 
 	/*请求参数 */
 	if(strstr(hr->url, "?")){
@@ -363,7 +366,10 @@ void exec_static(http_request *hr,  http_response *response, int size){
     rio_writen(hr->sockfd, header, strlen(header));
 	
 
+	hr->url_start = hr->url_end = NULL;
+
 	while((sendbytes = fread(body, 1, MAX_BUF_SIZE, fp)) > 0){
+
 		rio_writen(hr->sockfd, body, sendbytes);
 	}
 	fclose(fp);
@@ -467,6 +473,16 @@ int header_ignore(http_request *hr, http_response *response, char *val, int len)
 	//printf("该请求头忽略\n");
 }
 
+int header_contype(http_request *hr, http_response *response, char *val, int len){
+	
+	(void)response;
+	memset(hr->contype, '\0', 100);
+	
+	strncpy(hr->contype, val, len);
+
+	//printf("%s\n", hr->contype);
+}
+
 int header_connection(http_request *hr, http_response *response, char *val, int len){
 	
 	
@@ -497,239 +513,31 @@ int header_modified(http_request *hr, http_response *response, char *val, int le
 
 	return 1;
 }
-/*
-void exec_php(int client_fd, http_request *hr){
+
+
+void exec_php(http_request *hr, http_response *rs){
 	
 	int fcgi_fd;
 	
 	if(-1 == (fcgi_fd = conn_fastcgi())) return ;
-	if(-1 == (send_fastcgi(fcgi_fd, client_fd, hr))) return ;
+	
+	if(-1 == (send_fastcgi(fcgi_fd,hr))) return ;
 
-	recv_fastcgi(fcgi_fd, client_fd, hr);
+	recv_fastcgi(fcgi_fd, hr, rs);
+	
 	close(fcgi_fd);
 }
 
 
-/*
- * 连接php-fpm服务器
- * 成功返回socket描述符, 失败返回-1
- *
- */
-  /*  
-int conn_fastcgi(){	
-	int fcgi_fd;
-	struct sockaddr_in fcgi_sock;
-
-	memset(&fcgi_sock, 0, sizeof(fcgi_sock));
-	fcgi_sock.sin_family = AF_INET;
-	fcgi_sock.sin_addr.s_addr = inet_addr(FCGI_HOST);
-	fcgi_sock.sin_port = htons(FCGI_PORT);
-	
-	if(-1 == (fcgi_fd = socket(PF_INET, SOCK_STREAM, 0))){
-		err_sys("fcgi socket()", DEBUGPARAMS);
-		return -1;
-	}
-	
-	if(-1 == connect(fcgi_fd, (struct sockaddr *)&fcgi_sock, sizeof(fcgi_sock))){
-		err_sys("php-fpm connect", DEBUGPARAMS);
-		return -1;
-	}
-	return fcgi_fd;
-}
-
-/* 
- * 与php-fpm通信
- * 成功返回1, 失败返回-1 * 
- * */
-
-  /*  
-int send_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
-		
-	char filename[50];
-	int requestId = client_fd, sendbytes;
-
-	FCGI_BeginRequestRecord beginRecord;
-	beginRecord.body = makeBeginRequestBody(FCGI_RESPONDER);
-	beginRecord.header =  makeHeader(FCGI_BEGIN_REQUEST, requestId, sizeof(beginRecord.body), 0);
-	if(-1 == (sendbytes = send(fcgi_fd, &beginRecord, sizeof(beginRecord), 0))){
-		err_sys("fcgi send beginRecord error", DEBUGPARAMS);
-		return -1;
-	}
-
-
-	getcwd(filename, sizeof(filename));
-	strcat(filename, "/");
-	strcat(filename, hr->path);
-	buffer_path_simplify(filename, filename);
-	char *params[][2] = {{"SCRIPT_FILENAME", filename}, {"REQUEST_METHOD", hr->method}, {"QUERY_STRING", hr->param}, {"CONTENT_TYPE", hr->contype },{"CONTENT_LENGTH", hr->conlength },{"", ""}};
-	int i, conLength, paddingLength;
-	FCGI_ParamsRecord *paramsRecord;
-	FCGI_Header emptyData;
-	for(i = 0; strcmp(params[i][0],  "") != 0; i++){   // debug printf("%s : %s\n", params[i][0], params[i][1]);
-		conLength = strlen(params[i][0]) + strlen(params[i][1]) + 2;
-		paddingLength = (conLength % 8) == 0 ? 0 : 8 - (conLength % 8);
-		paramsRecord = (FCGI_ParamsRecord *)malloc(sizeof(FCGI_ParamsRecord) + conLength + paddingLength);
-		paramsRecord->nameLength = (unsigned char)strlen(params[i][0]);    // 填充参数值
-		paramsRecord->valueLength = (unsigned char)strlen(params[i][1]);   // 填充参数名
-		paramsRecord->header = makeHeader(FCGI_PARAMS, requestId, conLength, paddingLength);
-		memset(paramsRecord->data, 0, conLength + paddingLength);
-		memcpy(paramsRecord->data, params[i][0], strlen(params[i][0]));
-		memcpy(paramsRecord->data + strlen(params[i][0]), params[i][1], strlen(params[i][1]));
-		if(-1 == (sendbytes = send(fcgi_fd, paramsRecord, 8 + conLength + paddingLength, 0))){
-			err_sys("fcgi send paramsRecord error", DEBUGPARAMS);
-			return -1;
-		}
-		free(paramsRecord);
-	}
-	emptyData = makeHeader(FCGI_PARAMS, requestId, 0, 0);
-	if(-1 == (sendbytes = send(fcgi_fd, &emptyData, FCGI_HEADER_LEN, 0))){
-		err_sys("fcgi send paramsRecord empty error", DEBUGPARAMS);
-		return -1;
-	}
-
-	char buf[8] = {0};
-	int len = atoi(hr->conlength);
-	int send_len;
-	if(!strcmp("POST", hr->method)){
-		// debug printf("post数据总长度:%d\n", len);
-		// debug printf("%s\n", hr->content);
-		while(len > 0){
-			send_len = len > FCGI_MAX_LEN  ? FCGI_MAX_LEN : len;
-			len -= send_len;
-			FCGI_Header stdinHeader;
-			paddingLength = (send_len %  8) == 0 ? 0 :  8 - (send_len % 8);
-			stdinHeader = makeHeader(FCGI_STDIN, requestId, send_len, paddingLength);
-			if(-1 == (sendbytes = send(fcgi_fd, &stdinHeader,FCGI_HEADER_LEN, 0))){
-				err_sys("fcgi send stdinHeader error", DEBUGPARAMS);
-				return -1;
-			}
-			if(-1 == (sendbytes = send(fcgi_fd, hr->content, send_len, 0))){
-				err_sys("fcgi send stdin", DEBUGPARAMS);
-				return -1;
-			}
-			// debug printf("单次发送大小:%d\n发送内容:\n%s\n", sendbytes, hr->content);
-			if((paddingLength > 0) && (-1 == (sendbytes = send(fcgi_fd, buf, paddingLength, 0)))){
-				err_sys("fcgi send stdin padding", DEBUGPARAMS);
-				return -1;
-			}
-			hr->content += send_len;
-			// debug printf("长度%d\n", (int)strlen(hr->content));
-		}
-	}
-
-	//debug  printf("%d\n", sendbytes);
-	FCGI_Header emptyStdin = makeHeader(FCGI_STDIN, requestId, 0, 0);
-	if(-1 == (sendbytes = send(fcgi_fd, &emptyStdin, FCGI_HEADER_LEN, 0))){
-		err_sys("fcgi send stdinHeader enpty", DEBUGPARAMS);
-		return -1;
-	}
-	return 1;
-}
-
-void recv_fastcgi(int fcgi_fd, int client_fd, http_request *hr){
-
-	FCGI_Header responseHeader;
-	FCGI_EndRequestBody responseEnder;
-	int recvbytes, recvId, ok_recved = 0, ok_recv = 0;	// ok_recved 已经从缓冲区读取的字节数目,  ok_recv 本次要从缓冲区读取的字节数
-	int err_recved = 0, err_recv = 0;					//同上
-	char buf[8];
-	int contentLength;
-	int errlen = 0, outlen = 0;
-	char *ok = NULL , *err = NULL;
-
-	while(recv(fcgi_fd, &responseHeader, FCGI_HEADER_LEN, 0) > 0){
-		recvId = (int)(responseHeader.requestIdB1 << 8) + (int)(responseHeader.requestIdB0);
-		if(FCGI_STDOUT == responseHeader.type && recvId == client_fd){
-			contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
-			outlen += contentLength;
-			if(ok != NULL){
-				if(NULL == (ok = realloc(ok, outlen))){
-					err_sys("realloc memory ok fail", DEBUGPARAMS);
-					free(ok);
-					return ;
-				}
-			}else{
-				if(NULL == (ok = (char *)malloc(contentLength))){
-					err_sys("alloc memory ok fail", DEBUGPARAMS);
-					return ;
-				}
-			}
-			while(contentLength > 0){
-				//本次从缓冲区读取大小
-				ok_recv = contentLength > MAX_RECV_SIZE ? MAX_RECV_SIZE : contentLength;
-				if( -1 == (recvbytes = recv(fcgi_fd, ok + ok_recved, ok_recv, 0))){
-					err_sys("fcgi recv stdout fail", DEBUGPARAMS);
-					return ;
-				}
-				contentLength -= recvbytes;
-				ok_recved += recvbytes;
-			}	
-
-			if(responseHeader.paddingLength > 0){
-				recvbytes = recv(fcgi_fd, buf, responseHeader.paddingLength, 0);
-				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength){
-					err_sys("fcgi stdout padding fail", DEBUGPARAMS);
-					return;
-				}
-			}
-		}else if(FCGI_STDERR == responseHeader.type && recvId == client_fd){
-			contentLength = ((int)responseHeader.contentLengthB1 << 8) + (int)responseHeader.contentLengthB0;
-			errlen += contentLength;
-			if(err != NULL){
-				if( NULL == (err = realloc(err, errlen))){	
-					err_sys("fcgi stderr realloc memory fail", DEBUGPARAMS);
-					free(err);
-					return ;
-				}
-			}else{
-				if(NULL == (err = (char *)malloc(contentLength))){	
-					err_sys("fcgi stderr alloc memory fail", DEBUGPARAMS);
-					return ;
-				}
-			}
-		
-			while(contentLength > 0){
-				//本次从缓冲区读取大小
-				err_recv = contentLength > MAX_RECV_SIZE ? MAX_RECV_SIZE : contentLength;
-				if( -1 == (recvbytes = recv(fcgi_fd, err + err_recved, err_recv, 0))){
-					err_sys("fcgi recv stderr fail", DEBUGPARAMS);
-					return ;
-				}
-				contentLength -= recvbytes;
-				err_recved += recvbytes;
-			}	
-
-			if(responseHeader.paddingLength > 0){
-				recvbytes = recv(fcgi_fd, buf, responseHeader.paddingLength, 0);
-				if(-1 == recvbytes || recvbytes != responseHeader.paddingLength){
-					err_sys("fcgi stdout padding", DEBUGPARAMS);
-					return ;
-				}
-			}
-		}else if(FCGI_END_REQUEST == responseHeader.type && recvId == client_fd){
-			recvbytes = recv(fcgi_fd, &responseEnder, sizeof(responseEnder), 0);
-			
-			if(-1 == recvbytes || sizeof(responseEnder) != recvbytes){
-				free(err);
-				free(ok);
-				err_sys("fcgi recv end fail", DEBUGPARAMS);
-				return ;
-			}
-
-			send_client(ok, outlen, err, errlen, client_fd, hr);
-			free(err);
-			free(ok);
-		}
-	}
-
-}
-
-void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, http_request *hr){
+void send_client(char *ok, int outlen, char *err, int errlen,http_request *hr, http_response *rs){
 			
 	char header[MAX_BUF_SIZE], header_buf[256];
 	char *body, *start, *end, mime[256];
 	int header_len, n;
+	char time_str[100];
+	struct tm tm;
 
+	memset(mime, '\0', 256);
 	/* 请求头 */
 	/*
 	printf("发数据完毕\n");
@@ -737,15 +545,10 @@ void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, htt
 	 * \r\n\r\n
 	 * body
 	 */
-	/*   
-	sprintf(header, "HTTP/%s 200 OK\r\n", hr->version); 
-	sprintf(header, "%sConnection: close\r\n", header);
-	printf("%s\n", header);
 	body = strstr(ok, "\r\n\r\n") + 4;
 
 	header_len = (int)(body - ok);	//头长度
 	strncpy(header_buf, ok, header_len);
-	sprintf(header, "%sContent-Length: %d\r\n", header,errlen + outlen - header_len);
 			
 	start = strstr(header_buf, "Content-type");
 	if(start != NULL){
@@ -756,13 +559,31 @@ void send_client(char *ok, int outlen, char *err, int errlen, int client_fd, htt
 	}else{
 		strcpy(mime, "text/html");
 	}
-	sprintf(header, "%sContent-Type: %s\r\n\r\n", header,mime);
-	send(client_fd, header, strlen(header), 0);
-	send(client_fd, body, outlen - header_len, 0);
+
+	if(rs->modified){
+	    sprintf(header, "%s 200 OK\r\n", hr->version);  
+		sprintf(header, "%sContent-Length: %d\r\n", header,errlen + outlen - header_len);
+	    localtime_r(&(rs->ctime), &tm);
+		strftime(time_str, 100,  "%a, %d %b %Y %H:%M:%S GMT", &tm);
+		sprintf(header, "%sLast-Modified: %s\r\n", header, time_str);
+		sprintf(header, "%sContent-type: %s\r\n", header, mime); 
+
+	}else{
+
+		sprintf(header, "%s 304 Not Modified\r\n", hr->version);  
+	}
+
+	if(rs->keep_alive){
+		sprintf(header, "%sConnection: keep-alive\r\n", header);
+		sprintf(header, "%sKeep-Alive: timeout=%d\r\n", header, TIMEOUT);
+	}
+	
+	sprintf(header, "%s\r\n", header);
+	send(hr->sockfd, header, strlen(header), 0);
+	send(hr->sockfd, body, outlen - header_len, 0);
 	// debug printf("收到的stdin:\n%s\n收到的stderr:\n%s\n", ok, err);
 	if(errlen > 0){
-		send(client_fd, err, errlen, 0);
+		send(hr->sockfd, err, errlen, 0);
 	}
 }
 
-*/

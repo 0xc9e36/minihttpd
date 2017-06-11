@@ -37,18 +37,16 @@ void *handle_request(void *);
 void send_http_responce(const int, const char *, const http_request *);
 void get_http_mime(char *, char *);
 void exec_static(http_request *, http_response *, int);
-void exec_php(char *, http_request *, http_response);
+void exec_php(http_request *, http_response *);
 void exec_dir(http_request *, http_response *);
-int conn_fastcgi();
-int send_fastcgi(int ,char *, http_request *);
-void recv_fastcgi(int ,int, http_request *);
 char *get_http_Val(const char* str, const char *substr);
-void send_client(char *, int, char *, int, int, http_request *);
+void send_client(char *, int, char *, int, http_request *, http_response *);
 void http_close(http_request *hr);
 
 int header_ignore(http_request *, http_response *, char *, int);
 int header_connection(http_request *, http_response *, char *, int);
 int header_modified(http_request *, http_response *, char *, int);
+int header_contype(http_request *, http_response *, char *, int);
 
 void paser_header(http_request *hr, http_response *response);
 

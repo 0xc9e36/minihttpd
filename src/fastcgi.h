@@ -5,6 +5,7 @@
 #define _FASTCGI_H_
 
 #include<stdio.h>
+#include "http_info.h"
 #include<string.h>
 
 #define FCGI_VERSION_1           1
@@ -82,5 +83,8 @@ typedef struct {
 
 FCGI_Header makeHeader(int type, int requestId, int contentLenth, int paddingLength);
 FCGI_BeginRequestBody makeBeginRequestBody(int role);
+int conn_fastcgi();
 
+int send_fastcgi(int,  http_request *);
+void recv_fastcgi(int fcgi_fd, http_request *hr, http_response *rs);
 #endif

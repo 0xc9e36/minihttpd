@@ -117,13 +117,12 @@ int  load_config(config_t *config){
 
 		if(val[strlen(val) - 1] == '\n') val[strlen(val) - 1] = '\0';
 
-		if(strncmp(line, "root", 4) == 0)strcpy(config->web, val);
-		else if(strncmp(line, "port", 4) == 0) config->port = atoi(val);
+		if(strncmp(line, "port", 4) == 0) config->port = atoi(val);
 		else if(strncmp(line, "thread_num", 10) == 0)	config->thread_num = atoi(val);
 
 	}
 
-	printf("------载入配置文件------\nweb:%s\nport:%d\nthread num:%d\n", config->web, config->port, config->thread_num);
+	printf("------载入配置文件------\nport:%d\nthread num:%d\n",config->port, config->thread_num);
 
 	fclose(fp);
 	return 1;

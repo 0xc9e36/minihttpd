@@ -87,16 +87,16 @@ void *handle_request(void *arg){
 
 	http_request *hr = (http_request *)arg;
 
-	char *plast = NULL, path[MAX_BUF_SIZE], param[MAX_BUF_SIZE];
+	char *plast = NULL, path[HTTP_BUF_SIZE], param[HTTP_BUF_SIZE];
 	struct stat st;
 	size_t remain_size;
 	int n, res;
 
 	while(1){
 		//空闲地址
-		plast = &(hr->buf[hr->last % MAX_BUF_SIZE]);
+		plast = &hr->buf[hr->last % HTTP_BUF_SIZE];
 		//空闲大小
-		remain_size = min(MAX_BUF_SIZE - (hr->last - hr->pos + 1), MAX_BUF_SIZE - hr->last % MAX_BUF_SIZE);  
+		remain_size = min(HTTP_BUF_SIZE - (hr->last - hr->pos) - 1, HTTP_BUF_SIZE - hr->last % HTTP_BUF_SIZE);  
 	
 		if (0 == (n = read(hr->sockfd, plast, remain_size))){
 			//浏览器关闭时， 会在下一个epoll_wait()返回时，从fd上面读取0
@@ -110,6 +110,7 @@ void *handle_request(void *arg){
 			http_close(hr);
 			return NULL;
 		}
+
 
 		hr->last += n;
 	
@@ -134,7 +135,9 @@ void *handle_request(void *arg){
 			http_close(hr);
 			return NULL;
 		}
-		
+	
+		  
+						   
 		/* 解析请求主体 */
 		res = http_parse_body(hr);
 
@@ -166,11 +169,8 @@ void *handle_request(void *arg){
 			continue;
 		}
 
-		//printf("解析完毕\n");
 		/* 访问文件 */
 		if(-1 == stat(hr->path, &st)){
-			//printf("%s\n", hr->filename);
-			//printf("111\n");
 			/* 404文件未找到 */
 			send_http_responce(404, "Not Found", hr);
 			continue;
@@ -208,7 +208,6 @@ void *handle_request(void *arg){
 		/* 关闭连接 */
 		if(!response->keep_alive){
 
-			//printf("读取了%d长度, 长连接关闭\n\n", hr->read_length);
 			free(response);
 			http_close(hr);
 			return NULL;
@@ -217,7 +216,6 @@ void *handle_request(void *arg){
 		free(response);
 	}
 
-	//printf("下一次事件\n");
 	struct epoll_event event;
 	event.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
 	event.data.ptr = hr;
@@ -248,7 +246,6 @@ void paser_header(http_request *hr, http_response *response){
 
 	list_for_each(pos, &(hr->list)){
 		hd = list_entry(pos, http_header, list);
-
 		for(header_h = headers; strlen(header_h->key) > 0; header_h++){
 				
 			if(strncmp(hd->key_start, header_h->key, hd->key_end - hd->key_start) == 0){
@@ -261,6 +258,8 @@ void paser_header(http_request *hr, http_response *response){
 		list_del(pos);
 		free(hd);
 	}
+
+		//printf("----------------\n");
 }
 
 /* 解析HTTP请求信息 */
@@ -476,7 +475,7 @@ int header_ignore(http_request *hr, http_response *response, char *val, int len)
 int header_contype(http_request *hr, http_response *response, char *val, int len){
 	
 	(void)response;
-	memset(hr->contype, '\0', 100);
+	memset(hr->contype, '\0', 255);
 	
 	strncpy(hr->contype, val, len);
 

@@ -8,6 +8,7 @@
 
 #define		PORT				8899
 #define		MAX_QUE_CONN_NM		20
+#define		HTTP_BUF_SIZE		200000	//http接收缓冲区大小
 #define		MAX_BUF_SIZE		8096
 #define		MAX_RECV_SIZE		4000
 
@@ -36,7 +37,7 @@ typedef struct http_request{
 
 	size_t pos, last;
 
-	char buf[MAX_BUF_SIZE];	//缓冲区
+	char buf[HTTP_BUF_SIZE];		//缓冲区
 
 	void *request_start;
 	void *request_end;
@@ -76,7 +77,7 @@ typedef struct http_request{
 	int conlength;
 	int read_length;		//已经读取的长度
 
-	char contype[100];		//读取请求类型
+	char contype[255];		//读取请求类型
 
 	int sockfd;				//socket描述符
 	int epfd;				//事件

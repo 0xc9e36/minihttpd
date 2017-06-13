@@ -130,6 +130,7 @@ int send_fastcgi(int fcgi_fd, http_request *hr){
 		//printf("post数据总长度:%d\n", len);
 		//printf("len:%d\n", len);
 		//puts(hr->content);
+		char *ptr = hr->content;
 		while(len > 0){
 			send_len = len > FCGI_MAX_LEN  ? FCGI_MAX_LEN : len;
 			len -= send_len;
@@ -140,16 +141,23 @@ int send_fastcgi(int fcgi_fd, http_request *hr){
 				err_sys("fcgi send stdinHeader error", DEBUGPARAMS);
 				return -1;
 			}
-			if(-1 == (sendbytes = send(fcgi_fd, hr->content, send_len, 0))){
+			if(-1 == (sendbytes = send(fcgi_fd, ptr, send_len, 0))){
 				err_sys("fcgi send stdin", DEBUGPARAMS);
 				return -1;
 			}
-			//printf("单次发送大小:%d\n发送内容:\n%s\n", sendbytes, hr->content);
+			ptr += send_len;
+			/*
+			printf("单次发送大小:%d\n", sendbytes);
+			int i = 0;
+			for(; i < sendbytes; i++)
+				printf("%c", hr->content[i]);
+			printf("\n");
+			*/
 			if((paddingLength > 0) && (-1 == (sendbytes = send(fcgi_fd, buf, paddingLength, 0)))){
 				err_sys("fcgi send stdin padding", DEBUGPARAMS);
 				return -1;
 			}
-			hr->content += send_len;
+			
 			// debug printf("长度%d\n", (int)strlen(hr->content));
 		}
 	}

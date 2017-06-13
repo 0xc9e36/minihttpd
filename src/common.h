@@ -33,5 +33,6 @@ void err_user(char *msg);
 int buffer_path_simplify(char *dest, char *src); 
 int init_signal();
 int load_config(config_t *config);
+void mystrcat(char *, int, char *, int);
 
 #endif

@@ -127,3 +127,10 @@ int  load_config(config_t *config){
 	fclose(fp);
 	return 1;
 }
+
+void mystrcat(char *content, int read,  char *buf, int len){
+	int i;
+	for(i = 0; i < len; i++){
+		content[read + i] = buf[i]; 
+	}
+}

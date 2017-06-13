@@ -30,7 +30,7 @@ int http_parse_line(http_request *hr){
 	state = hr->state;
 	for(index = hr->pos; index < hr->last; index++){
 	
-		cur = (u_char *)&(hr->buf[index % MAX_BUF_SIZE]);
+		cur = (u_char *)&(hr->buf[index % HTTP_BUF_SIZE]);
 		ch = *cur;
 	
 		switch(state){
@@ -91,11 +91,8 @@ int http_parse_line(http_request *hr){
 					case ' ':
 						hr->url_end = cur;
 					
-						//char cc[100];
-						
 						memset(hr->url, '\0', sizeof(char)*1024);
 						strncpy(hr->url, hr->url_start, hr->url_end - hr->url_start);
-						//printf("url -> %c\n", (char)hr->url_start);
 						
 						state = http_start;
 						break;
@@ -197,7 +194,6 @@ int http_parse_line(http_request *hr){
 					case '\n':
 						hr->pos = index + 1;
 						
-						//printf("---请求行解析成功---\n");
 						if(hr->request_end == NULL) hr->request_end = cur;
 						hr->state = start;
 						hr->alalyzed = 1;
@@ -222,6 +218,7 @@ int http_parse_head(http_request *hr){
 	u_char ch, *cur;
 	size_t index;
 	
+	list_head *pos;
 	enum{
 		start = 0,
 		key_start,
@@ -236,9 +233,10 @@ int http_parse_head(http_request *hr){
 	state = hr->state;
 	http_header *hd;
 
+	//printf("解析请求头开始\n");
 	for(index = hr->pos; index < hr->last; index++){
 		
-		cur = (u_char *)&(hr->buf[index % MAX_BUF_SIZE]);
+		cur = (u_char *)&(hr->buf[index % HTTP_BUF_SIZE]);
 		ch = *cur;
 	
 		switch(state){
@@ -306,13 +304,14 @@ int http_parse_head(http_request *hr){
 					hd->val_start = hr->val_start;
 					hd->val_end = hr->val_end;
 
-					/* 获取 COntent-Length字段 */
+					/* 获取 Content-Length字段 */
 					if(strncmp("Content-Length", hd->key_start, hd->key_end - hd->key_start) == 0){
-						char *val;
+						char val[20];
+						memset(val, '\0', sizeof(char) * 20);
 						strncpy(val, hd->val_start, hd->val_end - hd->val_start);
 						hr->conlength = atoi(val);
 					}
-
+				
 					list_add(&(hd->list), &(hr->list));
 					break;
 				}else{
@@ -334,8 +333,6 @@ int http_parse_head(http_request *hr){
 						hr->pos = index + 1;
 						hr->state = start;
 						hr->alalyzed = 2;
-						//printf("------请求头解析完成------\n");
-						//printf("Content-Length:%d\n", hr->conlength);
 						return HTTP_OK;
 					default :
 						return HTTP_HEADER_ERROR;
@@ -360,30 +357,29 @@ int http_parse_body(http_request *hr){
 	u_char *cur;
 
 	index = hr->pos;
-	
-	cur = (u_char *)&(hr->buf[index % MAX_BUF_SIZE]);
+	cur = (u_char *)&(hr->buf[index % HTTP_BUF_SIZE]);
 	if(hr->read_length == 0){
 		hr->content = (char *)malloc(sizeof(char) * hr->conlength + 12);
-		hr->content[0] = '\0';
 	}
 	
 	int len;
-	char buf[MAX_BUF_SIZE + 1];
-	memset(buf, '\0', sizeof(char) * (MAX_BUF_SIZE + 1));
+	char *buf = (char *)malloc(sizeof(char) * (HTTP_BUF_SIZE + 1));
 	len =  hr->last - index;
-	strncpy(buf, cur, len);
-	strcat(hr->content, buf);
+
+	memcpy(buf, cur, len);
+
+	mystrcat(hr->content, hr->read_length,  buf, len);
 
 	hr->read_length += len;
 
-	printf("%d\n", len);
 	if(hr->read_length >= hr->conlength){
-		//printf("------请求主体解析完成------\n");
-		puts(hr->content);
+						
 		hr->alalyzed = 3;
 		return HTTP_OK;
 	}
-		
+	
+	free(buf);
+
 	hr->pos = hr->last;
 
 	return HTTP_AGAIN;

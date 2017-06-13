@@ -271,19 +271,20 @@ Foo	htdocs/CodeIgniter/tests/codeigniter/core/compat/standard_test.php	/^class F
 Form_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/form_helper_test.php	/^class Form_helper_test extends CI_TestCase$/;"	c
 Form_validation_test	htdocs/CodeIgniter/tests/codeigniter/libraries/Form_validation_test.php	/^class Form_validation_test extends CI_TestCase {$/;"	c
 From_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/from_test.php	/^class From_test extends CI_TestCase {$/;"	c
-GET	src/http_info.h	21;"	d
+GET	src/http_info.h	22;"	d
 Get_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/get_test.php	/^class Get_test extends CI_TestCase {$/;"	c
 Group_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/group_test.php	/^class Group_test extends CI_TestCase {$/;"	c
-HTTP_AGAIN	src/http_info.h	19;"	d
-HTTP_BODY_ERROR	src/http_info.h	16;"	d
-HTTP_FORBIDDEN	src/http_info.h	28;"	d
-HTTP_HEADER_ERROR	src/http_info.h	15;"	d
-HTTP_LINE_ERROR	src/http_info.h	14;"	d
-HTTP_NOT_FOUND	src/http_info.h	29;"	d
-HTTP_NOT_IMPLEMENTED	src/http_info.h	30;"	d
-HTTP_NOT_MODIFIED	src/http_info.h	27;"	d
-HTTP_OK	src/http_info.h	26;"	d
-HTTP_VERSION_NOT_SUPPORTED	src/http_info.h	31;"	d
+HTTP_AGAIN	src/http_info.h	20;"	d
+HTTP_BODY_ERROR	src/http_info.h	17;"	d
+HTTP_BUF_SIZE	src/http_info.h	11;"	d
+HTTP_FORBIDDEN	src/http_info.h	29;"	d
+HTTP_HEADER_ERROR	src/http_info.h	16;"	d
+HTTP_LINE_ERROR	src/http_info.h	15;"	d
+HTTP_NOT_FOUND	src/http_info.h	30;"	d
+HTTP_NOT_IMPLEMENTED	src/http_info.h	31;"	d
+HTTP_NOT_MODIFIED	src/http_info.h	28;"	d
+HTTP_OK	src/http_info.h	27;"	d
+HTTP_VERSION_NOT_SUPPORTED	src/http_info.h	32;"	d
 HtmlLexer	htdocs/CodeIgniter/user_guide_src/cilexer/cilexer/cilexer.py	/^from pygments.lexers.web import PhpLexer, HtmlLexer$/;"	i
 Html_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/html_helper_test.php	/^class Html_helper_test extends CI_TestCase {$/;"	c
 ICONV_ENABLED	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^		define('ICONV_ENABLED', FALSE);$/;"	d
@@ -306,11 +307,11 @@ Like_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/like_test.
 Limit_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/limit_test.php	/^class Limit_test extends CI_TestCase {$/;"	c
 Loader_test	htdocs/CodeIgniter/tests/codeigniter/core/Loader_test.php	/^class Loader_test extends CI_TestCase {$/;"	c
 Log_test	htdocs/CodeIgniter/tests/codeigniter/core/Log_test.php	/^class Log_test extends CI_TestCase {$/;"	c
-MAX_BUF_SIZE	src/http_info.h	11;"	d
+MAX_BUF_SIZE	src/http_info.h	12;"	d
 MAX_FD	src/epoll.h	7;"	d
 MAX_POOL_SIZE	src/threadpool.h	11;"	d
 MAX_QUE_CONN_NM	src/http_info.h	10;"	d
-MAX_RECV_SIZE	src/http_info.h	12;"	d
+MAX_RECV_SIZE	src/http_info.h	13;"	d
 MB_ENABLED	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^		define('MB_ENABLED', FALSE);$/;"	d
 MB_ENABLED	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^		define('MB_ENABLED', TRUE);$/;"	d
 MB_ENABLED	htdocs/CodeIgniter/tests/Bootstrap.php	/^	defined('MB_ENABLED') OR define('MB_ENABLED', FALSE);$/;"	d
@@ -344,7 +345,7 @@ PAPEROPT_letter	htdocs/CodeIgniter/user_guide_src/Makefile	/^PAPEROPT_letter = -
 PASSWORD_BCRYPT	htdocs/CodeIgniter/system/core/compat/password.php	/^defined('PASSWORD_BCRYPT') OR define('PASSWORD_BCRYPT', 1);$/;"	d
 PASSWORD_DEFAULT	htdocs/CodeIgniter/system/core/compat/password.php	/^defined('PASSWORD_DEFAULT') OR define('PASSWORD_DEFAULT', PASSWORD_BCRYPT);$/;"	d
 PORT	src/http_info.h	9;"	d
-POST	src/http_info.h	22;"	d
+POST	src/http_info.h	23;"	d
 PROJECT_BASE	htdocs/CodeIgniter/tests/Bootstrap.php	/^defined('PROJECT_BASE') OR define('PROJECT_BASE', realpath($dir.'\/..\/').'\/');$/;"	d
 Parser_test	htdocs/CodeIgniter/tests/codeigniter/libraries/Parser_test.php	/^class Parser_test extends CI_TestCase {$/;"	c
 Path_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/path_helper_test.php	/^class Path_helper_test extends CI_TestCase {$/;"	c
@@ -374,7 +375,7 @@ Text_helper_test	htdocs/CodeIgniter/tests/codeigniter/helpers/text_helper_test.p
 Truncate_test	htdocs/CodeIgniter/tests/codeigniter/database/query_builder/truncate_test.php	/^class Truncate_test extends CI_TestCase {$/;"	c
 Typography_test	htdocs/CodeIgniter/tests/codeigniter/libraries/Typography_test.php	/^class Typography_test extends CI_TestCase {$/;"	c
 UNI	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$UNI =& load_class('Utf8', 'core', $charset);$/;"	v
-UNKNOW	src/http_info.h	23;"	d
+UNKNOW	src/http_info.h	24;"	d
 URI	htdocs/CodeIgniter/system/core/CodeIgniter.php	/^	$URI =& load_class('URI', 'core', $CFG);$/;"	v
 URI_test	htdocs/CodeIgniter/tests/codeigniter/core/URI_test.php	/^class URI_test extends CI_TestCase {$/;"	c
 UTF8_ENABLED	htdocs/CodeIgniter/system/core/Utf8.php	/^			define('UTF8_ENABLED', FALSE);$/;"	d
@@ -1895,7 +1896,7 @@ browser	htdocs/CodeIgniter/system/libraries/User_agent.php	/^	public function br
 browsers	htdocs/CodeIgniter/application/config/user_agents.php	/^$browsers = array($/;"	v
 browsers	htdocs/CodeIgniter/system/libraries/User_agent.php	/^			$this->browsers = $browsers;$/;"	v
 browsers	htdocs/CodeIgniter/system/libraries/User_agent.php	/^	public $browsers = array();$/;"	v
-buf	src/http_info.h	/^	char buf[MAX_BUF_SIZE];	\/\/缓冲区$/;"	m	struct:http_request
+buf	src/http_info.h	/^	char buf[HTTP_BUF_SIZE];		\/\/缓冲区$/;"	m	struct:http_request
 buffer	htdocs/CodeIgniter/system/core/Exceptions.php	/^		$buffer = ob_get_contents();$/;"	v
 buffer	htdocs/CodeIgniter/system/core/Loader.php	/^			$buffer = ob_get_contents();$/;"	v
 buffer_path_simplify	src/common.c	/^int buffer_path_simplify(char *dest, char *src){  $/;"	f
@@ -2387,7 +2388,7 @@ content	src/http_info.h	/^	char *content;	\/\/body$/;"	m	struct:http_request
 contentLengthB0	src/fastcgi.h	/^	unsigned char contentLengthB0;$/;"	m	struct:__anon5
 contentLengthB1	src/fastcgi.h	/^	unsigned char contentLengthB1;$/;"	m	struct:__anon5
 contents	htdocs/CodeIgniter/system/libraries/Cache/drivers/Cache_file.php	/^		$contents = array($/;"	v
-contype	src/http_info.h	/^	char contype[100];		\/\/读取请求类型$/;"	m	struct:http_request
+contype	src/http_info.h	/^	char contype[255];		\/\/读取请求类型$/;"	m	struct:http_request
 convert_accented_characters	htdocs/CodeIgniter/system/helpers/text_helper.php	/^	function convert_accented_characters($str)$/;"	f
 convert_ascii	htdocs/CodeIgniter/system/libraries/Trackback.php	/^	public $convert_ascii = TRUE;$/;"	v
 convert_ascii	htdocs/CodeIgniter/system/libraries/Trackback.php	/^	public function convert_ascii($str)$/;"	f
@@ -4673,6 +4674,7 @@ my_array	htdocs/CodeIgniter/tests/codeigniter/helpers/array_helper_test.php	/^	p
 mysql	htdocs/CodeIgniter/tests/codeigniter/database/DB_driver_test.php	/^	protected function mysql($config)$/;"	f
 mysql_to_unix	htdocs/CodeIgniter/system/helpers/date_helper.php	/^	function mysql_to_unix($time = '')$/;"	f
 mysqli	htdocs/CodeIgniter/tests/codeigniter/database/DB_driver_test.php	/^	protected function mysqli($config)$/;"	f
+mystrcat	src/common.c	/^void mystrcat(char *content, int read,  char *buf, int len){$/;"	f
 mytype	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^			$this->mytype = $typeof;$/;"	v
 mytype	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^		$this->mytype = $this->xmlrpcTypes['array'];$/;"	v
 mytype	htdocs/CodeIgniter/system/libraries/Xmlrpc.php	/^		$this->mytype = $this->xmlrpcTypes['struct'];$/;"	v

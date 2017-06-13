@@ -11,7 +11,7 @@ GET/POST方法
 #  TODO    
 https   
 内存管理    
-日志管理     
+日志管理      
 超时管理    
 ...  
 
@@ -41,7 +41,7 @@ ci框架(具体没测试)
 
 #  参考资料   
 TinyHttpd    
-深入理解计算机系统(第三部分) 
-http://andylin02.iteye.com/blog/648412
-http://lifeofzjs.com/blog/2015/05/16/how-to-write-a-server/
+深入理解计算机系统(第三部分)    
+http://andylin02.iteye.com/blog/648412      
+http://lifeofzjs.com/blog/2015/05/16/how-to-write-a-server/      
 http://thinkwp.cn/?p=775
